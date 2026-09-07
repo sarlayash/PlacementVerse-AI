@@ -5,6 +5,7 @@ import confetti from 'canvas-confetti';
 const STORAGE_KEY_PROFILE = 'placementverse_profile';
 const STORAGE_KEY_MODULES = 'placementverse_modules';
 const STORAGE_KEY_ANNOUNCEMENTS = 'placementverse_announcements';
+const STORAGE_KEY_JOURNEY_STARTED = 'placementverse_journey_started';
 
 const DEFAULT_PROFILE: LearnerProfile = {
   name: 'Kapil',
@@ -62,6 +63,22 @@ export function saveLearnerProfile(profile: LearnerProfile): void {
     localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
   } catch (e) {
     console.error('Failed to persist profile:', e);
+  }
+}
+
+export function hasStartedJourney(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_KEY_JOURNEY_STARTED) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function setJourneyStarted(started: boolean): void {
+  try {
+    localStorage.setItem(STORAGE_KEY_JOURNEY_STARTED, started ? 'true' : 'false');
+  } catch (e) {
+    console.error('Failed to set journey started flag:', e);
   }
 }
 

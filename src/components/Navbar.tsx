@@ -1,28 +1,26 @@
 import React from 'react';
 import { 
   Flame, Award, BookOpen, Briefcase, BarChart3, 
-  Trophy, Bot, ShieldCheck, UserCheck, Sparkles, Target
+  Trophy, Bot, Sparkles, Target, Medal
 } from 'lucide-react';
 import { LearnerProfile } from '../types';
 
 interface NavbarProps {
   profile: LearnerProfile;
-  activeTab: 'learning' | 'tasks' | 'analytics' | 'leaderboard' | 'certificates';
-  setActiveTab: (tab: 'learning' | 'tasks' | 'analytics' | 'leaderboard' | 'certificates') => void;
+  activeTab: 'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates';
+  onSelectTab: (tab: 'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates') => void;
   onOpenCoach: () => void;
-  onOpenAdmin: () => void;
   onOpenMissions: () => void;
-  onOpenProfileModal: () => void;
+  onGoToLanding?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   profile,
   activeTab,
-  setActiveTab,
+  onSelectTab,
   onOpenCoach,
-  onOpenAdmin,
   onOpenMissions,
-  onOpenProfileModal,
+  onGoToLanding,
 }) => {
   const completedMissionsCount = profile.dailyMissions.filter(m => m.completed).length;
 
@@ -32,8 +30,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between h-16 sm:h-20 gap-2">
           
           {/* Brand Logo & Title */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('learning')}>
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-700 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-blue-500/20">
+          <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => onSelectTab('learn')}>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-blue-500/20">
               P
             </div>
             <div>
@@ -54,9 +52,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Navigation Tabs */}
           <nav className="hidden lg:flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200/60">
             <button
-              onClick={() => setActiveTab('learning')}
-              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all ${
-                activeTab === 'learning'
+              onClick={() => onSelectTab('learn')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+                activeTab === 'learn'
                   ? 'bg-white text-blue-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
               }`}
@@ -65,8 +63,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               Learning Path
             </button>
             <button
-              onClick={() => setActiveTab('tasks')}
-              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+              onClick={() => onSelectTab('tasks')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all ${
                 activeTab === 'tasks'
                   ? 'bg-white text-blue-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
@@ -76,8 +74,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               Real World Tasks
             </button>
             <button
-              onClick={() => setActiveTab('analytics')}
-              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+              onClick={() => onSelectTab('analytics')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all ${
                 activeTab === 'analytics'
                   ? 'bg-white text-blue-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
@@ -87,8 +85,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               Analytics
             </button>
             <button
-              onClick={() => setActiveTab('leaderboard')}
-              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+              onClick={() => onSelectTab('leaderboard')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all ${
                 activeTab === 'leaderboard'
                   ? 'bg-white text-blue-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
@@ -98,14 +96,25 @@ export const Navbar: React.FC<NavbarProps> = ({
               Leaderboard
             </button>
             <button
-              onClick={() => setActiveTab('certificates')}
-              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+              onClick={() => onSelectTab('badges')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all ${
+                activeTab === 'badges'
+                  ? 'bg-white text-blue-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+              }`}
+            >
+              <Medal className="w-4 h-4 text-amber-500" />
+              Badges
+            </button>
+            <button
+              onClick={() => onSelectTab('certificates')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all ${
                 activeTab === 'certificates'
                   ? 'bg-white text-blue-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
               }`}
             >
-              <Award className="w-4 h-4" />
+              <Award className="w-4 h-4 text-indigo-600" />
               Certificates
             </button>
           </nav>
@@ -149,32 +158,27 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-semibold shadow-xs hover:shadow-md transition-all hover:brightness-105 active:scale-95"
             >
               <Bot className="w-4 h-4" />
-              <span className="hidden sm:inline">Kapil AI Coach</span>
+              <span className="hidden sm:inline">Coach Kapil</span>
             </button>
 
-            {/* Profile Avatar / Change name */}
-            <button
-              onClick={onOpenProfileModal}
-              className="flex items-center gap-2 p-1 rounded-lg hover:bg-slate-100 transition-all text-left"
-              title="Learner Profile"
-            >
-              <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs uppercase">
-                {profile.name ? profile.name.charAt(0) : 'K'}
-              </div>
-              <div className="hidden xl:block text-xs">
-                <p className="font-bold text-slate-800 leading-tight">{profile.name}</p>
-                <p className="text-[10px] text-slate-500">{profile.levelTitle}</p>
-              </div>
-            </button>
-
-            {/* Admin Portal Toggle */}
-            <button
-              onClick={onOpenAdmin}
-              className="p-2 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
-              title="Admin Panel (kapiladmin / admin123)"
-            >
-              <ShieldCheck className="w-4 h-4" />
-            </button>
+            {/* Profile Avatar / Change name / Landing Page */}
+            {onGoToLanding && (
+              <button
+                onClick={onGoToLanding}
+                className="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all text-left group"
+                title="Change Name / Revisit Landing Page"
+              >
+                <div className="w-8 h-8 rounded-lg bg-slate-900 group-hover:bg-blue-600 text-white flex items-center justify-center font-bold text-xs uppercase transition-colors">
+                  {profile.name ? profile.name.charAt(0) : 'K'}
+                </div>
+                <div className="hidden xl:block text-xs">
+                  <p className="font-bold text-slate-800 group-hover:text-blue-700 leading-tight">
+                    {profile.name || 'Set Name'}
+                  </p>
+                  <p className="text-[10px] text-slate-500">Edit Name / Landing</p>
+                </div>
+              </button>
+            )}
 
           </div>
         </div>
@@ -182,41 +186,49 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Mobile Navigation bar */}
         <div className="flex lg:hidden overflow-x-auto py-2 gap-1 border-t border-slate-100 scrollbar-none">
           <button
-            onClick={() => setActiveTab('learning')}
+            onClick={() => onSelectTab('learn')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 ${
-              activeTab === 'learning' ? 'bg-blue-50 text-blue-700' : 'text-slate-600'
+              activeTab === 'learn' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600'
             }`}
           >
             Learning Path
           </button>
           <button
-            onClick={() => setActiveTab('tasks')}
+            onClick={() => onSelectTab('tasks')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 ${
-              activeTab === 'tasks' ? 'bg-blue-50 text-blue-700' : 'text-slate-600'
+              activeTab === 'tasks' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600'
             }`}
           >
             Real World Tasks
           </button>
           <button
-            onClick={() => setActiveTab('analytics')}
+            onClick={() => onSelectTab('analytics')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 ${
-              activeTab === 'analytics' ? 'bg-blue-50 text-blue-700' : 'text-slate-600'
+              activeTab === 'analytics' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600'
             }`}
           >
             Analytics
           </button>
           <button
-            onClick={() => setActiveTab('leaderboard')}
+            onClick={() => onSelectTab('leaderboard')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 ${
-              activeTab === 'leaderboard' ? 'bg-blue-50 text-blue-700' : 'text-slate-600'
+              activeTab === 'leaderboard' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600'
             }`}
           >
             Leaderboard
           </button>
           <button
-            onClick={() => setActiveTab('certificates')}
+            onClick={() => onSelectTab('badges')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 ${
-              activeTab === 'certificates' ? 'bg-blue-50 text-blue-700' : 'text-slate-600'
+              activeTab === 'badges' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600'
+            }`}
+          >
+            Badges
+          </button>
+          <button
+            onClick={() => onSelectTab('certificates')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 ${
+              activeTab === 'certificates' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600'
             }`}
           >
             Certificates

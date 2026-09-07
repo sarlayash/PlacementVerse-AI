@@ -10,12 +10,15 @@ import { CertificatesView } from './components/CertificatesView';
 import { TopicDetailModal } from './components/TopicDetailModal';
 import { DailyMissionsModal } from './components/DailyMissionsModal';
 import { CoachModal } from './components/CoachModal';
+import { LandingPage } from './components/LandingPage';
 
 import { 
   getLearnerProfile, 
   saveLearnerProfile, 
   getModulesWithTopics, 
   saveUnlockedTopic,
+  hasStartedJourney,
+  setJourneyStarted,
   fireCelebrationConfetti 
 } from './services/storageService';
 import { LearnerProfile, Module, Topic } from './types';
@@ -24,6 +27,10 @@ export default function App() {
   const [profile, setProfile] = useState<LearnerProfile>(getLearnerProfile());
   const [modules, setModules] = useState<Module[]>(getModulesWithTopics());
   const [activeTab, setActiveTab] = useState<'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates'>('learn');
+
+  // Landing page state
+  const [hasStarted, setHasStarted] = useState<boolean>(hasStartedJourney());
+  const [showLandingPage, setShowLandingPage] = useState<boolean>(!hasStartedJourney());
 
   // Modals state
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
@@ -36,6 +43,20 @@ export default function App() {
   const handleUpdateProfile = (updated: LearnerProfile) => {
     setProfile(updated);
     saveLearnerProfile(updated);
+  };
+
+  const handleStartJourney = (name: string, institute: string, department: string, targetCompany: string) => {
+    const updated: LearnerProfile = {
+      ...profile,
+      name: name.trim(),
+      institute: institute.trim() || profile.institute,
+      department: department.trim() || profile.department,
+    };
+    handleUpdateProfile(updated);
+    setJourneyStarted(true);
+    setHasStarted(true);
+    setShowLandingPage(false);
+    setActiveTab('learn');
   };
 
   const handleSelectTopic = (topic: Topic) => {
@@ -67,6 +88,18 @@ export default function App() {
     setIsCoachModalOpen(true);
   };
 
+  // If user is on the Landing Page, display full landing experience
+  if (showLandingPage) {
+    return (
+      <LandingPage
+        profile={profile}
+        onStartJourney={handleStartJourney}
+        onContinueExisting={hasStarted ? () => setShowLandingPage(false) : undefined}
+        hasStartedBefore={hasStarted}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white antialiased">
       
@@ -80,6 +113,7 @@ export default function App() {
           setCoachInitialQuery(undefined);
           setIsCoachModalOpen(true);
         }}
+        onGoToLanding={() => setShowLandingPage(true)}
       />
 
       {/* Main Content Area */}
