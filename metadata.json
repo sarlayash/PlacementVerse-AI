@@ -1,0 +1,11 @@
+{
+  "name": "PlacementVerse AI",
+  "description": "India's Ultimate Placement Readiness Challenge powered by Kapil. Learn, practice, compete, earn badges, and get placement ready with AI-guided aptitude, reasoning, communication, real-world tasks, boss battles, and certificates.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
+
