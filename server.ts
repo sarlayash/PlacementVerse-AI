@@ -36,16 +36,65 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+/**
+ * Resilient Gemini content generation with multi-model fallback & backoff.
+ * Automatically handles transient 503 (high demand) / rate limits by failing over
+ * to alternative supported fast models ('gemini-flash-latest', 'gemini-3.1-flash-lite').
+ */
+async function generateWithFallback(
+  ai: GoogleGenAI,
+  params: {
+    contents: any;
+    config?: any;
+  },
+  models = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite']
+): Promise<string | null> {
+  for (let i = 0; i < models.length; i++) {
+    const model = models[i];
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: params.contents,
+        config: params.config,
+      });
+      if (response && response.text) {
+        return response.text;
+      }
+    } catch (err: any) {
+      const errMsg = err?.message || String(err);
+      const is503OrUnavailable =
+        err?.status === 503 ||
+        err?.code === 503 ||
+        errMsg.includes('503') ||
+        errMsg.includes('high demand') ||
+        errMsg.includes('UNAVAILABLE') ||
+        errMsg.includes('429') ||
+        errMsg.includes('RESOURCE_EXHAUSTED');
+
+      if (is503OrUnavailable && i < models.length - 1) {
+        console.warn(`[Gemini API] ${model} high demand / unavailable. Trying fallback model ${models[i + 1]}...`);
+        await new Promise((r) => setTimeout(r, 250));
+        continue;
+      }
+      console.warn(`[Gemini API] Call with ${model} ended: ${errMsg.slice(0, 120)}`);
+    }
+  }
+  return null;
+}
+
 // 1. Kapil AI Coach Chat
 app.post('/api/ai/coach', async (req, res) => {
   try {
-    const { message, history, context, learnerName } = req.body;
+    const message = req.body.message || req.body.query || '';
+    const history = req.body.history;
+    const context = req.body.context || req.body.learnerProfile;
+    const learnerName = req.body.learnerName || req.body.learnerProfile?.name || 'Learner';
     const ai = getGeminiClient();
 
-    if (ai) {
+    if (ai && message) {
       try {
         const systemPrompt = `You are "Kapil AI Coach", the mentor of PlacementVerse AI: India's Ultimate Placement Readiness Challenge.
-Your mentee is ${learnerName || 'Learner'}.
+Your mentee is ${learnerName}.
 Your role:
 - Answer placement & interview preparation doubts (Aptitude, Logical Reasoning, Verbal, Communication, GD, Resume, Technical/HR Interviews).
 - Explain mistakes conceptually with shortcuts, Vedic math / reasoning tricks, or STAR framework examples.
@@ -62,16 +111,15 @@ Your role:
           { text: `Learner asks: ${message}` },
         ];
 
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+        const text = await generateWithFallback(ai, {
           contents: { parts: contents },
         });
 
-        if (response.text) {
-          return res.json({ reply: response.text });
+        if (text) {
+          return res.json({ reply: text });
         }
       } catch (genError) {
-        console.warn('Gemini call failed, using fallback coach response:', genError);
+        console.warn('Gemini coach generation failed, activating intelligent coach fallback');
       }
     }
 
@@ -105,8 +153,7 @@ app.post('/api/evaluate/email', async (req, res) => {
 
     if (ai && emailContent && emailContent.trim().length > 15) {
       try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+        const text = await generateWithFallback(ai, {
           contents: `Evaluate this professional email written for the scenario: "${promptScenario || 'Write a formal email to HR asking for interview status/feedback'}".
 Learner's Email:
 """${emailContent}"""
@@ -127,12 +174,12 @@ Respond ONLY in valid JSON with this structure:
           },
         });
 
-        if (response.text) {
-          const parsed = JSON.parse(response.text);
+        if (text) {
+          const parsed = JSON.parse(text);
           return res.json(parsed);
         }
       } catch (err) {
-        console.warn('AI Email eval error, falling back:', err);
+        console.warn('Email evaluation fallback used');
       }
     }
 
@@ -196,8 +243,7 @@ app.post('/api/evaluate/speech', async (req, res) => {
 
     if (ai && transcript && transcript.trim().length > 10) {
       try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+        const text = await generateWithFallback(ai, {
           contents: `Evaluate this Group Discussion (GD) or Public Speaking transcript for topic: "${topic || 'AI Impact on Jobs in India'}".
 Transcript:
 """${transcript}"""
@@ -219,12 +265,12 @@ Respond ONLY in valid JSON:
           },
         });
 
-        if (response.text) {
-          const parsed = JSON.parse(response.text);
+        if (text) {
+          const parsed = JSON.parse(text);
           return res.json(parsed);
         }
       } catch (err) {
-        console.warn('Speech AI eval error, falling back:', err);
+        console.warn('Speech evaluation fallback used');
       }
     }
 
@@ -261,8 +307,7 @@ app.post('/api/evaluate/resume', async (req, res) => {
 
     if (ai && resumeText && resumeText.trim().length > 30) {
       try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+        const text = await generateWithFallback(ai, {
           contents: `Analyze this resume for ATS (Applicant Tracking System) compatibility and campus placement readiness for role: "${targetRole || 'Software Development Engineer / Analyst'}".
 Resume:
 """${resumeText}"""
@@ -288,12 +333,12 @@ Respond ONLY in valid JSON:
           },
         });
 
-        if (response.text) {
-          const parsed = JSON.parse(response.text);
+        if (text) {
+          const parsed = JSON.parse(text);
           return res.json(parsed);
         }
       } catch (err) {
-        console.warn('Resume AI eval fallback:', err);
+        console.warn('Resume evaluation fallback used');
       }
     }
 
@@ -334,8 +379,7 @@ app.post('/api/evaluate/linkedin', async (req, res) => {
 
     if (ai && (headline || about)) {
       try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+        const text = await generateWithFallback(ai, {
           contents: `Optimize this LinkedIn profile for an Indian college student aiming for top placements in ${targetField || 'Tech & Product'}.
 Headline: ${headline || 'Student at XYZ College'}
 About: ${about || ''}
@@ -358,12 +402,12 @@ Respond ONLY in valid JSON:
           },
         });
 
-        if (response.text) {
-          const parsed = JSON.parse(response.text);
+        if (text) {
+          const parsed = JSON.parse(text);
           return res.json(parsed);
         }
       } catch (err) {
-        console.warn('LinkedIn eval fallback:', err);
+        console.warn('LinkedIn evaluation fallback used');
       }
     }
 
@@ -396,8 +440,7 @@ app.post('/api/ai/generate-mcqs', async (req, res) => {
 
     if (ai) {
       try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+        const text = await generateWithFallback(ai, {
           contents: `Generate ${count} placement examination MCQs on topic "${topicName}" with difficulty "${difficulty}".
 Include realistic campus recruitment questions (TCS, Infosys, Amazon, Cognizant, Wipro, Accenture style).
 Respond ONLY in valid JSON array:
@@ -417,12 +460,12 @@ Respond ONLY in valid JSON array:
           },
         });
 
-        if (response.text) {
-          const parsed = JSON.parse(response.text);
+        if (text) {
+          const parsed = JSON.parse(text);
           return res.json({ questions: parsed });
         }
       } catch (err) {
-        console.warn('AI question generator error, using default bank:', err);
+        console.warn('Question generator fallback used');
       }
     }
 

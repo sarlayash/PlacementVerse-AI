@@ -16,8 +16,6 @@ export const DailyMissionsModal: React.FC<DailyMissionsModalProps> = ({
   profile,
   onUpdateProfile,
 }) => {
-  if (!isOpen) return null;
-
   const allMissionsCompleted = profile.dailyMissions.every(m => m.completed);
   const totalMissionsCompleted = profile.dailyMissions.filter(m => m.completed).length;
 
@@ -39,6 +37,8 @@ export const DailyMissionsModal: React.FC<DailyMissionsModalProps> = ({
     { days: 30, title: 'Diamond Tier', icon: Gem, color: 'text-cyan-500 bg-cyan-50 border-cyan-300' },
     { days: 100, title: 'Legend Tier', icon: Crown, color: 'text-purple-600 bg-purple-50 border-purple-300' },
   ];
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">

@@ -25,8 +25,6 @@ export const CoachModal: React.FC<CoachModalProps> = ({
   profile,
   initialQuery,
 }) => {
-  if (!isOpen) return null;
-
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
@@ -125,6 +123,8 @@ export const CoachModal: React.FC<CoachModalProps> = ({
     'Top 3 questions asked in Amazon SDE-1 interviews',
     'How to answer "Tell me about yourself" without sounding generic?',
   ];
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">

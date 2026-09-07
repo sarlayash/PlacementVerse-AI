@@ -26,8 +26,6 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
   onUnlockNextTopic,
   onOpenCoachWithContext,
 }) => {
-  if (!isOpen || !topic) return null;
-
   const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4>(1);
 
   // Step 2 Practice Zone State
@@ -51,14 +49,14 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
   const [bossPassed, setBossPassed] = useState(false);
 
   // Filter practice questions based on difficulty
-  const filteredPracticeQuestions = topic.practiceQuestions.filter(q => {
+  const filteredPracticeQuestions = (topic?.practiceQuestions || []).filter(q => {
     if (practiceDifficulty === 'All') return true;
     return q.difficulty === practiceDifficulty;
   });
 
   const currentPracticeQ = filteredPracticeQuestions[practiceIndex] || filteredPracticeQuestions[0];
-  const currentChallengeQ = topic.challengeQuestions[challengeIndex] || topic.challengeQuestions[0];
-  const currentBossQ = topic.bossQuestions[bossIndex] || topic.bossQuestions[0];
+  const currentChallengeQ = topic?.challengeQuestions?.[challengeIndex] || topic?.challengeQuestions?.[0];
+  const currentBossQ = topic?.bossQuestions?.[bossIndex] || topic?.bossQuestions?.[0];
 
   // Challenge Timer
   useEffect(() => {
@@ -228,6 +226,8 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
+
+  if (!isOpen || !topic) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">

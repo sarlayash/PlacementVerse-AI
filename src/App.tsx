@@ -196,31 +196,43 @@ export default function App() {
       </footer>
 
       {/* Topic Detail 4-Step Modal */}
-      <TopicDetailModal
-        topic={selectedTopic}
-        isOpen={isTopicModalOpen}
-        onClose={() => setIsTopicModalOpen(false)}
-        profile={profile}
-        onUpdateProfile={handleUpdateProfile}
-        onUnlockNextTopic={handleUnlockNextTopic}
-        onOpenCoachWithContext={handleOpenCoachWithQuery}
-      />
+      {isTopicModalOpen && selectedTopic && (
+        <TopicDetailModal
+          topic={selectedTopic}
+          isOpen={isTopicModalOpen}
+          onClose={() => {
+            setIsTopicModalOpen(false);
+            setSelectedTopic(null);
+          }}
+          profile={profile}
+          onUpdateProfile={handleUpdateProfile}
+          onUnlockNextTopic={handleUnlockNextTopic}
+          onOpenCoachWithContext={handleOpenCoachWithQuery}
+        />
+      )}
 
       {/* Daily Missions & Streak Modal */}
-      <DailyMissionsModal
-        isOpen={isMissionsModalOpen}
-        onClose={() => setIsMissionsModalOpen(false)}
-        profile={profile}
-        onUpdateProfile={handleUpdateProfile}
-      />
+      {isMissionsModalOpen && (
+        <DailyMissionsModal
+          isOpen={isMissionsModalOpen}
+          onClose={() => setIsMissionsModalOpen(false)}
+          profile={profile}
+          onUpdateProfile={handleUpdateProfile}
+        />
+      )}
 
       {/* Kapil AI Coach Modal */}
-      <CoachModal
-        isOpen={isCoachModalOpen}
-        onClose={() => setIsCoachModalOpen(false)}
-        profile={profile}
-        initialQuery={coachInitialQuery}
-      />
+      {isCoachModalOpen && (
+        <CoachModal
+          isOpen={isCoachModalOpen}
+          onClose={() => {
+            setIsCoachModalOpen(false);
+            setCoachInitialQuery(undefined);
+          }}
+          profile={profile}
+          initialQuery={coachInitialQuery}
+        />
+      )}
 
     </div>
   );
