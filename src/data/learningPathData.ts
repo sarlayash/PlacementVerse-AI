@@ -1,226 +1,9 @@
 import { Module, Topic, Question } from '../types';
-
-// Helper to generate realistic high quality practice & challenge questions for each topic
-function generateTopicQuestions(
-  topicName: string,
-  category: string,
-  count: number,
-  prefix: string,
-  baseDifficulty: 'Easy' | 'Medium' | 'Hard'
-): Question[] {
-  const companies = ['TCS NQT', 'Infosys InfyTQ', 'Amazon SDE', 'Wipro NLTH', 'Accenture', 'Cognizant GenC', 'Capgemini', 'Deloitte'];
-  
-  const sampleBank: Record<string, { q: string; opts: string[]; ans: number; exp: string }[]> = {
-    'Percentage': [
-      {
-        q: 'If the price of petrol increases by 25%, by how much percentage must a motorist reduce consumption so expenditure remains the same?',
-        opts: ['20%', '25%', '16.66%', '15%'],
-        ans: 0,
-        exp: 'Expenditure = Price × Consumption. If price becomes 5/4 (25% up), consumption must become 4/5 (1/5 reduction = 20%). Shortcut: r / (100 + r) × 100 = 25/125 × 100 = 20%.'
-      },
-      {
-        q: 'Two numbers are 30% and 40% more than a third number respectively. What percentage is the first number of the second number?',
-        opts: ['92.85%', '85%', '90.5%', '80%'],
-        ans: 0,
-        exp: 'Let third number be 100. First = 130, Second = 140. Percentage = (130 / 140) × 100 = 1300 / 14 = 92.85%.'
-      },
-      {
-        q: 'In an election between two candidates, 75% voters cast their votes, out of which 2% were declared invalid. A candidate got 9261 votes (75% of valid votes). Find total registered voters.',
-        opts: ['16,800', '16,400', '15,600', '17,200'],
-        ans: 0,
-        exp: 'Total voters × 0.75 × 0.98 × 0.75 = 9261. Total voters = 9261 / (0.75 × 0.98 × 0.75) = 16,800.'
-      },
-      {
-        q: 'A man spends 35% on food, 25% on children education, and 80% of the remaining on rent. If he still saves ₹2,160, what was his total income?',
-        opts: ['₹27,000', '₹30,000', '₹24,000', '₹25,000'],
-        ans: 0,
-        exp: 'Remaining after food + education = 100 - (35+25) = 40%. Rent is 80% of 40% = 32%. Final savings = 40% - 32% = 8%. 8% of Income = 2160 => Income = 2160 / 0.08 = ₹27,000.'
-      },
-      {
-        q: 'If the length of a rectangle is increased by 20% and breadth is decreased by 10%, find percentage change in area.',
-        opts: ['8% increase', '10% increase', '2% decrease', '12% increase'],
-        ans: 0,
-        exp: 'Successive % change = a + b + (ab/100) = +20 - 10 + (20 × -10)/100 = 10 - 2 = +8% increase.'
-      }
-    ],
-    'Time & Work': [
-      {
-        q: 'A can finish a work in 15 days, and B can do it in 20 days. If they work together for 4 days, what fraction of work is left?',
-        opts: ['8/15', '7/15', '11/15', '2/5'],
-        ans: 1,
-        exp: 'Total work = LCM(15, 20) = 60 units. Rate of A = 4 u/day, Rate of B = 3 u/day. Combined rate = 7 u/day. In 4 days they complete 28 units. Remaining = 60 - 28 = 32 units. Fraction remaining = 32/60 = 8/15. (Option 8/15 left).'
-      },
-      {
-        q: 'A is twice as good a workman as B and together they finish a piece of work in 18 days. In how many days can A alone finish the work?',
-        opts: ['27 days', '36 days', '24 days', '30 days'],
-        ans: 0,
-        exp: 'Efficiency A : B = 2 : 1. Combined efficiency = 3 units/day. Total work = 18 × 3 = 54 units. Time taken by A = 54 / 2 = 27 days.'
-      },
-      {
-        q: '12 men or 18 women can do a work in 14 days. How many days will 8 men and 16 women take to complete the same work?',
-        opts: ['9 days', '10 days', '8 days', '12 days'],
-        ans: 0,
-        exp: '12M = 18W => 2M = 3W or 1M = 1.5W. 8M + 16W = (8 × 1.5) + 16 = 12 + 16 = 28W. By M1D1 = M2D2: 18 × 14 = 28 × D2 => D2 = (18 × 14)/28 = 9 days.'
-      }
-    ],
-    'Coding Decoding': [
-      {
-        q: 'If SYSTEM is coded as SYSMET and NEARER is coded as AENRER, then how is FRACTION coded?',
-        opts: ['CARFNOIT', 'CARFTION', 'ARFCNOIT', 'FRACNOIT'],
-        ans: 0,
-        exp: 'Divide the 8-letter word into two halves: FRAC and TION. Reverse each half: CARF and NOIT => CARFNOIT.'
-      },
-      {
-        q: 'In a certain code language, "324" means "Light is bright", "629" means "Girl is beautiful", and "476" means "bright and beautiful". Which digit represents "and"?',
-        opts: ['7', '4', '6', '2'],
-        ans: 0,
-        exp: 'Comparing 1st and 3rd: "4" means "bright". Comparing 2nd and 3rd: "6" means "beautiful". In 476, remaining word is "and" and remaining digit is "7".'
-      }
-    ],
-    'Sentence Correction': [
-      {
-        q: 'Choose the grammatically correct sentence:',
-        opts: [
-          'Neither the manager nor the employees were informed about the schedule change.',
-          'Neither the manager nor the employees was informed about the schedule change.',
-          'Neither the manager or the employees were informed about the schedule change.',
-          'Neither the manager nor the employees has been informed about the schedule change.'
-        ],
-        ans: 0,
-        exp: 'In "neither... nor" constructions with compound subjects of different numbers, the verb agrees with the closer subject ("employees" -> plural -> "were informed").'
-      }
-    ]
-  };
-
-  const pool = sampleBank[topicName] || [
-    {
-      q: `Standard interview question on ${topicName}: What is the primary analytical principle evaluated by top recruiters?`,
-      opts: [
-        'Recognizing core patterns and applying shortcut formulas systematically',
-        'Guessing based on extreme options elimination',
-        'Relying purely on mechanical computation without validation',
-        'Skipping theoretical fundamentals entirely'
-      ],
-      ans: 0,
-      exp: `Mastering ${topicName} requires deep conceptual familiarity with core formulas, time-saving heuristics, and boundary condition elimination.`
-    },
-    {
-      q: `In a placement screening test for ${topicName}, which strategy yields the highest accuracy under strict 60-second time limit?`,
-      opts: [
-        'Targeted elimination of mathematically impossible options followed by ratio verification',
-        'Lengthy algebraic substitution from first principles',
-        'Leaving questions unanswered immediately',
-        'Calculating manually to 5 decimal places'
-      ],
-      ans: 0,
-      exp: 'Top recruiters design aptitude tests to assess both problem decomposition speed and shortcut accuracy.'
-    },
-    {
-      q: `Which of the following scenarios best represents typical application of ${topicName} in real-world corporate decision making?`,
-      opts: [
-        'Data-backed optimization of operational efficiency and resource budgeting',
-        'Manual bookkeeping without logical validation',
-        'Randomized assignment of project workloads',
-        'Ignoring variance in operational metrics'
-      ],
-      ans: 0,
-      exp: 'Corporate placement panels favor candidates who connect mathematical logic directly to practical business outcomes.'
-    }
-  ];
-
-  const questions: Question[] = [];
-  for (let i = 0; i < count; i++) {
-    const template = pool[i % pool.length];
-    const diff = i % 5 === 4 ? 'Hard' : i % 2 === 0 ? baseDifficulty : 'Medium';
-    questions.push({
-      id: `${prefix}-${i + 1}`,
-      question: count > pool.length && i >= pool.length ? `[Variant ${i + 1}] ${template.q}` : template.q,
-      options: [...template.opts],
-      correctIndex: template.ans,
-      difficulty: diff,
-      explanation: template.exp,
-      companyTag: companies[i % companies.length],
-    });
-  }
-
-  return questions;
-}
-
-// Boss battle questions: specifically 5 tough industry questions
-function generateBossQuestions(topicName: string, prefix: string): Question[] {
-  return [
-    {
-      id: `${prefix}-boss-1`,
-      question: `[Amazon SDE Round 1] Advanced application of ${topicName}: A complex constraint is introduced where throughput fluctuates periodically. Which mathematical model guarantees maximum optimal yield?`,
-      options: [
-        'Successive proportional optimization with boundary convergence',
-        'Linear non-iterative approximation',
-        'Static arithmetic mean calculation',
-        'Unbounded quadratic extrapolation'
-      ],
-      correctIndex: 0,
-      difficulty: 'Hard',
-      explanation: 'Amazon aptitude assessments look for edge-case handling and non-linear proportional reasoning.',
-      companyTag: 'Amazon'
-    },
-    {
-      id: `${prefix}-boss-2`,
-      question: `[Google Technical Round] If input variables for ${topicName} are scaled by a factor of k^2 while constraint boundaries remain constant, what is the exact asymptotic sensitivity?`,
-      options: [
-        'Quadratic scaling O(k^2) under uniform rate constraints',
-        'Linear invariant O(1)',
-        'Logarithmic damping O(log k)',
-        'Exponential divergence O(2^k)'
-      ],
-      correctIndex: 0,
-      difficulty: 'Hard',
-      explanation: 'Evaluating dimensional consistency and algorithmic scale is a hallmark of Google placement rounds.',
-      companyTag: 'Google'
-    },
-    {
-      id: `${prefix}-boss-3`,
-      question: `[TCS NQT Advanced] In an enterprise resource pool governed by ${topicName}, efficiency decreases by 5% each consecutive hour after the 4th hour. What is the net yield after 8 hours?`,
-      options: [
-        'Calculated via compounded degradation: Total = Base × [4 + (1 - 0.05)^1 + ... + (1 - 0.05)^4]',
-        'Simple arithmetic deduction of 20% overall',
-        'Zero yield after 6 hours',
-        'Uniform rate throughout'
-      ],
-      correctIndex: 0,
-      difficulty: 'Hard',
-      explanation: 'TCS NQT advanced section tests compounding decrements and multi-variable arithmetic.',
-      companyTag: 'TCS NQT'
-    },
-    {
-      id: `${prefix}-boss-4`,
-      question: `[Infosys InfyTQ Critical Round] Two independent parameters governed by ${topicName} operate in anti-phase. At what point does net efficiency reach the local extremum?`,
-      options: [
-        'When the first derivative of combined rate functions equals zero (Equilibrium point)',
-        'At the lowest absolute value of the primary parameter',
-        'Only at the end of the observation window',
-        'Never converges due to phase variance'
-      ],
-      correctIndex: 0,
-      difficulty: 'Hard',
-      explanation: 'Extremum identification and rate balancing are tested in InfyTQ high-package tracks.',
-      companyTag: 'Infosys'
-    },
-    {
-      id: `${prefix}-boss-5`,
-      question: `[Accenture / Deloitte Strategy Track] Given real-world company data on ${topicName}, what actionable decision minimizes risk while maintaining >= 95% SLA compliance?`,
-      options: [
-        'Buffer threshold scaling based on 2-sigma variance distribution',
-        'Eliminating safety margins completely to cut initial costs',
-        'Relying solely on optimistic best-case forecasts',
-        'Decoupling quality metrics from timeline targets'
-      ],
-      correctIndex: 0,
-      difficulty: 'Hard',
-      explanation: 'Deloitte and Accenture focus on risk-adjusted decision matrices in their critical reasoning and quantitative rounds.',
-      companyTag: 'Deloitte'
-    }
-  ];
-}
+import {
+  getUniquePracticeQuestions,
+  getUniqueChallengeQuestions,
+  getUniqueBossQuestions
+} from './questionBanks/questionGenerator';
 
 // Modules specification matching the user PDF
 export const INITIAL_MODULES: Module[] = [
@@ -274,9 +57,9 @@ export const INITIAL_MODULES: Module[] = [
           'Read the final question line to confirm whether they asked for delta, total, or ratio'
         ]
       },
-      practiceQuestions: generateTopicQuestions(name, 'Quantitative Aptitude', 25, `m1-t${idx + 1}-p`, 'Easy'),
-      challengeQuestions: generateTopicQuestions(name, 'Quantitative Aptitude', 25, `m1-t${idx + 1}-c`, 'Medium'),
-      bossQuestions: generateBossQuestions(name, `m1-t${idx + 1}-b`)
+      practiceQuestions: getUniquePracticeQuestions(name, 'Quantitative Aptitude', `m1-t${idx + 1}-p`),
+      challengeQuestions: getUniqueChallengeQuestions(name, 'Quantitative Aptitude', `m1-t${idx + 1}-c`),
+      bossQuestions: getUniqueBossQuestions(name, `m1-t${idx + 1}-b`)
     }))
   },
   {
@@ -323,9 +106,9 @@ export const INITIAL_MODULES: Module[] = [
           'Syllogism: In conclusion with "possibility", if valid in any one Venn diagram, it holds true'
         ]
       },
-      practiceQuestions: generateTopicQuestions(name, 'Logical Reasoning', 25, `m2-t${idx + 1}-p`, 'Easy'),
-      challengeQuestions: generateTopicQuestions(name, 'Logical Reasoning', 25, `m2-t${idx + 1}-c`, 'Medium'),
-      bossQuestions: generateBossQuestions(name, `m2-t${idx + 1}-b`)
+      practiceQuestions: getUniquePracticeQuestions(name, 'Logical Reasoning', `m2-t${idx + 1}-p`),
+      challengeQuestions: getUniqueChallengeQuestions(name, 'Logical Reasoning', `m2-t${idx + 1}-c`),
+      bossQuestions: getUniqueBossQuestions(name, `m2-t${idx + 1}-b`)
     }))
   },
   {
@@ -371,9 +154,9 @@ export const INITIAL_MODULES: Module[] = [
           'Beware of homophones (affect vs effect, their vs there vs they\'re)'
         ]
       },
-      practiceQuestions: generateTopicQuestions(name, 'Verbal Ability', 25, `m3-t${idx + 1}-p`, 'Easy'),
-      challengeQuestions: generateTopicQuestions(name, 'Verbal Ability', 25, `m3-t${idx + 1}-c`, 'Medium'),
-      bossQuestions: generateBossQuestions(name, `m3-t${idx + 1}-b`)
+      practiceQuestions: getUniquePracticeQuestions(name, 'Verbal Ability', `m3-t${idx + 1}-p`),
+      challengeQuestions: getUniqueChallengeQuestions(name, 'Verbal Ability', `m3-t${idx + 1}-c`),
+      bossQuestions: getUniqueBossQuestions(name, `m3-t${idx + 1}-b`)
     }))
   },
   {
@@ -419,9 +202,9 @@ export const INITIAL_MODULES: Module[] = [
           'In GDs: Being the initiator gives bonus points only if you provide a structured framework for the group'
         ]
       },
-      practiceQuestions: generateTopicQuestions(name, 'Communication Mastery', 25, `m4-t${idx + 1}-p`, 'Easy'),
-      challengeQuestions: generateTopicQuestions(name, 'Communication Mastery', 25, `m4-t${idx + 1}-c`, 'Medium'),
-      bossQuestions: generateBossQuestions(name, `m4-t${idx + 1}-b`)
+      practiceQuestions: getUniquePracticeQuestions(name, 'Communication Mastery', `m4-t${idx + 1}-p`),
+      challengeQuestions: getUniqueChallengeQuestions(name, 'Communication Mastery', `m4-t${idx + 1}-c`),
+      bossQuestions: getUniqueBossQuestions(name, `m4-t${idx + 1}-b`)
     }))
   },
   {
@@ -467,9 +250,9 @@ export const INITIAL_MODULES: Module[] = [
           'Have 2 questions ready for "Do you have any questions for us?" at the interview finish'
         ]
       },
-      practiceQuestions: generateTopicQuestions(name, 'Placement Readiness', 25, `m5-t${idx + 1}-p`, 'Easy'),
-      challengeQuestions: generateTopicQuestions(name, 'Placement Readiness', 25, `m5-t${idx + 1}-c`, 'Medium'),
-      bossQuestions: generateBossQuestions(name, `m5-t${idx + 1}-b`)
+      practiceQuestions: getUniquePracticeQuestions(name, 'Placement Readiness', `m5-t${idx + 1}-p`),
+      challengeQuestions: getUniqueChallengeQuestions(name, 'Placement Readiness', `m5-t${idx + 1}-c`),
+      bossQuestions: getUniqueBossQuestions(name, `m5-t${idx + 1}-b`)
     }))
   }
 ];
