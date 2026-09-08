@@ -1,6 +1,5 @@
-import { LearnerProfile, Module, Topic, Announcement, IssuedCertificateRecord } from '../types';
+import { LearnerProfile, Module, Topic, Announcement, IssuedCertificateRecord, LeaderboardEntry } from '../types';
 import { INITIAL_MODULES } from '../data/learningPathData';
-import { INITIAL_LEADERBOARD_POOL } from '../data/leaderboardData';
 import confetti from 'canvas-confetti';
 
 const STORAGE_KEY_PROFILE = 'placementverse_profile';
@@ -12,11 +11,11 @@ const STORAGE_KEY_STUDENTS = 'placementverse_students';
 const STORAGE_KEY_CERTIFICATES = 'placementverse_issued_certificates';
 
 const DEFAULT_PROFILE: LearnerProfile = {
-  name: 'Kapil',
+  name: '',
   institute: 'National Institute of Technology',
   department: 'Computer Science & Engineering',
   classYear: 'Final Year 2025',
-  xp: 150,
+  xp: 100,
   level: 1,
   levelTitle: 'Level 1 Rookie',
   streakDays: 1,
@@ -31,53 +30,175 @@ const DEFAULT_PROFILE: LearnerProfile = {
     { id: 'm3', title: 'Complete 1 Real-World Task (Email / Resume / GD)', target: 1, current: 0, completed: false, rewardXp: 30 },
   ],
   realWorldSubmissions: {},
-  predictedPlacementScore: 84,
+  predictedPlacementScore: 0, // Real score starts at 0% until practice questions & tasks are submitted
 };
 
-// Initial mock candidates pool to populate real-time student roster
-function generateInitialStudents(currentProfile: LearnerProfile): LearnerProfile[] {
-  const initialRoster: LearnerProfile[] = [currentProfile];
+// Real placement score calculation strictly based on student's actual performance
+export function calculateRealPlacementScore(profile: LearnerProfile, customModules?: Module[]): number {
+  const modules = customModules || getCustomModules();
+  const totalTopics = modules.reduce((acc, m) => acc + m.topics.length, 0) || 25;
+  const completedCount = (profile.completedTopicIds || []).length;
 
-  INITIAL_LEADERBOARD_POOL.forEach((entry, idx) => {
-    if (entry.name.toLowerCase() !== currentProfile.name.toLowerCase()) {
-      const isTop = idx < 3;
-      initialRoster.push({
-        name: entry.name,
-        institute: entry.institute,
-        department: entry.department,
-        classYear: entry.classYear,
-        xp: entry.xp,
-        level: isTop ? 5 : idx < 8 ? 4 : 3,
-        levelTitle: isTop ? 'Level 5 Placement Legend' : idx < 8 ? 'Level 4 Pro Achiever' : 'Level 3 Challenger',
-        streakDays: entry.streak,
-        lastActiveDate: new Date(Date.now() - (idx * 3600000 * 4)).toISOString(),
-        completedTopicIds: isTop 
-          ? ['mod1-topic-1', 'mod1-topic-2', 'mod2-topic-1', 'mod2-topic-2', 'mod3-topic-1', 'mod4-topic-1', 'mod5-topic-1']
-          : ['mod1-topic-1', 'mod1-topic-2', 'mod2-topic-1'],
-        unlockedTopicIds: ['mod1-topic-1', 'mod1-topic-2', 'mod1-topic-3', 'mod2-topic-1', 'mod2-topic-2', 'mod3-topic-1'],
-        topicScores: {
-          'mod1-topic-1': { practiceBest: isTop ? 100 : 85, challengeBest: isTop ? 95 : 80, bossPassed: true },
-          'mod1-topic-2': { practiceBest: isTop ? 90 : 75, challengeBest: isTop ? 85 : 70, bossPassed: isTop },
-        },
-        badgesEarned: isTop 
-          ? ['bronze-starter', 'silver-explorer', 'gold-achiever', 'platinum-master', 'diamond-legend', 'aptitude-champ', 'speed-demon', 'boss-slayer-1']
-          : ['bronze-starter', 'silver-explorer', 'aptitude-champ', 'streak-fire-1'],
-        dailyMissions: [
-          { id: 'm1', title: 'Finish 20 Practice MCQs', target: 20, current: 20, completed: true, rewardXp: 40 },
-          { id: 'm2', title: 'Solve 1 Timed Challenge Arena', target: 1, current: 1, completed: true, rewardXp: 30 },
-          { id: 'm3', title: 'Complete 1 Real-World Task', target: 1, current: 1, completed: true, rewardXp: 30 },
-        ],
-        realWorldSubmissions: {
-          email: { score: isTop ? 96 : 85, date: '2025-02-14', feedback: 'Excellent corporate tone & STAR framing.' },
-          gd: { score: isTop ? 94 : 80, date: '2025-02-16', feedback: 'Clear articulation with strong data points.' },
-          resume: { atsScore: isTop ? 92 : 82, date: '2025-02-18' },
-        },
-        predictedPlacementScore: isTop ? 96 : Math.max(72, 90 - (idx * 2)),
-      });
+  // 1. Topic Completion Progress (Max 35 points)
+  const curriculumPoints = Math.min(35, Math.round((completedCount / totalTopics) * 35));
+
+  // 2. Assessment Performance across attempted topics (Max 35 points)
+  const topicScoreKeys = Object.keys(profile.topicScores || {});
+  let assessmentPoints = 0;
+  if (topicScoreKeys.length > 0) {
+    let totalTopicAcc = 0;
+    topicScoreKeys.forEach(tId => {
+      const sc = profile.topicScores[tId];
+      if (!sc) return;
+      let sum = 0;
+      let cnt = 0;
+      if (typeof sc.practiceBest === 'number') {
+        sum += Math.min(100, Math.max(0, sc.practiceBest));
+        cnt++;
+      }
+      if (typeof sc.challengeBest === 'number') {
+        // Challenge net score out of 25 converted to percentage
+        const pct = Math.min(100, Math.max(0, (sc.challengeBest / 25) * 100));
+        sum += pct;
+        cnt++;
+      }
+      if (sc.bossPassed) {
+        sum += 100;
+        cnt++;
+      }
+      if (cnt > 0) {
+        totalTopicAcc += (sum / cnt);
+      }
+    });
+    const avgAccuracy = totalTopicAcc / topicScoreKeys.length;
+    assessmentPoints = Math.min(35, Math.round((avgAccuracy / 100) * 35));
+  }
+
+  // 3. Real-World Practical Tasks (Max 20 points)
+  let taskPoints = 0;
+  const rw = profile.realWorldSubmissions || {};
+  let tasksSubmitted = 0;
+  let taskSum = 0;
+  if (rw.email && typeof rw.email.score === 'number') {
+    taskSum += rw.email.score;
+    tasksSubmitted++;
+  }
+  if (rw.gd && typeof rw.gd.score === 'number') {
+    taskSum += rw.gd.score;
+    tasksSubmitted++;
+  }
+  if (rw.resume && typeof rw.resume.atsScore === 'number') {
+    taskSum += rw.resume.atsScore;
+    tasksSubmitted++;
+  }
+  if (tasksSubmitted > 0) {
+    const avgTask = taskSum / tasksSubmitted;
+    taskPoints = Math.min(20, Math.round((avgTask / 100) * 20));
+  }
+
+  // 4. Consistency & Daily Missions (Max 10 points)
+  const streakPts = Math.min(5, (profile.streakDays || 1) * 0.5);
+  const completedMissions = (profile.dailyMissions || []).filter(m => m.completed).length;
+  const missionPts = Math.min(5, completedMissions * 1.6);
+  const consistencyPoints = Math.min(10, Math.round(streakPts + missionPts));
+
+  const total = curriculumPoints + assessmentPoints + taskPoints + consistencyPoints;
+  return Math.min(100, Math.max(0, total));
+}
+
+// Generate real leaderboard ranked dynamically by real XP
+export function getRealLeaderboard(allStudents: LearnerProfile[], currentLearnerName?: string): LeaderboardEntry[] {
+  const map = new Map<string, LearnerProfile>();
+  for (const s of allStudents) {
+    if (s && s.name && s.name.trim()) {
+      map.set(s.name.trim().toLowerCase(), s);
     }
+  }
+  const unique = Array.from(map.values());
+
+  // Sort strictly by XP descending, tiebreak by streak descending
+  unique.sort((a, b) => {
+    if (b.xp !== a.xp) return b.xp - a.xp;
+    return b.streakDays - a.streakDays;
   });
 
-  return initialRoster;
+  return unique.map((student, idx) => ({
+    rank: idx + 1,
+    name: student.name,
+    institute: student.institute || 'Engineering Institute',
+    department: student.department || 'Computer Science & Engineering',
+    classYear: student.classYear || 'Final Year 2025',
+    xp: student.xp || 0,
+    streak: student.streakDays || 1,
+    badgesCount: (student.badgesEarned || []).length,
+    isCurrentLearner: currentLearnerName ? student.name.trim().toLowerCase() === currentLearnerName.trim().toLowerCase() : false,
+  }));
+}
+
+// Play pleasant web audio chime on admin alert (Zero external file dependencies)
+export function playNotificationChime(): void {
+  try {
+    if (typeof window === 'undefined') return;
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12); // A5
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.4);
+  } catch {
+    // Audio autoplay restrictions safeguard
+  }
+}
+
+// Broadcast real-time notification to server and admins when a learner begins their journey
+export async function registerNewLearnerJourney(student: LearnerProfile): Promise<void> {
+  try {
+    syncProfileToRoster(student);
+    notifyStudentsUpdated(student);
+
+    if (typeof fetch !== 'undefined') {
+      await fetch('/api/students/journey-begun', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          student,
+          message: `🚀 New Candidate "${student.name}" from ${student.institute || 'Engineering College'} just started their placement journey!`,
+          timestamp: Date.now(),
+        }),
+      });
+    }
+  } catch (e) {
+    console.error('Failed to notify journey start to server:', e);
+  }
+}
+
+// Learner Sign Out functionality
+export function learnerLogout(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY_JOURNEY_STARTED);
+    const blankProfile: LearnerProfile = {
+      ...DEFAULT_PROFILE,
+      name: '',
+      xp: 0,
+      predictedPlacementScore: 0,
+      completedTopicIds: [],
+      topicScores: {},
+      badgesEarned: [],
+      realWorldSubmissions: {},
+    };
+    localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(blankProfile));
+    notifyStudentsUpdated(blankProfile);
+  } catch (e) {
+    console.error('Error on learner sign out:', e);
+  }
 }
 
 const DEFAULT_ANNOUNCEMENTS: Announcement[] = [
@@ -228,14 +349,22 @@ export function getAllStudents(): LearnerProfile[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_STUDENTS);
     if (!raw) {
-      const seeded = generateInitialStudents(getLearnerProfile());
-      localStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(seeded));
-      return seeded;
+      const current = getLearnerProfile();
+      if (hasStartedJourney() && current && current.name && current.name.trim()) {
+        const list = [current];
+        localStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(list));
+        return list;
+      }
+      return [];
     }
     const parsed: LearnerProfile[] = JSON.parse(raw);
-    return parsed;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return generateInitialStudents(getLearnerProfile());
+    const current = getLearnerProfile();
+    if (hasStartedJourney() && current && current.name && current.name.trim()) {
+      return [current];
+    }
+    return [];
   }
 }
 
@@ -395,47 +524,7 @@ export function deleteTopicFromModule(moduleId: number, topicId: string): Module
 }
 
 // ---------------- Certificates Governance ----------------
-const DEFAULT_INITIAL_CERTIFICATES: IssuedCertificateRecord[] = [
-  {
-    id: 'PV-CERT-2025-001',
-    studentName: 'Aarav Sharma',
-    institute: 'IIT Delhi',
-    type: 'ultimate',
-    title: 'Ultimate Placement Readiness Certificate (Gold Tier)',
-    issueDate: '2025-02-20',
-    readinessScore: 98,
-    grade: 'A+ Distinguished',
-    endorsedBy: 'Kapil Narula (Placement Director)',
-    verificationCode: 'PV-IND-9842-DEL',
-    status: 'Active',
-  },
-  {
-    id: 'PV-CERT-2025-002',
-    studentName: 'Pooja Iyer',
-    institute: 'BITS Pilani',
-    type: 'ultimate',
-    title: 'Ultimate Placement Readiness Certificate (Gold Tier)',
-    issueDate: '2025-02-21',
-    readinessScore: 95,
-    grade: 'A+ Distinguished',
-    endorsedBy: 'Kapil Narula (Placement Director)',
-    verificationCode: 'PV-IND-8812-PIL',
-    status: 'Active',
-  },
-  {
-    id: 'PV-CERT-2025-003',
-    studentName: 'Kapil',
-    institute: 'National Institute of Technology',
-    type: 'quantitative',
-    title: 'Quantitative & Logical Problem Solving Specialist',
-    issueDate: '2025-02-24',
-    readinessScore: 88,
-    grade: 'A Superior',
-    endorsedBy: 'Kapil Narula (Placement Director)',
-    verificationCode: 'PV-IND-8849-NIT',
-    status: 'Active',
-  },
-];
+const DEFAULT_INITIAL_CERTIFICATES: IssuedCertificateRecord[] = [];
 
 export function getIssuedCertificates(): IssuedCertificateRecord[] {
   try {

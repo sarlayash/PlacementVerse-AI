@@ -31,7 +31,7 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
   // Step 2 Practice Zone State
   const [practiceIndex, setPracticeIndex] = useState(0);
   const [practiceDifficulty, setPracticeDifficulty] = useState<'All' | 'Easy' | 'Medium' | 'Hard'>('All');
-  const [practiceUserAnswers, setPracticeUserAnswers] = useState<Record<number, number>>({});
+  const [practiceUserAnswers, setPracticeUserAnswers] = useState<Record<string, number>>({});
   const [showExplanation, setShowExplanation] = useState(false);
 
   // Step 3 Challenge Arena State
@@ -79,8 +79,9 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
 
   // Handle Practice Answer
   const handleSelectPracticeAnswer = (optIndex: number) => {
-    if (practiceUserAnswers[practiceIndex] !== undefined) return;
-    setPracticeUserAnswers(prev => ({ ...prev, [practiceIndex]: optIndex }));
+    if (!currentPracticeQ) return;
+    if (practiceUserAnswers[currentPracticeQ.id] !== undefined) return;
+    setPracticeUserAnswers(prev => ({ ...prev, [currentPracticeQ.id]: optIndex }));
     setShowExplanation(true);
 
     // Update mission counter if newly answered
@@ -453,7 +454,9 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
                       onClick={() => {
                         setPracticeDifficulty(diff);
                         setPracticeIndex(0);
-                        setShowExplanation(false);
+                        const targetList = (topic?.practiceQuestions || []).filter(q => diff === 'All' || q.difficulty === diff);
+                        const firstQ = targetList[0];
+                        setShowExplanation(firstQ ? practiceUserAnswers[firstQ.id] !== undefined : false);
                       }}
                       className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
                         practiceDifficulty === diff
@@ -497,8 +500,8 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
                 {/* Options */}
                 <div className="space-y-2.5 pt-2">
                   {currentPracticeQ.options.map((opt, optIdx) => {
-                    const isSelected = practiceUserAnswers[practiceIndex] === optIdx;
-                    const isAnswered = practiceUserAnswers[practiceIndex] !== undefined;
+                    const isSelected = practiceUserAnswers[currentPracticeQ.id] === optIdx;
+                    const isAnswered = practiceUserAnswers[currentPracticeQ.id] !== undefined;
                     const isCorrect = optIdx === currentPracticeQ.correctIndex;
 
                     let btnStyle = 'border-slate-200 hover:bg-slate-50 text-slate-800';
@@ -560,8 +563,10 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
                 <button
                   disabled={practiceIndex === 0}
                   onClick={() => {
-                    setPracticeIndex(prev => prev - 1);
-                    setShowExplanation(practiceUserAnswers[practiceIndex - 1] !== undefined);
+                    const prevIdx = practiceIndex - 1;
+                    setPracticeIndex(prevIdx);
+                    const prevQ = filteredPracticeQuestions[prevIdx];
+                    setShowExplanation(prevQ ? practiceUserAnswers[prevQ.id] !== undefined : false);
                   }}
                   className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 disabled:opacity-40 flex items-center gap-1.5"
                 >
@@ -572,8 +577,10 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
                 {practiceIndex < filteredPracticeQuestions.length - 1 ? (
                   <button
                     onClick={() => {
-                      setPracticeIndex(prev => prev + 1);
-                      setShowExplanation(practiceUserAnswers[practiceIndex + 1] !== undefined);
+                      const nextIdx = practiceIndex + 1;
+                      setPracticeIndex(nextIdx);
+                      const nextQ = filteredPracticeQuestions[nextIdx];
+                      setShowExplanation(nextQ ? practiceUserAnswers[nextQ.id] !== undefined : false);
                     }}
                     className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm"
                   >

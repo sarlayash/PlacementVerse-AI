@@ -62,104 +62,18 @@ interface ServerStudent {
   predictedPlacementScore: number;
 }
 
-// Initial in-memory student roster
-let serverStudents: ServerStudent[] = [
-  {
-    name: 'Aarav Sharma',
-    institute: 'IIT Delhi',
-    department: 'Computer Science',
-    classYear: 'Final Year 2025',
-    xp: 4850,
-    level: 5,
-    levelTitle: 'Level 5 Placement Legend',
-    streakDays: 14,
-    lastActiveDate: new Date().toISOString(),
-    completedTopicIds: ['mod1-topic-1', 'mod1-topic-2', 'mod2-topic-1', 'mod2-topic-2', 'mod3-topic-1'],
-    unlockedTopicIds: ['mod1-topic-1', 'mod1-topic-2', 'mod1-topic-3', 'mod2-topic-1', 'mod2-topic-2', 'mod3-topic-1'],
-    topicScores: { 'mod1-topic-1': { practiceBest: 100, challengeBest: 95, bossPassed: true } },
-    badgesEarned: ['bronze-starter', 'silver-explorer', 'gold-achiever', 'diamond-legend', 'aptitude-champ'],
-    dailyMissions: [{ id: 'm1', title: 'Finish 20 MCQs', target: 20, current: 20, completed: true, rewardXp: 40 }],
-    realWorldSubmissions: {
-      email: { score: 96, date: '2025-02-14', feedback: 'Mastered STAR response format.' },
-      gd: { score: 94, date: '2025-02-16', feedback: 'Clear arguments with statistical backing.' },
-      resume: { atsScore: 92, date: '2025-02-18' },
-    },
-    predictedPlacementScore: 96,
-  },
-  {
-    name: 'Priyanshu Mehta',
-    institute: 'BITS Pilani',
-    department: 'Electronics & Communication',
-    classYear: 'Final Year 2025',
-    xp: 4320,
-    level: 4,
-    levelTitle: 'Level 4 Pro Achiever',
-    streakDays: 12,
-    lastActiveDate: new Date().toISOString(),
-    completedTopicIds: ['mod1-topic-1', 'mod1-topic-2', 'mod2-topic-1'],
-    unlockedTopicIds: ['mod1-topic-1', 'mod1-topic-2', 'mod2-topic-1', 'mod2-topic-2'],
-    topicScores: { 'mod1-topic-1': { practiceBest: 92, challengeBest: 88, bossPassed: true } },
-    badgesEarned: ['bronze-starter', 'silver-explorer', 'aptitude-champ'],
-    dailyMissions: [{ id: 'm1', title: 'Finish 20 MCQs', target: 20, current: 15, completed: false, rewardXp: 40 }],
-    realWorldSubmissions: {
-      email: { score: 88, date: '2025-02-15' },
-      gd: { score: 86, date: '2025-02-17' },
-      resume: { atsScore: 89, date: '2025-02-19' },
-    },
-    predictedPlacementScore: 93,
-  },
-  {
-    name: 'Sneha Reddy',
-    institute: 'NIT Surathkal',
-    department: 'Information Technology',
-    classYear: 'Pre-Final Year 2026',
-    xp: 3980,
-    level: 4,
-    levelTitle: 'Level 4 Pro Achiever',
-    streakDays: 10,
-    lastActiveDate: new Date().toISOString(),
-    completedTopicIds: ['mod1-topic-1', 'mod2-topic-1'],
-    unlockedTopicIds: ['mod1-topic-1', 'mod1-topic-2', 'mod2-topic-1'],
-    topicScores: { 'mod1-topic-1': { practiceBest: 88, challengeBest: 82, bossPassed: true } },
-    badgesEarned: ['bronze-starter', 'silver-explorer'],
-    dailyMissions: [],
-    realWorldSubmissions: {
-      email: { score: 85, date: '2025-02-18' },
-      gd: { score: 84, date: '2025-02-20' },
-      resume: { atsScore: 88, date: '2025-02-21' },
-    },
-    predictedPlacementScore: 91,
-  },
-  {
-    name: 'Tanvi Sen',
-    institute: 'DTU Delhi',
-    department: 'Software Engineering',
-    classYear: 'Final Year 2025',
-    xp: 3450,
-    level: 3,
-    levelTitle: 'Level 3 Challenger',
-    streakDays: 8,
-    lastActiveDate: new Date().toISOString(),
-    completedTopicIds: ['mod1-topic-1'],
-    unlockedTopicIds: ['mod1-topic-1', 'mod1-topic-2'],
-    topicScores: {},
-    badgesEarned: ['bronze-starter'],
-    dailyMissions: [],
-    realWorldSubmissions: {
-      resume: { atsScore: 84, date: '2025-02-22' },
-    },
-    predictedPlacementScore: 86,
-  }
-];
+// Real-time in-memory student roster (Populated strictly by real registered learners)
+let serverStudents: ServerStudent[] = [];
 
 // Active SSE client connections (Admins watching real-time)
 const sseClients = new Set<express.Response>();
 
-function broadcastStudentUpdate(type: 'JOIN' | 'UPDATE' | 'DELETE', payload: any) {
+function broadcastStudentUpdate(type: 'JOIN' | 'UPDATE' | 'DELETE' | 'JOURNEY_BEGUN', payload: any) {
   const data = JSON.stringify({
     type,
     payload,
     allStudents: serverStudents,
+    totalCount: serverStudents.length,
     timestamp: Date.now(),
   });
   for (const client of sseClients) {
@@ -171,7 +85,7 @@ function broadcastStudentUpdate(type: 'JOIN' | 'UPDATE' | 'DELETE', payload: any
   }
 }
 
-// 1. Get all students
+// 1. Get all real students
 app.get('/api/students', (req, res) => {
   res.json({
     students: serverStudents,
@@ -180,7 +94,52 @@ app.get('/api/students', (req, res) => {
   });
 });
 
-// 2. Register or update student in real time
+// 2. Real-time alert when a learner begins journey from their browser
+app.post('/api/students/journey-begun', (req, res) => {
+  const { student, message } = req.body;
+  if (!student || !student.name) {
+    return res.status(400).json({ error: 'Valid student required' });
+  }
+
+  const existingIdx = serverStudents.findIndex(
+    (s) => s.name.toLowerCase() === student.name.toLowerCase()
+  );
+
+  let updatedStudent: ServerStudent;
+  if (existingIdx >= 0) {
+    serverStudents[existingIdx] = {
+      ...serverStudents[existingIdx],
+      ...student,
+      lastActiveDate: new Date().toISOString(),
+    };
+    updatedStudent = serverStudents[existingIdx];
+  } else {
+    updatedStudent = {
+      ...student,
+      lastActiveDate: new Date().toISOString(),
+    };
+    serverStudents.unshift(updatedStudent);
+  }
+
+  // Broadcast real-time journey start notification to all connected admins
+  broadcastStudentUpdate('JOURNEY_BEGUN', {
+    student: updatedStudent,
+    name: updatedStudent.name,
+    institute: updatedStudent.institute,
+    department: updatedStudent.department,
+    message: message || `🚀 New Learner "${updatedStudent.name}" from ${updatedStudent.institute || 'Engineering Institute'} just started their placement journey!`,
+    timestamp: Date.now(),
+  });
+
+  res.json({
+    success: true,
+    isNew: existingIdx < 0,
+    student: updatedStudent,
+    totalStudents: serverStudents.length,
+  });
+});
+
+// 3. Register or update student performance in real time
 app.post('/api/students', (req, res) => {
   const studentData: ServerStudent = req.body;
   if (!studentData || !studentData.name) {

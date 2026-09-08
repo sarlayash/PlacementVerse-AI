@@ -3,7 +3,8 @@ import {
   Users, Award, Scroll, BookOpen, UserPlus, Search, CheckCircle2,
   AlertCircle, ShieldCheck, Flame, Sparkles, ExternalLink, ArrowRight,
   Plus, Trash2, Edit3, Eye, Printer, RefreshCw, Trophy, Crown,
-  LogOut, Check, Building2, GraduationCap, Clock, QrCode, Filter, Radio
+  LogOut, Check, Building2, GraduationCap, Clock, QrCode, Filter, Radio,
+  Volume2
 } from 'lucide-react';
 import { LearnerProfile, Module, Topic, Question, IssuedCertificateRecord } from '../types';
 import { ALL_BADGES } from '../data/badgesData';
@@ -23,6 +24,7 @@ import {
   setActiveStudent,
   fireCelebrationConfetti,
   calculateLevel,
+  playNotificationChime,
 } from '../services/storageService';
 
 interface AdminDashboardViewProps {
@@ -168,7 +170,15 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
           if (Array.isArray(data.allStudents)) {
             setStudents(data.allStudents);
           }
-          if (data.type === 'JOIN' && data.payload?.name) {
+          if (data.type === 'JOURNEY_BEGUN' && data.payload?.name) {
+            playNotificationChime();
+            setLiveEventBanner({
+              text: `🚀 Live Notification: Learner "${data.payload.name}" (${data.payload.institute || 'India'}) just BEGUN their placement journey!`,
+              time: 'Just now'
+            });
+            setTimeout(() => setLiveEventBanner(null), 7000);
+          } else if (data.type === 'JOIN' && data.payload?.name) {
+            playNotificationChime();
             setLiveEventBanner({
               text: `🎉 Real-Time Alert: New Candidate ${data.payload.name} (${data.payload.institute || 'India'}) registered!`,
               time: 'Just now'
@@ -196,7 +206,14 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     };
     const handleLocalCustomEvent = (e: any) => {
       setStudents(getAllStudents());
-      if (e.detail?.name) {
+      if (e.detail?.journeyBegun && e.detail?.name) {
+        playNotificationChime();
+        setLiveEventBanner({
+          text: `🚀 Live Notification: Learner "${e.detail.name}" just BEGUN their placement journey!`,
+          time: 'Just now'
+        });
+        setTimeout(() => setLiveEventBanner(null), 7000);
+      } else if (e.detail?.name) {
         setLiveEventBanner({
           text: `⚡ Real-Time Update: ${e.detail.name} updated profile`,
           time: 'Just now'
@@ -214,7 +231,14 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
         bc = new BroadcastChannel('placementverse_sync');
         bc.onmessage = (msg) => {
           setStudents(getAllStudents());
-          if (msg.data?.student?.name) {
+          if (msg.data?.journeyBegun && msg.data?.student?.name) {
+            playNotificationChime();
+            setLiveEventBanner({
+              text: `🚀 Live Notification: Learner "${msg.data.student.name}" just BEGUN their placement journey!`,
+              time: 'Just now'
+            });
+            setTimeout(() => setLiveEventBanner(null), 7000);
+          } else if (msg.data?.student?.name) {
             setLiveEventBanner({
               text: `⚡ Real-Time Update: ${msg.data.student.name} updated profile`,
               time: 'Just now'
@@ -617,6 +641,22 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
         {/* Action buttons */}
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <button
+            onClick={() => {
+              playNotificationChime();
+              setLiveEventBanner({
+                text: '🔔 Notification Audio Chime Verified (Active)',
+                time: 'Just now'
+              });
+              setTimeout(() => setLiveEventBanner(null), 3000);
+            }}
+            className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-2 border border-white/15 transition-all"
+            title="Test Audio Chime for Learner Journey Alert"
+          >
+            <Volume2 className="w-3.5 h-3.5 text-amber-400" />
+            <span>Test Chime</span>
+          </button>
+
+          <button
             onClick={handleManualSync}
             disabled={isManualSyncing}
             className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-2 border border-white/15 transition-all"
@@ -708,7 +748,9 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
             <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
               <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Avg Readiness Index</p>
               <p className="text-2xl sm:text-3xl font-black text-indigo-600 mt-1 font-display">
-                {Math.round(students.reduce((acc, s) => acc + (s.predictedPlacementScore || 80), 0) / students.length)}%
+                {students.length > 0
+                  ? `${Math.round(students.reduce((acc, s) => acc + (s.predictedPlacementScore || 80), 0) / students.length)}%`
+                  : '—'}
               </p>
               <p className="text-[11px] text-slate-500 font-semibold mt-1">National Target: &gt;85%</p>
             </div>
@@ -758,7 +800,22 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
 
           {/* Students Roster Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredStudents.map((student) => {
+            {filteredStudents.length === 0 ? (
+              <div className="col-span-full p-12 bg-white rounded-3xl border border-slate-200 text-center space-y-3 shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+                  <Users className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">
+                  {searchQuery ? 'No Candidates Match Your Search' : 'Awaiting Real Candidate Registrations'}
+                </h3>
+                <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                  {searchQuery
+                    ? `No candidate matches "${searchQuery}". Clear your search term to see all candidates.`
+                    : 'No fake users or fake rankings exist. When learners type their name and click "Begin Placement Journey" from any device or browser, their profile, live XP, and scores will stream directly into this console in real time.'}
+                </p>
+              </div>
+            ) : (
+              filteredStudents.map((student) => {
               const isCurrent = student.name.toLowerCase() === currentProfile.name.toLowerCase();
               const completedCount = student.completedTopicIds.length;
               const totalTopics = modules.reduce((acc, m) => acc + m.topics.length, 0);
@@ -881,8 +938,9 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                   </div>
                 </div>
               );
-            })}
-          </div>
+            })
+          )}
+        </div>
 
           {/* Student Inspection Modal */}
           {selectedStudentForInspect && (

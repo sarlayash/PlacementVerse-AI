@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Flame, Award, BookOpen, Briefcase, BarChart3, 
-  Trophy, Bot, Sparkles, Target, Medal, ShieldCheck
+  Trophy, Bot, Sparkles, Target, Medal, ShieldCheck, LogOut
 } from 'lucide-react';
 import { LearnerProfile } from '../types';
 
@@ -14,6 +14,7 @@ interface NavbarProps {
   onOpenAdmin: () => void;
   isAdmin?: boolean;
   onGoToLanding?: () => void;
+  onSignOut?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -25,6 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAdmin,
   isAdmin = false,
   onGoToLanding,
+  onSignOut,
 }) => {
   const completedMissionsCount = profile.dailyMissions.filter(m => m.completed).length;
 
@@ -187,7 +189,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onGoToLanding}
                 className="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all text-left group"
-                title="Change Name / Revisit Landing Page"
+                title="Change Name / Revisit Profile"
               >
                 <div className="w-8 h-8 rounded-lg bg-slate-900 group-hover:bg-blue-600 text-white flex items-center justify-center font-bold text-xs uppercase transition-colors">
                   {profile.name ? profile.name.charAt(0) : 'K'}
@@ -196,8 +198,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <p className="font-bold text-slate-800 group-hover:text-blue-700 leading-tight">
                     {profile.name || 'Set Name'}
                   </p>
-                  <p className="text-[10px] text-slate-500">Edit Name / Landing</p>
+                  <p className="text-[10px] text-slate-500">{profile.department?.split(' ')[0] || 'Learner'}</p>
                 </div>
+              </button>
+            )}
+
+            {/* Learner Sign Out Button */}
+            {onSignOut && (
+              <button
+                onClick={onSignOut}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-rose-300 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold transition-all"
+                title="Sign Out of Learner Account"
+              >
+                <LogOut className="w-3.5 h-3.5 text-rose-500" />
+                <span className="hidden sm:inline">Sign Out</span>
               </button>
             )}
 
@@ -205,7 +219,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Mobile Navigation bar */}
-        <div className="flex lg:hidden overflow-x-auto py-2 gap-1 border-t border-slate-100 scrollbar-none">
+        <div className="flex lg:hidden overflow-x-auto py-2 gap-1 border-t border-slate-100 scrollbar-none items-center">
           <button
             onClick={() => onSelectTab('learn')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 ${
@@ -263,6 +277,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Admin</span>
           </button>
+          {onSignOut && (
+            <button
+              onClick={onSignOut}
+              className="px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 flex items-center gap-1 text-rose-600 hover:bg-rose-50 border border-rose-200"
+              title="Sign Out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
+            </button>
+          )}
         </div>
 
       </div>
