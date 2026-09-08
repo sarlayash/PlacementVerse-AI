@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ShieldCheck } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { HeroBanner } from './components/HeroBanner';
 import { LearningPathView } from './components/LearningPathView';
@@ -11,6 +12,8 @@ import { TopicDetailModal } from './components/TopicDetailModal';
 import { DailyMissionsModal } from './components/DailyMissionsModal';
 import { CoachModal } from './components/CoachModal';
 import { LandingPage } from './components/LandingPage';
+import { AdminLoginModal } from './components/AdminLoginModal';
+import { AdminDashboardView } from './components/AdminDashboardView';
 
 import { 
   getLearnerProfile, 
@@ -19,6 +22,8 @@ import {
   saveUnlockedTopic,
   hasStartedJourney,
   setJourneyStarted,
+  isAdminAuthenticated,
+  logoutAdmin,
   fireCelebrationConfetti 
 } from './services/storageService';
 import { LearnerProfile, Module, Topic } from './types';
@@ -26,7 +31,11 @@ import { LearnerProfile, Module, Topic } from './types';
 export default function App() {
   const [profile, setProfile] = useState<LearnerProfile>(getLearnerProfile());
   const [modules, setModules] = useState<Module[]>(getModulesWithTopics());
-  const [activeTab, setActiveTab] = useState<'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates'>('learn');
+  const [activeTab, setActiveTab] = useState<'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin'>('learn');
+
+  // Admin authentication state
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => isAdminAuthenticated());
+  const [isAdminLoginOpen, setIsAdminLoginOpen] = useState<boolean>(false);
 
   // Landing page state
   const [hasStarted, setHasStarted] = useState<boolean>(hasStartedJourney());
@@ -56,6 +65,27 @@ export default function App() {
     setJourneyStarted(true);
     setHasStarted(true);
     setShowLandingPage(false);
+    setActiveTab('learn');
+  };
+
+  const handleOpenAdminPortal = () => {
+    if (isAdminAuthenticated()) {
+      setIsAdmin(true);
+      setActiveTab('admin');
+    } else {
+      setIsAdminLoginOpen(true);
+    }
+  };
+
+  const handleAdminLoginSuccess = () => {
+    setIsAdmin(true);
+    setIsAdminLoginOpen(false);
+    setActiveTab('admin');
+  };
+
+  const handleAdminLogout = () => {
+    logoutAdmin();
+    setIsAdmin(false);
     setActiveTab('learn');
   };
 
@@ -113,6 +143,8 @@ export default function App() {
           setCoachInitialQuery(undefined);
           setIsCoachModalOpen(true);
         }}
+        onOpenAdmin={handleOpenAdminPortal}
+        isAdmin={isAdmin}
         onGoToLanding={() => setShowLandingPage(true)}
       />
 
@@ -181,6 +213,38 @@ export default function App() {
           />
         )}
 
+        {/* Tab 7: Admin Console */}
+        {activeTab === 'admin' && (
+          isAdmin ? (
+            <AdminDashboardView
+              currentProfile={profile}
+              modules={modules}
+              onUpdateModules={setModules}
+              onUpdateCurrentProfile={handleUpdateProfile}
+              onExitAdmin={() => setActiveTab('learn')}
+              onLogoutAdmin={handleAdminLogout}
+            />
+          ) : (
+            <div className="p-8 sm:p-12 text-center bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4 max-w-lg mx-auto my-12">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto">
+                <ShieldCheck className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 font-display">Administrator Access Required</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                You must authenticate with authorized director credentials to inspect real-time candidate progress, reissue badges, manage certificates, and author curriculum.
+              </p>
+              <div className="pt-2">
+                <button
+                  onClick={() => setIsAdminLoginOpen(true)}
+                  className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all active:scale-95"
+                >
+                  Authenticate Administrator
+                </button>
+              </div>
+            </div>
+          )
+        )}
+
       </main>
 
       {/* Footer */}
@@ -233,6 +297,13 @@ export default function App() {
           initialQuery={coachInitialQuery}
         />
       )}
+
+      {/* Administrator Authentication Modal */}
+      <AdminLoginModal
+        isOpen={isAdminLoginOpen}
+        onClose={() => setIsAdminLoginOpen(false)}
+        onLoginSuccess={handleAdminLoginSuccess}
+      />
 
     </div>
   );

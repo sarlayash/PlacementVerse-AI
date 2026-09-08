@@ -1,16 +1,18 @@
 import React from 'react';
 import { 
   Flame, Award, BookOpen, Briefcase, BarChart3, 
-  Trophy, Bot, Sparkles, Target, Medal
+  Trophy, Bot, Sparkles, Target, Medal, ShieldCheck
 } from 'lucide-react';
 import { LearnerProfile } from '../types';
 
 interface NavbarProps {
   profile: LearnerProfile;
-  activeTab: 'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates';
-  onSelectTab: (tab: 'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates') => void;
+  activeTab: 'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin';
+  onSelectTab: (tab: 'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin') => void;
   onOpenCoach: () => void;
   onOpenMissions: () => void;
+  onOpenAdmin: () => void;
+  isAdmin?: boolean;
   onGoToLanding?: () => void;
 }
 
@@ -20,6 +22,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectTab,
   onOpenCoach,
   onOpenMissions,
+  onOpenAdmin,
+  isAdmin = false,
   onGoToLanding,
 }) => {
   const completedMissionsCount = profile.dailyMissions.filter(m => m.completed).length;
@@ -161,6 +165,23 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="hidden sm:inline">Coach Kapil</span>
             </button>
 
+            {/* Admin Portal Button */}
+            <button
+              onClick={onOpenAdmin}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
+                activeTab === 'admin'
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                  : 'bg-slate-50 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border-slate-200 hover:border-indigo-200'
+              }`}
+              title="Administrator Portal"
+            >
+              <ShieldCheck className={`w-4 h-4 ${activeTab === 'admin' ? 'text-white' : 'text-indigo-600'}`} />
+              <span className="hidden sm:inline">Admin</span>
+              {isAdmin && (
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              )}
+            </button>
+
             {/* Profile Avatar / Change name / Landing Page */}
             {onGoToLanding && (
               <button
@@ -232,6 +253,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             Certificates
+          </button>
+          <button
+            onClick={onOpenAdmin}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 flex items-center gap-1 ${
+              activeTab === 'admin' ? 'bg-indigo-600 text-white font-bold' : 'text-indigo-600 font-bold'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Admin</span>
           </button>
         </div>
 

@@ -103,3 +103,17 @@ export interface Announcement {
   author: string;
   isUrgent?: boolean;
 }
+
+export interface IssuedCertificateRecord {
+  id: string;
+  studentName: string;
+  institute: string;
+  type: 'ultimate' | 'quantitative' | 'verbal' | 'corporate';
+  title: string;
+  issueDate: string;
+  readinessScore: number;
+  grade: string;
+  endorsedBy: string;
+  verificationCode: string;
+  status: 'Active' | 'Revoked' | 'Reissued';
+}
