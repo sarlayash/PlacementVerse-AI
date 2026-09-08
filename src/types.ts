@@ -70,6 +70,7 @@ export interface LearnerProfile {
     linkedin?: { score: number; date: string };
   };
   predictedPlacementScore: number;
+  mockTestAttempts?: Record<string, MockTestAttempt>;
 }
 
 export interface Badge {
@@ -108,7 +109,7 @@ export interface IssuedCertificateRecord {
   id: string;
   studentName: string;
   institute: string;
-  type: 'ultimate' | 'quantitative' | 'verbal' | 'corporate';
+  type: 'ultimate' | 'quantitative' | 'verbal' | 'corporate' | 'faang-google-meta' | 'faang-amazon-apple' | 'faang-netflix-uber';
   title: string;
   issueDate: string;
   readinessScore: number;
@@ -116,4 +117,54 @@ export interface IssuedCertificateRecord {
   endorsedBy: string;
   verificationCode: string;
   status: 'Active' | 'Revoked' | 'Reissued';
+}
+
+export interface FaangQuestion {
+  id: string;
+  testId: string;
+  section: 'Quantitative & Algorithmic' | 'Advanced Systems & Reasoning' | 'High-Bar Analytical & Architecture';
+  companyTag: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  shortcutOrInsight: string;
+  difficulty: 'Very Hard';
+}
+
+export interface FaangMockTest {
+  id: string;
+  title: string;
+  subtitle: string;
+  companyTier: string;
+  companies: string[];
+  scheduledDate: string;
+  durationMinutes: number;
+  totalQuestions: number;
+  marksPerQuestion: number;
+  negativeMark: number;
+  passingPercentage: number;
+  badgeRewardId: string;
+  badgeRewardName: string;
+  badgeIcon: string;
+  badgeGradient: string;
+  certificateTitle: string;
+  description: string;
+  syllabusHighlights: string[];
+  questions: FaangQuestion[];
+}
+
+export interface MockTestAttempt {
+  testId: string;
+  completedAt: string;
+  totalScore: number;
+  maxScore: number;
+  percentage: number;
+  correctCount: number;
+  wrongCount: number;
+  skippedCount: number;
+  timeSpentSeconds: number;
+  passed: boolean;
+  userAnswers: Record<string, number>;
+  certificateCode?: string;
 }

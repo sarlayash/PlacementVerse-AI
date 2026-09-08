@@ -1,4 +1,4 @@
-import { LearnerProfile, Module, Topic, Announcement, IssuedCertificateRecord, LeaderboardEntry } from '../types';
+import { LearnerProfile, Module, Topic, Announcement, IssuedCertificateRecord, LeaderboardEntry, MockTestAttempt } from '../types';
 import { INITIAL_MODULES } from '../data/learningPathData';
 import confetti from 'canvas-confetti';
 
@@ -630,3 +630,67 @@ export function saveAnnouncements(announcements: Announcement[]): void {
     console.error('Failed to save announcements:', e);
   }
 }
+
+export function recordMockTestResult(
+  profile: LearnerProfile,
+  attempt: MockTestAttempt,
+  badgeRewardId: string,
+  _badgeRewardName: string,
+  certificateTitle: string
+): { updatedProfile: LearnerProfile; certificate?: IssuedCertificateRecord; newlyUnlockedBadge: boolean } {
+  const attempts = { ...(profile.mockTestAttempts || {}), [attempt.testId]: attempt };
+  let newXp = profile.xp;
+  const badges = [...profile.badgesEarned];
+  let newlyUnlockedBadge = false;
+
+  // If passed (score >= 60%), grant 1,000 XP and Badge if not already earned
+  if (attempt.passed) {
+    if (!badges.includes(badgeRewardId)) {
+      badges.push(badgeRewardId);
+      newXp += 1000;
+      newlyUnlockedBadge = true;
+    }
+  }
+
+  // Update predicted placement score based on performance
+  const currentPlacement = profile.predictedPlacementScore || 70;
+  const targetAdjustment = attempt.percentage >= 80 ? 4 : attempt.percentage >= 60 ? 2 : 0;
+  const updatedPlacementScore = Math.min(99, Math.max(currentPlacement, currentPlacement + targetAdjustment));
+
+  const updatedProfile: LearnerProfile = {
+    ...profile,
+    xp: newXp,
+    badgesEarned: badges,
+    predictedPlacementScore: updatedPlacementScore,
+    mockTestAttempts: attempts,
+  };
+  saveLearnerProfile(updatedProfile);
+
+  // Issue Certificate if passed
+  let cert: IssuedCertificateRecord | undefined = undefined;
+  if (attempt.passed) {
+    const certType = attempt.testId === 'faang-mock-1' 
+      ? 'faang-google-meta' 
+      : attempt.testId === 'faang-mock-2' 
+      ? 'faang-amazon-apple' 
+      : 'faang-netflix-uber';
+
+    cert = {
+      id: `cert-${attempt.testId}-${Date.now()}`,
+      studentName: profile.name || 'Placement Candidate',
+      institute: profile.institute || 'National Institute of Technology',
+      type: certType,
+      title: certificateTitle,
+      issueDate: new Date().toISOString().split('T')[0],
+      readinessScore: Math.round(attempt.percentage),
+      grade: attempt.percentage >= 85 ? 'Grade O (Outstanding)' : attempt.percentage >= 70 ? 'Grade A+ (Distinction)' : 'Grade A (Qualified)',
+      endorsedBy: 'Kapil Narula (Placement Director & FAANG Evaluator)',
+      verificationCode: attempt.certificateCode || `PV-FAANG-${attempt.testId.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      status: 'Active',
+    };
+    issueOrReissueCertificate(cert);
+  }
+
+  return { updatedProfile, certificate: cert, newlyUnlockedBadge };
+}
+

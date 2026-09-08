@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flame, Sparkles, ArrowRight, Zap, Trophy, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Flame, Sparkles, ArrowRight, Zap, Trophy, ShieldCheck, CheckCircle2, Calendar } from 'lucide-react';
 import { LearnerProfile, Module } from '../types';
 import { calculateLevel } from '../services/storageService';
 
@@ -9,6 +9,7 @@ interface HeroBannerProps {
   onContinueJourney: () => void;
   onOpenMissions: () => void;
   onOpenCoach: () => void;
+  onOpenMockTests?: () => void;
 }
 
 export const HeroBanner: React.FC<HeroBannerProps> = ({
@@ -17,6 +18,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   onContinueJourney,
   onOpenMissions,
   onOpenCoach,
+  onOpenMockTests,
 }) => {
   const totalTopics = modules.reduce((acc, m) => acc + m.topics.length, 0);
   const completedCount = profile.completedTopicIds.length;
@@ -75,6 +77,19 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               <span>Continue Journey</span>
               <ArrowRight className="w-4 h-4" />
             </button>
+
+            {onOpenMockTests && (
+              <button
+                onClick={onOpenMockTests}
+                className="px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm shadow-md flex items-center gap-2 transition-all hover:scale-102 active:scale-98 relative"
+              >
+                <Calendar className="w-4 h-4 text-amber-300" />
+                <span>3 FAANG Mock Tests</span>
+                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-rose-500 text-white animate-pulse">
+                  Tomorrow
+                </span>
+              </button>
+            )}
 
             <button
               onClick={onOpenMissions}

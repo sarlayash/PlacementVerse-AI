@@ -1,14 +1,14 @@
 import React from 'react';
 import { 
   Flame, Award, BookOpen, Briefcase, BarChart3, 
-  Trophy, Bot, Sparkles, Target, Medal, ShieldCheck, LogOut
+  Trophy, Bot, Sparkles, Target, Medal, ShieldCheck, LogOut, Calendar, Zap
 } from 'lucide-react';
 import { LearnerProfile } from '../types';
 
 interface NavbarProps {
   profile: LearnerProfile;
-  activeTab: 'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin';
-  onSelectTab: (tab: 'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin') => void;
+  activeTab: 'learn' | 'mock-tests' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin';
+  onSelectTab: (tab: 'learn' | 'mock-tests' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin') => void;
   onOpenCoach: () => void;
   onOpenMissions: () => void;
   onOpenAdmin: () => void;
@@ -67,6 +67,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <BookOpen className="w-4 h-4" />
               Learning Path
+            </button>
+            <button
+              onClick={() => onSelectTab('mock-tests')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all relative ${
+                activeTab === 'mock-tests'
+                  ? 'bg-white text-indigo-700 font-bold shadow-xs'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200/50'
+              }`}
+            >
+              <Calendar className="w-4 h-4 text-indigo-600" />
+              <span>FAANG Mocks</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-rose-500 text-white animate-pulse">
+                Tomorrow
+              </span>
             </button>
             <button
               onClick={() => onSelectTab('tasks')}
@@ -227,6 +241,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             Learning Path
+          </button>
+          <button
+            onClick={() => onSelectTab('mock-tests')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 flex items-center gap-1 ${
+              activeTab === 'mock-tests' ? 'bg-indigo-600 text-white font-bold' : 'text-indigo-700 bg-indigo-50 font-bold'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span>FAANG Mocks (3)</span>
           </button>
           <button
             onClick={() => onSelectTab('tasks')}

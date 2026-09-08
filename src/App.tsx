@@ -8,6 +8,7 @@ import { AnalyticsView } from './components/AnalyticsView';
 import { LeaderboardView } from './components/LeaderboardView';
 import { BadgesView } from './components/BadgesView';
 import { CertificatesView } from './components/CertificatesView';
+import { FaangMockTestsView } from './components/FaangMockTestsView';
 import { TopicDetailModal } from './components/TopicDetailModal';
 import { DailyMissionsModal } from './components/DailyMissionsModal';
 import { CoachModal } from './components/CoachModal';
@@ -31,7 +32,7 @@ import { LearnerProfile, Module, Topic } from './types';
 export default function App() {
   const [profile, setProfile] = useState<LearnerProfile>(getLearnerProfile());
   const [modules, setModules] = useState<Module[]>(getModulesWithTopics());
-  const [activeTab, setActiveTab] = useState<'learn' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin'>('learn');
+  const [activeTab, setActiveTab] = useState<'learn' | 'mock-tests' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin'>('learn');
 
   // Admin authentication state
   const [isAdmin, setIsAdmin] = useState<boolean>(() => isAdminAuthenticated());
@@ -162,6 +163,7 @@ export default function App() {
               setCoachInitialQuery(undefined);
               setIsCoachModalOpen(true);
             }}
+            onOpenMockTests={() => setActiveTab('mock-tests')}
           />
         )}
 
@@ -171,6 +173,16 @@ export default function App() {
             modules={modules}
             profile={profile}
             onSelectTopic={handleSelectTopic}
+          />
+        )}
+
+        {/* Tab: FAANG 1-Hour Mock Tests (Google, Meta, Amazon, Apple, Netflix, Uber) */}
+        {activeTab === 'mock-tests' && (
+          <FaangMockTestsView
+            profile={profile}
+            onUpdateProfile={handleUpdateProfile}
+            onViewCertificates={() => setActiveTab('certificates')}
+            onViewBadges={() => setActiveTab('badges')}
           />
         )}
 
@@ -210,6 +222,7 @@ export default function App() {
           <CertificatesView
             profile={profile}
             modules={modules}
+            onSelectMockTests={() => setActiveTab('mock-tests')}
           />
         )}
 
