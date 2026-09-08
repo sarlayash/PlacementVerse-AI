@@ -3,8 +3,10 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
+const isGitHubPages = process.env.GITHUB_ACTIONS === "true" || process.env.DEPLOY_TARGET === "gh-pages";
+
 export default defineConfig({
-  base: "/PlacementVerse-AI/",
+  base: isGitHubPages ? "/PlacementVerse-AI/" : "/",
 
   plugins: [
     react(),

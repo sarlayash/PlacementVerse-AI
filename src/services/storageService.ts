@@ -113,9 +113,60 @@ export function saveLearnerProfile(profile: LearnerProfile): void {
     localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
     // Keep in sync with students roster
     syncProfileToRoster(profile);
+    // Background sync to server API
+    syncStudentToServer(profile);
+    // Cross-tab broadcast
+    notifyStudentsUpdated(profile);
   } catch (e) {
     console.error('Failed to persist profile:', e);
   }
+}
+
+export function notifyStudentsUpdated(student?: LearnerProfile): void {
+  try {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('placementverse_students_updated', { detail: student }));
+      if ('BroadcastChannel' in window) {
+        const bc = new BroadcastChannel('placementverse_sync');
+        bc.postMessage({ type: 'STUDENTS_UPDATED', student, timestamp: Date.now() });
+        bc.close();
+      }
+    }
+  } catch (e) {
+    // Silently ignore broadcast failures
+  }
+}
+
+export async function syncStudentToServer(student: LearnerProfile): Promise<void> {
+  try {
+    if (typeof fetch !== 'undefined') {
+      await fetch('/api/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(student),
+      });
+    }
+  } catch {
+    // Offline / serverless fallback
+  }
+}
+
+export async function fetchServerStudents(): Promise<LearnerProfile[] | null> {
+  try {
+    if (typeof fetch !== 'undefined') {
+      const res = await fetch('/api/students');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.students) && data.students.length > 0) {
+          saveAllStudents(data.students);
+          return data.students;
+        }
+      }
+    }
+  } catch {
+    // Fallback to local storage
+  }
+  return null;
 }
 
 export function hasStartedJourney(): boolean {
@@ -226,6 +277,9 @@ export function updateStudentInRoster(updatedStudent: LearnerProfile): void {
   if (currentProfile.name.toLowerCase() === updatedStudent.name.toLowerCase()) {
     localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(updatedStudent));
   }
+
+  syncStudentToServer(updatedStudent);
+  notifyStudentsUpdated(updatedStudent);
 }
 
 export function addStudentToRoster(newStudent: LearnerProfile): void {
@@ -238,11 +292,20 @@ export function addStudentToRoster(newStudent: LearnerProfile): void {
     students.unshift(newStudent);
   }
   saveAllStudents(students);
+  syncStudentToServer(newStudent);
+  notifyStudentsUpdated(newStudent);
 }
 
 export function deleteStudentFromRoster(studentName: string): void {
   const students = getAllStudents().filter(s => s.name.toLowerCase() !== studentName.toLowerCase());
   saveAllStudents(students);
+  notifyStudentsUpdated();
+
+  try {
+    if (typeof fetch !== 'undefined') {
+      fetch(`/api/students/${encodeURIComponent(studentName)}`, { method: 'DELETE' }).catch(() => {});
+    }
+  } catch {}
 }
 
 export function reissueBadgeForStudent(studentName: string, badgeId: string, xpBonus = 150): LearnerProfile | null {

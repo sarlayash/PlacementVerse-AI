@@ -36,6 +36,229 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// ==========================================
+// REAL-TIME STUDENTS ROSTER & SSE STREAM
+// ==========================================
+interface ServerStudent {
+  name: string;
+  institute: string;
+  department: string;
+  classYear: string;
+  xp: number;
+  level: number;
+  levelTitle: string;
+  streakDays: number;
+  lastActiveDate: string;
+  completedTopicIds: string[];
+  unlockedTopicIds: string[];
+  topicScores: Record<string, any>;
+  badgesEarned: string[];
+  dailyMissions: any[];
+  realWorldSubmissions?: {
+    email?: { score: number; date: string; feedback?: string };
+    gd?: { score: number; date: string; feedback?: string };
+    resume?: { atsScore: number; date: string; feedback?: string };
+  };
+  predictedPlacementScore: number;
+}
+
+// Initial in-memory student roster
+let serverStudents: ServerStudent[] = [
+  {
+    name: 'Aarav Sharma',
+    institute: 'IIT Delhi',
+    department: 'Computer Science',
+    classYear: 'Final Year 2025',
+    xp: 4850,
+    level: 5,
+    levelTitle: 'Level 5 Placement Legend',
+    streakDays: 14,
+    lastActiveDate: new Date().toISOString(),
+    completedTopicIds: ['mod1-topic-1', 'mod1-topic-2', 'mod2-topic-1', 'mod2-topic-2', 'mod3-topic-1'],
+    unlockedTopicIds: ['mod1-topic-1', 'mod1-topic-2', 'mod1-topic-3', 'mod2-topic-1', 'mod2-topic-2', 'mod3-topic-1'],
+    topicScores: { 'mod1-topic-1': { practiceBest: 100, challengeBest: 95, bossPassed: true } },
+    badgesEarned: ['bronze-starter', 'silver-explorer', 'gold-achiever', 'diamond-legend', 'aptitude-champ'],
+    dailyMissions: [{ id: 'm1', title: 'Finish 20 MCQs', target: 20, current: 20, completed: true, rewardXp: 40 }],
+    realWorldSubmissions: {
+      email: { score: 96, date: '2025-02-14', feedback: 'Mastered STAR response format.' },
+      gd: { score: 94, date: '2025-02-16', feedback: 'Clear arguments with statistical backing.' },
+      resume: { atsScore: 92, date: '2025-02-18' },
+    },
+    predictedPlacementScore: 96,
+  },
+  {
+    name: 'Priyanshu Mehta',
+    institute: 'BITS Pilani',
+    department: 'Electronics & Communication',
+    classYear: 'Final Year 2025',
+    xp: 4320,
+    level: 4,
+    levelTitle: 'Level 4 Pro Achiever',
+    streakDays: 12,
+    lastActiveDate: new Date().toISOString(),
+    completedTopicIds: ['mod1-topic-1', 'mod1-topic-2', 'mod2-topic-1'],
+    unlockedTopicIds: ['mod1-topic-1', 'mod1-topic-2', 'mod2-topic-1', 'mod2-topic-2'],
+    topicScores: { 'mod1-topic-1': { practiceBest: 92, challengeBest: 88, bossPassed: true } },
+    badgesEarned: ['bronze-starter', 'silver-explorer', 'aptitude-champ'],
+    dailyMissions: [{ id: 'm1', title: 'Finish 20 MCQs', target: 20, current: 15, completed: false, rewardXp: 40 }],
+    realWorldSubmissions: {
+      email: { score: 88, date: '2025-02-15' },
+      gd: { score: 86, date: '2025-02-17' },
+      resume: { atsScore: 89, date: '2025-02-19' },
+    },
+    predictedPlacementScore: 93,
+  },
+  {
+    name: 'Sneha Reddy',
+    institute: 'NIT Surathkal',
+    department: 'Information Technology',
+    classYear: 'Pre-Final Year 2026',
+    xp: 3980,
+    level: 4,
+    levelTitle: 'Level 4 Pro Achiever',
+    streakDays: 10,
+    lastActiveDate: new Date().toISOString(),
+    completedTopicIds: ['mod1-topic-1', 'mod2-topic-1'],
+    unlockedTopicIds: ['mod1-topic-1', 'mod1-topic-2', 'mod2-topic-1'],
+    topicScores: { 'mod1-topic-1': { practiceBest: 88, challengeBest: 82, bossPassed: true } },
+    badgesEarned: ['bronze-starter', 'silver-explorer'],
+    dailyMissions: [],
+    realWorldSubmissions: {
+      email: { score: 85, date: '2025-02-18' },
+      gd: { score: 84, date: '2025-02-20' },
+      resume: { atsScore: 88, date: '2025-02-21' },
+    },
+    predictedPlacementScore: 91,
+  },
+  {
+    name: 'Tanvi Sen',
+    institute: 'DTU Delhi',
+    department: 'Software Engineering',
+    classYear: 'Final Year 2025',
+    xp: 3450,
+    level: 3,
+    levelTitle: 'Level 3 Challenger',
+    streakDays: 8,
+    lastActiveDate: new Date().toISOString(),
+    completedTopicIds: ['mod1-topic-1'],
+    unlockedTopicIds: ['mod1-topic-1', 'mod1-topic-2'],
+    topicScores: {},
+    badgesEarned: ['bronze-starter'],
+    dailyMissions: [],
+    realWorldSubmissions: {
+      resume: { atsScore: 84, date: '2025-02-22' },
+    },
+    predictedPlacementScore: 86,
+  }
+];
+
+// Active SSE client connections (Admins watching real-time)
+const sseClients = new Set<express.Response>();
+
+function broadcastStudentUpdate(type: 'JOIN' | 'UPDATE' | 'DELETE', payload: any) {
+  const data = JSON.stringify({
+    type,
+    payload,
+    allStudents: serverStudents,
+    timestamp: Date.now(),
+  });
+  for (const client of sseClients) {
+    try {
+      client.write(`data: ${data}\n\n`);
+    } catch {
+      sseClients.delete(client);
+    }
+  }
+}
+
+// 1. Get all students
+app.get('/api/students', (req, res) => {
+  res.json({
+    students: serverStudents,
+    total: serverStudents.length,
+    timestamp: Date.now(),
+  });
+});
+
+// 2. Register or update student in real time
+app.post('/api/students', (req, res) => {
+  const studentData: ServerStudent = req.body;
+  if (!studentData || !studentData.name) {
+    return res.status(400).json({ error: 'Valid student name is required' });
+  }
+
+  const existingIdx = serverStudents.findIndex(
+    (s) => s.name.toLowerCase() === studentData.name.toLowerCase()
+  );
+
+  let isNew = false;
+  if (existingIdx >= 0) {
+    serverStudents[existingIdx] = {
+      ...serverStudents[existingIdx],
+      ...studentData,
+      lastActiveDate: new Date().toISOString(),
+    };
+  } else {
+    isNew = true;
+    serverStudents.unshift({
+      ...studentData,
+      lastActiveDate: new Date().toISOString(),
+    });
+  }
+
+  const updatedStudent = existingIdx >= 0 ? serverStudents[existingIdx] : serverStudents[0];
+  broadcastStudentUpdate(isNew ? 'JOIN' : 'UPDATE', updatedStudent);
+
+  res.json({
+    success: true,
+    isNew,
+    student: updatedStudent,
+    totalStudents: serverStudents.length,
+  });
+});
+
+// 3. Delete student
+app.delete('/api/students/:name', (req, res) => {
+  const targetName = decodeURIComponent(req.params.name).toLowerCase();
+  const initialLength = serverStudents.length;
+  serverStudents = serverStudents.filter((s) => s.name.toLowerCase() !== targetName);
+
+  if (serverStudents.length < initialLength) {
+    broadcastStudentUpdate('DELETE', { name: req.params.name });
+  }
+
+  res.json({ success: true, remaining: serverStudents.length });
+});
+
+// 4. Server-Sent Events (SSE) stream for Real-Time Administrator Monitoring
+app.get('/api/students/stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders?.();
+
+  // Send initial snapshot immediately
+  res.write(`data: ${JSON.stringify({ type: 'SNAPSHOT', allStudents: serverStudents, timestamp: Date.now() })}\n\n`);
+
+  sseClients.add(res);
+
+  // Heartbeat every 15s to keep connection alive
+  const heartbeat = setInterval(() => {
+    try {
+      res.write(': heartbeat\n\n');
+    } catch {
+      clearInterval(heartbeat);
+      sseClients.delete(res);
+    }
+  }, 15000);
+
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    sseClients.delete(res);
+  });
+});
+
+
 /**
  * Resilient Gemini content generation with multi-model fallback & backoff.
  * Automatically handles transient 503 (high demand) / rate limits by failing over
