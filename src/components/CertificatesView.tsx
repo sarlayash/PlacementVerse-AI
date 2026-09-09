@@ -11,6 +11,7 @@ import {
   getCertificateVerificationUrl 
 } from '../services/certificateVerificationService';
 import { CertificateVerificationModal } from './CertificateVerificationModal';
+import { GoogleRibbonBar, GoogleCertificationSeal, GOOGLE_COLORS } from './GoogleRibbon';
 
 interface CertificatesViewProps {
   profile: LearnerProfile;
@@ -289,253 +290,261 @@ export const CertificatesView: React.FC<CertificatesViewProps> = ({
         </div>
       )}
 
-      {/* ================= PRINTABLE CERTIFICATE CANVAS ================= */}
-      <div className={`relative mx-auto max-w-4xl p-8 sm:p-12 rounded-3xl bg-white border-12 border-double shadow-2xl overflow-hidden print:p-6 print:border-8 print:shadow-none ${
-        certType === 'final'
-          ? 'border-rose-700/70'
-          : (certType === 'faang' ? 'border-indigo-700/60' : 'border-amber-600/60')
-      }`}>
+      {/* ================= PRINTABLE CERTIFICATE CANVAS (GOOGLE STANDARDS WORLD-CLASS) ================= */}
+      <div className="relative mx-auto max-w-4xl rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-300/80 print:border-none print:shadow-none print:max-w-none print:rounded-none">
         
-        {/* Subtle Background Pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(#6366f1_0.75px,transparent_0.75px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
-        
-        {/* Corner Ornaments */}
-        <div className={`absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 pointer-events-none ${
-          certType === 'final' ? 'border-rose-600' : (certType === 'faang' ? 'border-indigo-600' : 'border-amber-600')
-        }`} />
-        <div className={`absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 pointer-events-none ${
-          certType === 'final' ? 'border-rose-600' : (certType === 'faang' ? 'border-indigo-600' : 'border-amber-600')
-        }`} />
-        <div className={`absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 pointer-events-none ${
-          certType === 'final' ? 'border-rose-600' : (certType === 'faang' ? 'border-indigo-600' : 'border-amber-600')
-        }`} />
-        <div className={`absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 pointer-events-none ${
-          certType === 'final' ? 'border-rose-600' : (certType === 'faang' ? 'border-indigo-600' : 'border-amber-600')
-        }`} />
-
-        <div className="relative z-10 text-center space-y-6">
-          
-          {/* Header Logos */}
-          <div className={`flex items-center justify-between border-b pb-6 ${
-            certType === 'final' 
-              ? 'border-rose-200/80' 
-              : (certType === 'faang' ? 'border-indigo-200/80' : 'border-amber-200/80')
-          }`}>
-            <div className="flex items-center gap-2 text-left">
-              <div className={`w-10 h-10 rounded-xl text-white flex items-center justify-center font-black text-lg shadow-sm ${
-                certType === 'final'
-                  ? 'bg-gradient-to-tr from-rose-600 to-indigo-700'
-                  : (certType === 'faang' 
-                    ? 'bg-gradient-to-tr from-indigo-600 to-purple-700' 
-                    : 'bg-gradient-to-tr from-amber-500 to-amber-700')
-              }`}>
-                PV
-              </div>
-              <div>
-                <p className="font-extrabold text-sm tracking-tight text-slate-900 font-display">
-                  PLACEMENTVERSE AI
-                </p>
-                <p className={`text-[10px] font-bold uppercase tracking-wider ${
-                  certType === 'final' ? 'text-rose-700' : (certType === 'faang' ? 'text-indigo-700' : 'text-amber-700')
-                }`}>
-                  National Placement Readiness Authority
-                </p>
-              </div>
-            </div>
-
-            <div className="text-right">
-              <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                certType === 'final'
-                  ? 'bg-rose-50 text-rose-800 border border-rose-300'
-                  : (certType === 'faang'
-                    ? 'bg-indigo-50 text-indigo-800 border border-indigo-300'
-                    : (certType === 'ultimate' ? 'bg-amber-50 text-amber-800 border border-amber-300' : 'bg-blue-50 text-blue-800 border border-blue-300'))
-              }`}>
-                {certType === 'final'
-                  ? 'National 250-Question Benchmark'
-                  : (certType === 'faang' 
-                    ? `${selectedFaangTest.companies.join(' & ')} Placement Standard` 
-                    : (certType === 'ultimate' ? 'ISO 9001:2015 Verified' : 'Topic Competency Certificate'))}
-              </span>
-              <p className="text-[10px] font-mono text-slate-400 mt-0.5">ID: {currentCertId}</p>
-            </div>
-          </div>
-
-          {/* Title */}
-          <div className="space-y-2 pt-2">
-            <p className={`text-xs sm:text-sm font-bold uppercase tracking-widest font-display ${
-              certType === 'final' ? 'text-rose-700' : (certType === 'faang' ? 'text-indigo-700' : 'text-amber-700')
-            }`}>
-              {certType === 'final'
-                ? 'Grand Placement Final Assessment Credential'
-                : (certType === 'faang' 
-                  ? 'Official Tier-1 MNC Placement Assessment Credential' 
-                  : (certType === 'ultimate' ? 'Certificate of Ultimate Placement Readiness' : 'Certificate of Topic Mastery'))}
-            </p>
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black font-display text-slate-900 tracking-tight">
-              {certType === 'final'
-                ? 'GRAND PLACEMENT DIPLOMATE'
-                : (certType === 'faang' 
-                  ? selectedFaangTest.certificateTitle.toUpperCase()
-                  : (certType === 'ultimate' ? 'NATIONAL CAMPUS FELLOW' : currentTopic.name.toUpperCase()))}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 italic">
-              This credential is formally conferred upon
-            </p>
-          </div>
-
-          {/* Candidate Name */}
-          <div className="py-2">
-            <p className="text-2xl sm:text-4xl font-extrabold text-slate-900 border-b-2 border-slate-300 inline-block px-8 pb-2 font-display">
-              {profile.name || 'Kapil Narula'}
-            </p>
-            <p className="text-xs sm:text-sm text-slate-600 font-semibold mt-2">
-              {profile.institute || 'National Institute of Technology'} • Department of {profile.department || 'Computer Science'}
-            </p>
-          </div>
-
-          {/* Body Narrative */}
-          <p className="text-xs sm:text-sm text-slate-700 max-w-2xl mx-auto leading-relaxed">
-            {certType === 'final' ? (
-              <>
-                for successfully undertaking and qualifying the comprehensive <strong>Grand Placement Final Assessment (90-Minute Endurance Sprint • 250 Questions)</strong> across Quantitative Aptitude, Logical & Algorithmic Puzzles, Computer Science Core Architectures, Advanced Data Structures, and Executive Situational Judgment with negative marking rigor.
-              </>
-            ) : (certType === 'faang' ? (
-              <>
-                for successfully qualifying the rigorous 60-Minute Tier-1 FAANG Mock Placement Exam covering advanced algorithmic scalability, systems architecture, distributed concurrency, memory contention, and mission-critical production problem-solving aligned with <strong>{selectedFaangTest.companies.join(', ')}</strong> technical campus benchmarks.
-              </>
-            ) : (certType === 'ultimate' ? (
-              <>
-                for exceptional demonstration of analytical speed, logical problem-solving, verbal clarity, corporate email articulation, group discussion leadership, and rigorous MNC Boss Battle clearances under timed negative-marking campus conditions.
-              </>
-            ) : (
-              <>
-                for successfully mastering all four rigorous stages of <strong>{currentTopic.name}</strong>, including the 10-Minute AI Conceptual Module, Practice Zone, 15-Minute Timed Challenge, and defeating the Tier-1 MNC Boss Battle with a score ≥ 80%.
-              </>
-            )))}
-          </p>
-
-          {/* Metrics Box */}
-          <div className="grid grid-cols-3 max-w-md mx-auto gap-3 py-2">
-            <div className={`p-3 rounded-2xl border ${
-              certType === 'final' 
-                ? 'bg-rose-50/70 border-rose-200' 
-                : (certType === 'faang' ? 'bg-indigo-50/70 border-indigo-200' : 'bg-amber-50/70 border-amber-200')
-            }`}>
-              <p className={`text-[10px] uppercase font-bold ${
-                certType === 'final' ? 'text-rose-800' : (certType === 'faang' ? 'text-indigo-800' : 'text-amber-800')
-              }`}>
-                {certType === 'final' ? 'Final Score' : (certType === 'faang' ? 'Mock Test Score' : 'Placement Score')}
-              </p>
-              <p className={`text-xl font-black mt-0.5 ${
-                certType === 'final' ? 'text-rose-900' : (certType === 'faang' ? 'text-indigo-900' : 'text-amber-900')
-              }`}>
-                {certType === 'final'
-                  ? (latestFinalAttempt ? `${latestFinalAttempt.totalScore}/1000 (${latestFinalAttempt.percentage}%)` : `${profile.predictedPlacementScore}%`)
-                  : (certType === 'faang' 
-                    ? (issuedFaangCert ? `${issuedFaangCert.scorePercentage}%` : `${profile.predictedPlacementScore}%`)
-                    : `${profile.predictedPlacementScore}%`)}
-              </p>
-            </div>
-            <div className={`p-3 rounded-2xl border ${
-              certType === 'final' 
-                ? 'bg-rose-50/70 border-rose-200' 
-                : (certType === 'faang' ? 'bg-indigo-50/70 border-indigo-200' : 'bg-amber-50/70 border-amber-200')
-            }`}>
-              <p className={`text-[10px] uppercase font-bold ${
-                certType === 'final' ? 'text-rose-800' : (certType === 'faang' ? 'text-indigo-800' : 'text-amber-800')
-              }`}>
-                Benchmark
-              </p>
-              <p className={`text-xl font-black mt-0.5 ${
-                certType === 'final' ? 'text-rose-900' : (certType === 'faang' ? 'text-indigo-900' : 'text-amber-900')
-              }`}>
-                {certType === 'final' ? 'Top 1% National' : (certType === 'faang' ? 'FAANG Ready' : 'Grade A+')}
-              </p>
-            </div>
-            <div className={`p-3 rounded-2xl border ${
-              certType === 'final' 
-                ? 'bg-rose-50/70 border-rose-200' 
-                : (certType === 'faang' ? 'bg-indigo-50/70 border-indigo-200' : 'bg-amber-50/70 border-amber-200')
-            }`}>
-              <p className={`text-[10px] uppercase font-bold ${
-                certType === 'final' ? 'text-rose-800' : (certType === 'faang' ? 'text-indigo-800' : 'text-amber-800')
-              }`}>
-                Total XP
-              </p>
-              <p className={`text-xl font-black mt-0.5 ${
-                certType === 'final' ? 'text-rose-900' : (certType === 'faang' ? 'text-indigo-900' : 'text-amber-900')
-              }`}>
-                {profile.xp.toLocaleString()}
-              </p>
-            </div>
-          </div>
-
-          {/* Signatures & QR Code */}
-          <div className={`pt-6 border-t grid grid-cols-3 items-end gap-4 ${
+        {/* TOP COLORED RIBBON (Google 4-Color Primary Satin Ribbon) */}
+        <GoogleRibbonBar 
+          position="top" 
+          label={
             certType === 'final'
-              ? 'border-rose-200/80'
-              : (certType === 'faang' ? 'border-indigo-200/80' : 'border-amber-200/80')
-          }`}>
+              ? 'GOOGLE & FAANG STANDARDS • GRAND PLACEMENT FINAL DIPLOMA'
+              : certType === 'faang'
+                ? `GOOGLE CLOUD & TIER-1 PLACEMENT STANDARD • ${selectedFaangTest.companies.join(' & ').toUpperCase()} ACCREDITED`
+                : certType === 'ultimate'
+                  ? 'NATIONAL CAMPUS ACCREDITATION • GOOGLE-STANDARD PLACEMENT FELLOWSHIP'
+                  : 'TOPIC COMPETENCY DIPLOMATE • GOOGLE CURRICULUM BENCHMARK'
+          }
+          subtitle={`VERIFIED CREDENTIAL ID: ${currentCertId}`}
+        />
+
+        {/* Certificate Paper Canvas */}
+        <div className="relative p-6 sm:p-12 bg-gradient-to-b from-[#FAF9F5] via-white to-[#F8F7F2] overflow-hidden">
+          
+          {/* Subtle Google Guilloche Security Micro-pattern */}
+          <div className="absolute inset-0 bg-[radial-gradient(#4285F4_0.75px,transparent_0.75px)] [background-size:24px_24px] opacity-[0.06] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(#EA4335_0.75px,transparent_0.75px)] [background-size:48px_48px] opacity-[0.03] pointer-events-none" />
+          
+          {/* Double Gold Fillet Inner Border Frame */}
+          <div className="absolute inset-3 sm:inset-5 border-2 border-amber-300/70 rounded-2xl pointer-events-none" />
+          <div className="absolute inset-4 sm:inset-6 border border-dashed border-amber-400/40 rounded-xl pointer-events-none" />
+
+          {/* Corner Ornamental Google 4-Color Brackets */}
+          <div className="absolute top-5 left-5 w-8 h-8 border-t-[3px] border-l-[3px] border-[#4285F4] pointer-events-none" />
+          <div className="absolute top-5 right-5 w-8 h-8 border-t-[3px] border-r-[3px] border-[#EA4335] pointer-events-none" />
+          <div className="absolute bottom-5 left-5 w-8 h-8 border-b-[3px] border-l-[3px] border-[#34A853] pointer-events-none" />
+          <div className="absolute bottom-5 right-5 w-8 h-8 border-b-[3px] border-r-[3px] border-[#FBBC05] pointer-events-none" />
+
+          <div className="relative z-10 text-center space-y-6">
             
-            {/* Left: QR Code (Real Scannable Matrix) */}
-            <div className="flex flex-col items-center sm:items-start text-left">
-              <button
-                type="button"
-                onClick={() => setIsVerificationModalOpen(true)}
-                className="w-16 h-16 sm:w-20 sm:h-20 bg-white p-1 rounded-xl border-2 border-slate-300 hover:border-indigo-600 shadow-sm flex items-center justify-center cursor-pointer transition-all group relative overflow-hidden"
-                title="Click to test live verification or scan with your phone camera"
-              >
-                {qrDataUrl ? (
-                  <img
-                    src={qrDataUrl}
-                    alt={`Scan to verify ${currentCertId}`}
-                    className="w-full h-full object-contain rounded-lg"
-                  />
-                ) : (
-                  <QrCode className="w-full h-full text-slate-800" />
-                )}
-                <div className="absolute inset-0 bg-slate-950/80 rounded-lg opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-[8px] text-white font-bold transition-opacity p-0.5 text-center">
-                  <span>📱 Scan Phone</span>
-                  <span className="text-emerald-300">or Click Test</span>
+            {/* Header Logos & Accreditation Standard */}
+            <div className="flex items-center justify-between border-b border-slate-200/90 pb-5">
+              <div className="flex items-center gap-3 text-left">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-center font-black text-xl shadow-md border border-white/20 relative overflow-hidden">
+                  <div className="absolute top-0 inset-x-0 h-1 flex">
+                    <div className="flex-1 bg-[#4285F4]" />
+                    <div className="flex-1 bg-[#EA4335]" />
+                    <div className="flex-1 bg-[#FBBC05]" />
+                    <div className="flex-1 bg-[#34A853]" />
+                  </div>
+                  <span>PV</span>
                 </div>
-              </button>
-              <p className="text-[9px] font-mono text-slate-600 font-semibold mt-1">Scan with Phone / Lens</p>
-            </div>
-
-            {/* Center: Gold/Indigo/Crimson Foil Stamp */}
-            <div className="flex flex-col items-center">
-              <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-1 shadow-lg border-2 border-white ${
-                certType === 'final'
-                  ? 'bg-gradient-to-tr from-rose-500 via-amber-300 to-indigo-600'
-                  : (certType === 'faang'
-                    ? 'bg-gradient-to-tr from-indigo-500 via-purple-300 to-indigo-700'
-                    : 'bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600')
-              }`}>
-                <div className="w-full h-full rounded-full border border-dashed border-slate-900/40 flex flex-col items-center justify-center text-slate-900 text-center">
-                  <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-slate-900" />
-                  <span className="text-[7px] font-extrabold tracking-widest uppercase">Verified</span>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-extrabold text-sm tracking-tight text-slate-900 font-display">
+                      PLACEMENTVERSE AI
+                    </p>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4]" />
+                    <span className="text-[9px] font-black uppercase tracking-wider text-indigo-700">
+                      Google Standards
+                    </span>
+                  </div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    National Placement Readiness Authority • ISO 9001:2015
+                  </p>
                 </div>
               </div>
-              <p className="text-[9px] font-bold text-slate-800 uppercase mt-1">Official Seal</p>
+
+              <div className="text-right">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-100 text-slate-800 border border-slate-300/80 shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-[#34A853] animate-pulse" />
+                  <span>
+                    {certType === 'final'
+                      ? 'National 250-Question Standard'
+                      : (certType === 'faang' 
+                        ? `${selectedFaangTest.companies.join(' & ')} Benchmark` 
+                        : (certType === 'ultimate' ? 'Gold Campus Accreditation' : 'Topic Competency Diplomate'))}
+                  </span>
+                </div>
+                <p className="text-[10px] font-mono text-slate-400 mt-1">ID: {currentCertId}</p>
+              </div>
             </div>
 
-            {/* Right: Signature */}
-            <div className="text-center sm:text-right">
-              <div className="h-10 flex items-center justify-center sm:justify-end">
-                <span className="font-serif italic font-extrabold text-lg sm:text-xl text-slate-800">
-                  Kapil Narula
+            {/* Title Block */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-center gap-2">
+                <span className="h-[1px] w-8 bg-gradient-to-r from-transparent to-amber-500" />
+                <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.25em] font-display text-amber-700">
+                  {certType === 'final'
+                    ? 'Grand Placement Final Assessment Credential'
+                    : (certType === 'faang' 
+                      ? 'Official Tier-1 MNC Placement Assessment Credential' 
+                      : (certType === 'ultimate' ? 'Certificate of Ultimate Placement Readiness' : 'Certificate of Topic Mastery'))}
+                </p>
+                <span className="h-[1px] w-8 bg-gradient-to-l from-transparent to-amber-500" />
+              </div>
+
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black font-display text-slate-900 tracking-tight">
+                {certType === 'final'
+                  ? 'GRAND PLACEMENT DIPLOMATE'
+                  : (certType === 'faang' 
+                    ? selectedFaangTest.certificateTitle.toUpperCase()
+                    : (certType === 'ultimate' ? 'NATIONAL CAMPUS FELLOW' : currentTopic.name.toUpperCase()))}
+              </h1>
+
+              <p className="text-xs sm:text-sm text-slate-500 italic font-serif">
+                This credential is formally and irrevocably conferred upon
+              </p>
+            </div>
+
+            {/* Candidate Name */}
+            <div className="py-2">
+              <p className="text-2xl sm:text-4xl font-extrabold text-slate-900 border-b-2 border-slate-300/80 inline-block px-8 pb-2 font-display tracking-tight">
+                {profile.name || 'Kapil Narula'}
+              </p>
+              <p className="text-xs sm:text-sm text-slate-600 font-semibold mt-2">
+                {profile.institute || 'National Institute of Technology'} • Department of {profile.department || 'Computer Science'}
+              </p>
+            </div>
+
+            {/* Body Narrative */}
+            <p className="text-xs sm:text-sm text-slate-700 max-w-2xl mx-auto leading-relaxed">
+              {certType === 'final' ? (
+                <>
+                  for successfully undertaking and qualifying the comprehensive <strong>Grand Placement Final Assessment (90-Minute Endurance Sprint • 250 Questions)</strong> across Quantitative Aptitude, Logical & Algorithmic Puzzles, Computer Science Core Architectures, Advanced Data Structures, and Executive Situational Judgment with negative marking rigor.
+                </>
+              ) : (certType === 'faang' ? (
+                <>
+                  for successfully qualifying the rigorous 60-Minute Tier-1 FAANG Mock Placement Exam covering advanced algorithmic scalability, systems architecture, distributed concurrency, memory contention, and mission-critical production problem-solving aligned with <strong>{selectedFaangTest.companies.join(', ')}</strong> technical campus benchmarks.
+                </>
+              ) : (certType === 'ultimate' ? (
+                <>
+                  for exceptional demonstration of analytical speed, logical problem-solving, verbal clarity, corporate email articulation, group discussion leadership, and rigorous MNC Boss Battle clearances under timed negative-marking campus conditions.
+                </>
+              ) : (
+                <>
+                  for successfully mastering all four rigorous stages of <strong>{currentTopic.name}</strong>, including the 10-Minute AI Conceptual Module, Practice Zone, 15-Minute Timed Challenge, and defeating the Tier-1 MNC Boss Battle with a score ≥ 80%.
+                </>
+              )))}
+            </p>
+
+            {/* Google-Style Verified Competency Chips */}
+            <div className="flex flex-wrap items-center justify-center gap-1.5 max-w-2xl mx-auto py-1">
+              {[
+                certType === 'final' ? '250-Question Endurance' : 'Aptitude & Speed Math',
+                certType === 'faang' ? 'Algorithmic Scalability & Concurrency' : 'Logical Deduction & Puzzles',
+                'Executive Situational STAR',
+                certType === 'faang' ? `${selectedFaangTest.companies.join(' & ')} Standards` : 'Negative Marking Discipline'
+              ].map((skill, idx) => (
+                <span 
+                  key={idx}
+                  className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white text-slate-700 border border-slate-200 shadow-xs flex items-center gap-1"
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    idx % 4 === 0 ? 'bg-[#4285F4]' : idx % 4 === 1 ? 'bg-[#EA4335]' : idx % 4 === 2 ? 'bg-[#FBBC05]' : 'bg-[#34A853]'
+                  }`} />
+                  <span>{skill}</span>
                 </span>
+              ))}
+            </div>
+
+            {/* Metrics Box */}
+            <div className="grid grid-cols-3 max-w-md mx-auto gap-3 py-1">
+              <div className="p-3 rounded-2xl bg-white border border-slate-200 shadow-xs">
+                <p className="text-[10px] uppercase font-bold text-slate-500">
+                  {certType === 'final' ? 'Final Score' : (certType === 'faang' ? 'Mock Test Score' : 'Placement Score')}
+                </p>
+                <p className="text-xl font-black mt-0.5 text-slate-900 font-display">
+                  {certType === 'final'
+                    ? (latestFinalAttempt ? `${latestFinalAttempt.totalScore}/1000 (${latestFinalAttempt.percentage}%)` : `${profile.predictedPlacementScore}%`)
+                    : (certType === 'faang' 
+                      ? (issuedFaangCert ? `${issuedFaangCert.scorePercentage}%` : `${profile.predictedPlacementScore}%`)
+                      : `${profile.predictedPlacementScore}%`)}
+                </p>
               </div>
-              <div className="w-36 sm:w-44 ml-auto border-t border-slate-400 pt-1">
-                <p className="text-xs font-bold text-slate-900">Kapil Narula</p>
-                <p className="text-[10px] text-slate-500">Program Director, PlacementVerse AI</p>
+              <div className="p-3 rounded-2xl bg-white border border-slate-200 shadow-xs">
+                <p className="text-[10px] uppercase font-bold text-slate-500">
+                  Benchmark
+                </p>
+                <p className="text-xl font-black mt-0.5 text-indigo-700 font-display">
+                  {certType === 'final' ? 'Top 1% National' : (certType === 'faang' ? 'FAANG Ready' : 'Grade A+')}
+                </p>
               </div>
+              <div className="p-3 rounded-2xl bg-white border border-slate-200 shadow-xs">
+                <p className="text-[10px] uppercase font-bold text-slate-500">
+                  Total XP
+                </p>
+                <p className="text-xl font-black mt-0.5 text-amber-600 font-display">
+                  {profile.xp.toLocaleString()}
+                </p>
+              </div>
+            </div>
+
+            {/* Signatures & Google Seal Block */}
+            <div className="pt-6 border-t border-slate-200/90 grid grid-cols-3 items-end gap-4">
+              
+              {/* Left: QR Code (Real Scannable Matrix) */}
+              <div className="flex flex-col items-center sm:items-start text-left">
+                <button
+                  type="button"
+                  onClick={() => setIsVerificationModalOpen(true)}
+                  className="w-16 h-16 sm:w-20 sm:h-20 bg-white p-1.5 rounded-2xl border-2 border-slate-300 hover:border-blue-600 shadow-sm flex items-center justify-center cursor-pointer transition-all group relative overflow-hidden"
+                  title="Click to test live verification or scan with Google Lens"
+                >
+                  {qrDataUrl ? (
+                    <img
+                      src={qrDataUrl}
+                      alt={`Scan to verify ${currentCertId}`}
+                      className="w-full h-full object-contain rounded-lg"
+                    />
+                  ) : (
+                    <QrCode className="w-full h-full text-slate-800" />
+                  )}
+                  <div className="absolute inset-0 bg-slate-950/85 rounded-xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-[8px] text-white font-bold transition-opacity p-0.5 text-center">
+                    <span>📱 Scan Phone</span>
+                    <span className="text-[#FBBC05]">Google Lens</span>
+                  </div>
+                </button>
+                <p className="text-[9px] font-mono text-slate-600 font-semibold mt-1.5 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#34A853]" />
+                  <span>Scan via Google Lens</span>
+                </p>
+              </div>
+
+              {/* Center: Google Standards Certification Seal with Dual Hanging Ribbon Tails */}
+              <div className="flex flex-col items-center">
+                <GoogleCertificationSeal 
+                  size="md" 
+                  withRibbonTails={true} 
+                  badgeCode="GOOGLE-STD VERIFIED"
+                />
+              </div>
+
+              {/* Right: Signature */}
+              <div className="text-center sm:text-right">
+                <div className="h-10 flex items-center justify-center sm:justify-end">
+                  <span className="font-serif italic font-extrabold text-lg sm:text-xl text-slate-800">
+                    Kapil Narula
+                  </span>
+                </div>
+                <div className="w-36 sm:w-44 ml-auto border-t border-slate-400 pt-1">
+                  <p className="text-xs font-bold text-slate-900">Kapil Narula</p>
+                  <p className="text-[10px] text-slate-500">Program Director, PlacementVerse AI</p>
+                </div>
+              </div>
+
             </div>
 
           </div>
 
         </div>
+
+        {/* BOTTOM COLORED RIBBON (Google 4-Color Primary Satin Ribbon) */}
+        <GoogleRibbonBar 
+          position="bottom" 
+          label="CRYPTOGRAPHICALLY SIGNED CREDENTIAL • GLOBAL VERIFICATION REPOSITORY" 
+          subtitle={`SHA-256 HASH VERIFIED • ID: ${currentCertId}`}
+        />
 
       </div>
 

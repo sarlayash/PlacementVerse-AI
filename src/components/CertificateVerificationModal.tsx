@@ -10,6 +10,7 @@ import {
   generateQrCodeDataUrl,
   getCertificateVerificationUrl 
 } from '../services/certificateVerificationService';
+import { GoogleRibbonBar } from './GoogleRibbon';
 
 interface CertificateVerificationModalProps {
   initialCode: string;
@@ -85,6 +86,13 @@ export const CertificateVerificationModal: React.FC<CertificateVerificationModal
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
       <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto">
         
+        {/* Top Google Colored Ribbon */}
+        <GoogleRibbonBar 
+          position="top"
+          label="GOOGLE & FAANG ACCREDITED VERIFICATION PORTAL • SECURE LEDGER"
+          subtitle="PUBLIC REAL-TIME CREDENTIAL REPOSITORY"
+        />
+
         {/* Top Header */}
         <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-6 py-5 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -373,6 +381,13 @@ export const CertificateVerificationModal: React.FC<CertificateVerificationModal
             </button>
           </div>
         </div>
+
+        {/* Bottom Google Colored Ribbon */}
+        <GoogleRibbonBar 
+          position="bottom"
+          label="PlacementVerse AI • Official Verification Ledger"
+          subtitle="Direct Verification Engine • Authorized by Kapil Narula"
+        />
 
       </div>
     </div>
