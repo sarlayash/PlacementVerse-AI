@@ -38,18 +38,18 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
   const [activeCertificate, setActiveCertificate] = useState<IssuedCertificateRecord | null>(null);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
-  // Countdown to Tomorrow's Slot 1 (Wednesday, Sep 9, 2026, 10:00 AM IST)
+  // Countdown to Today's Slot 1 (Wednesday, Sep 9, 2026, 10:00 AM IST)
   const [countdownString, setCountdownString] = useState<string>('01d 02h 15m');
 
   useEffect(() => {
     const updateCountdown = () => {
-      // Calculate remaining time until tomorrow 10:00 AM
+      // Calculate remaining time until Today 10:00 AM
       const now = new Date();
-      const tomorrow10am = new Date(now);
-      tomorrow10am.setDate(tomorrow10am.getDate() + 1);
-      tomorrow10am.setHours(10, 0, 0, 0);
+      const today10am = new Date(now);
       
-      const diffMs = Math.max(0, tomorrow10am.getTime() - now.getTime());
+      today10am.setHours(10, 0, 0, 0);
+      
+      const diffMs = Math.max(0, today10am.getTime() - now.getTime());
       const hours = Math.floor(diffMs / (1000 * 60 * 60));
       const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
       const secs = Math.floor((diffMs % (1000 * 60)) / 1000);
@@ -902,7 +902,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
     );
   }
 
-  // Primary FAANG Hub: 3 Mock Tests Scheduled for Tomorrow
+  // Primary FAANG Hub: 3 Mock Tests Scheduled for Today
   return (
     <div className="space-y-8">
       
@@ -913,7 +913,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-amber-400 text-slate-950 flex items-center gap-1.5 shadow-sm">
                 <Calendar className="w-3.5 h-3.5" />
-                Scheduled for Tomorrow
+                Scheduled for Today
               </span>
               <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-rose-500/20 text-rose-300 border border-rose-500/40">
                 100% FAANG Aligned
@@ -928,11 +928,11 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
             </p>
           </div>
 
-          {/* Tomorrow Live Countdown Card */}
+          {/* Today Live Countdown Card */}
           <div className="bg-white/10 backdrop-blur-md p-5 rounded-3xl border border-white/20 text-center shrink-0 w-full sm:w-auto">
             <div className="flex items-center justify-center gap-1.5 text-[10px] uppercase font-bold text-amber-400">
               <Clock className="w-3.5 h-3.5" />
-              <span>Tomorrow's First Slot Opens In</span>
+              <span>Today's First Slot Opens In</span>
             </div>
             <p className="text-3xl sm:text-4xl font-black font-mono tracking-wider text-white mt-1">
               {countdownString}
@@ -1127,3 +1127,4 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
     </div>
   );
 };
+
