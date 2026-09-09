@@ -41,6 +41,48 @@ export interface Module {
   topics: Topic[];
 }
 
+export interface LearnerDeviceMeta {
+  deviceId: string;
+  browser: string;
+  os: string;
+  deviceType: 'Laptop / Desktop' | 'Mobile' | 'Tablet';
+  screenResolution?: string;
+  timezone?: string;
+  language?: string;
+  ipAddress?: string;
+  location?: string;
+  lastHeartbeat?: string;
+  firstSeen?: string;
+  lastSeen?: string;
+  isOnline?: boolean;
+}
+
+export type ActivityActionType = 
+  | 'LOGIN'
+  | 'REGISTER'
+  | 'PRACTICE_MCQ'
+  | 'CHALLENGE'
+  | 'BOSS_BATTLE'
+  | 'REAL_WORLD_TASK'
+  | 'FAANG_MOCK_TEST'
+  | 'COACH_ASK'
+  | 'BADGE_EARNED'
+  | 'CERTIFICATE_ISSUED'
+  | 'MISSION_COMPLETED';
+
+export interface LearnerActivityItem {
+  id: string;
+  timestamp: string;
+  actionType: ActivityActionType;
+  title: string;
+  details: string;
+  category: 'Aptitude' | 'Technical' | 'Soft Skills' | 'Exam' | 'System';
+  score?: number;
+  xpEarned?: number;
+  badgeName?: string;
+  deviceSummary?: string;
+}
+
 export interface LearnerProfile {
   name: string;
   institute: string;
@@ -71,6 +113,14 @@ export interface LearnerProfile {
   };
   predictedPlacementScore: number;
   mockTestAttempts?: Record<string, MockTestAttempt>;
+  deviceMeta?: LearnerDeviceMeta;
+  activityLog?: LearnerActivityItem[];
+  isOnline?: boolean;
+  lastHeartbeat?: string;
+  ipAddress?: string;
+  location?: string;
+  loginCount?: number;
+  firstLoginDate?: string;
 }
 
 export interface Badge {

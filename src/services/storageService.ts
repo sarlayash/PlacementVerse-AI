@@ -1,4 +1,4 @@
-import { LearnerProfile, Module, Topic, Announcement, IssuedCertificateRecord, LeaderboardEntry, MockTestAttempt } from '../types';
+import { LearnerProfile, Module, Topic, Announcement, IssuedCertificateRecord, LeaderboardEntry, MockTestAttempt, LearnerDeviceMeta, LearnerActivityItem, ActivityActionType } from '../types';
 import { INITIAL_MODULES } from '../data/learningPathData';
 import confetti from 'canvas-confetti';
 
@@ -258,13 +258,138 @@ export function notifyStudentsUpdated(student?: LearnerProfile): void {
   }
 }
 
+export function getClientDeviceMeta(): LearnerDeviceMeta {
+  let deviceId = 'dev_anon';
+  try {
+    deviceId = localStorage.getItem('placementverse_device_id') || '';
+    if (!deviceId) {
+      deviceId = `dev_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+      localStorage.setItem('placementverse_device_id', deviceId);
+    }
+  } catch {}
+
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  let browser = 'Chrome';
+  let os = 'Windows 11';
+  let deviceType: 'Laptop / Desktop' | 'Mobile' | 'Tablet' = 'Laptop / Desktop';
+
+  if (/iPad|tablet/i.test(ua)) deviceType = 'Tablet';
+  else if (/Mobile|Android|iPhone|iPod/i.test(ua)) deviceType = 'Mobile';
+  else deviceType = 'Laptop / Desktop';
+
+  if (/Windows NT 10.0/i.test(ua) || /Windows NT 11.0/i.test(ua)) os = 'Windows 11 / 10';
+  else if (/Windows/i.test(ua)) os = 'Windows PC';
+  else if (/Macintosh|Mac OS X/i.test(ua)) os = 'macOS (MacBook/iMac)';
+  else if (/Linux/i.test(ua) && !/Android/i.test(ua)) os = 'Linux Desktop';
+  else if (/Android/i.test(ua)) os = 'Android Mobile';
+  else if (/iPhone/i.test(ua)) os = 'Apple iPhone (iOS)';
+  else if (/iPad/i.test(ua)) os = 'Apple iPad (iPadOS)';
+
+  if (/Edg/i.test(ua)) browser = 'Microsoft Edge';
+  else if (/Chrome|CriOS/i.test(ua)) browser = 'Google Chrome';
+  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Apple Safari';
+  else if (/Firefox|FxiOS/i.test(ua)) browser = 'Mozilla Firefox';
+
+  const timezone = typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'Asia/Kolkata';
+  const screenResolution = typeof window !== 'undefined' ? `${window.screen.width}x${window.screen.height}` : '1920x1080';
+  const language = typeof navigator !== 'undefined' ? navigator.language : 'en-IN';
+
+  return {
+    deviceId,
+    browser,
+    os,
+    deviceType,
+    screenResolution,
+    timezone,
+    language,
+    lastHeartbeat: new Date().toISOString(),
+    isOnline: true,
+  };
+}
+
+export function logLearnerActivity(
+  actionType: ActivityActionType,
+  title: string,
+  details: string,
+  category: 'Aptitude' | 'Technical' | 'Soft Skills' | 'Exam' | 'System' = 'Aptitude',
+  score?: number,
+  xpEarned?: number,
+  badgeName?: string
+): void {
+  try {
+    const profile = getLearnerProfile();
+    if (!profile.name || !profile.name.trim()) return;
+
+    const device = getClientDeviceMeta();
+    const newActivity: LearnerActivityItem = {
+      id: `act-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      actionType,
+      title,
+      details,
+      category,
+      score,
+      xpEarned,
+      badgeName,
+      deviceSummary: `${device.os} · ${device.browser}`,
+    };
+
+    const existingActivities = profile.activityLog || [];
+    profile.activityLog = [newActivity, ...existingActivities].slice(0, 100);
+    profile.lastActiveDate = new Date().toISOString();
+
+    localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
+    syncProfileToRoster(profile);
+
+    // Send activity to server
+    if (typeof fetch !== 'undefined') {
+      fetch('/api/students/activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentName: profile.name,
+          activity: newActivity,
+          deviceMeta: device,
+        }),
+      }).catch(() => {});
+    }
+
+    notifyStudentsUpdated(profile);
+  } catch (err) {
+    console.error('Failed to log learner activity:', err);
+  }
+}
+
+export async function sendLearnerHeartbeat(studentName?: string): Promise<void> {
+  try {
+    const name = studentName || getLearnerProfile()?.name;
+    if (!name || !name.trim()) return;
+
+    const device = getClientDeviceMeta();
+    if (typeof fetch !== 'undefined') {
+      await fetch('/api/students/heartbeat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          deviceMeta: device,
+        }),
+      });
+    }
+  } catch {}
+}
+
 export async function syncStudentToServer(student: LearnerProfile): Promise<void> {
   try {
-    if (typeof fetch !== 'undefined') {
+    if (typeof fetch !== 'undefined' && student && student.name && student.name.trim()) {
+      const deviceMeta = getClientDeviceMeta();
       await fetch('/api/students', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(student),
+        body: JSON.stringify({
+          ...student,
+          deviceMeta,
+        }),
       });
     }
   } catch {
@@ -288,6 +413,72 @@ export async function fetchServerStudents(): Promise<LearnerProfile[] | null> {
     // Fallback to local storage
   }
   return null;
+}
+
+export async function fetchServerActivities(): Promise<any[]> {
+  try {
+    if (typeof fetch !== 'undefined') {
+      const res = await fetch('/api/students/activities');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.activities)) {
+          return data.activities;
+        }
+      }
+    }
+  } catch {}
+  return [];
+}
+
+export async function notifyJourneyBegunToServer(student: LearnerProfile, customMessage?: string): Promise<void> {
+  try {
+    if (typeof fetch !== 'undefined' && student && student.name) {
+      const deviceMeta = getClientDeviceMeta();
+      await fetch('/api/students/journey-begun', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          student,
+          message: customMessage,
+          deviceMeta,
+        }),
+      });
+    }
+  } catch {}
+}
+
+export async function sendAdminBroadcast(
+  title: string,
+  message: string,
+  type: 'info' | 'motivational' | 'urgent' | 'congrats' = 'motivational',
+  sender: string = 'Director Desk (Kapil Narula)'
+): Promise<boolean> {
+  try {
+    if (typeof fetch !== 'undefined') {
+      const res = await fetch('/api/admin/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, message, type, sender }),
+      });
+      return res.ok;
+    }
+  } catch {}
+  return false;
+}
+
+export async function fetchRecentBroadcasts(): Promise<any[]> {
+  try {
+    if (typeof fetch !== 'undefined') {
+      const res = await fetch('/api/broadcasts');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.broadcasts)) {
+          return data.broadcasts;
+        }
+      }
+    }
+  } catch {}
+  return [];
 }
 
 export function hasStartedJourney(): boolean {
@@ -690,6 +881,18 @@ export function recordMockTestResult(
     };
     issueOrReissueCertificate(cert);
   }
+
+  // Log learner action for cross-device activity tracking
+  const totalQuestions = (attempt.correctCount || 0) + (attempt.wrongCount || 0) + (attempt.skippedCount || 0);
+  logLearnerActivity(
+    'FAANG_MOCK_TEST',
+    `Attempted ${certificateTitle}`,
+    `Completed with ${attempt.correctCount}/${totalQuestions || 25} questions correct (${Math.round(attempt.percentage)}%) in ${Math.round((attempt.timeSpentSeconds || 0) / 60)} minutes. Result: ${attempt.passed ? 'PASSED (Certificate Issued)' : 'RE-ATTEMPT REQUIRED'}.`,
+    'Exam',
+    Math.round(attempt.percentage),
+    attempt.passed ? 1000 : 100,
+    attempt.passed ? _badgeRewardName : undefined
+  );
 
   return { updatedProfile, certificate: cert, newlyUnlockedBadge };
 }

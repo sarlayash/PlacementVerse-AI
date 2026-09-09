@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Megaphone } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { HeroBanner } from './components/HeroBanner';
 import { LearningPathView } from './components/LearningPathView';
@@ -25,7 +25,13 @@ import {
   setJourneyStarted,
   isAdminAuthenticated,
   logoutAdmin,
-  fireCelebrationConfetti 
+  fireCelebrationConfetti,
+  notifyJourneyBegunToServer,
+  sendLearnerHeartbeat,
+  syncStudentToServer,
+  logLearnerActivity,
+  playNotificationChime,
+  fetchRecentBroadcasts
 } from './services/storageService';
 import { LearnerProfile, Module, Topic } from './types';
 
@@ -42,12 +48,72 @@ export default function App() {
   const [hasStarted, setHasStarted] = useState<boolean>(hasStartedJourney());
   const [showLandingPage, setShowLandingPage] = useState<boolean>(!hasStartedJourney());
 
+  // Broadcast alert toast
+  const [activeBroadcast, setActiveBroadcast] = useState<any | null>(null);
+
   // Modals state
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
   const [isMissionsModalOpen, setIsMissionsModalOpen] = useState(false);
   const [isCoachModalOpen, setIsCoachModalOpen] = useState(false);
   const [coachInitialQuery, setCoachInitialQuery] = useState<string | undefined>(undefined);
+
+  // Synchronize learner to server and maintain heartbeat
+  useEffect(() => {
+    if (profile.name && profile.name.trim()) {
+      syncStudentToServer(profile);
+      sendLearnerHeartbeat(profile.name);
+    }
+
+    // Keep online status active every 25 seconds
+    const heartbeatTimer = setInterval(() => {
+      if (profile.name && profile.name.trim()) {
+        sendLearnerHeartbeat(profile.name);
+      }
+    }, 25000);
+
+    // SSE connection for immediate broadcasts & events
+    let eventSource: EventSource | null = null;
+    try {
+      eventSource = new EventSource('/api/students/stream');
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'BROADCAST_ALERT' && data.payload) {
+            setActiveBroadcast(data.payload);
+            playNotificationChime();
+          }
+        } catch {}
+      };
+    } catch {}
+
+    // Polling fallback every 12 seconds
+    const broadcastPoll = setInterval(async () => {
+      const recent = await fetchRecentBroadcasts();
+      if (recent && recent.length > 0) {
+        const latest = recent[0];
+        if (Date.now() - latest.timestamp < 20000) {
+          setActiveBroadcast((prev: any) => (prev?.id === latest.id ? prev : latest));
+        }
+      }
+    }, 12000);
+
+    return () => {
+      clearInterval(heartbeatTimer);
+      clearInterval(broadcastPoll);
+      if (eventSource) eventSource.close();
+    };
+  }, [profile.name]);
+
+  // Auto-dismiss broadcast alert after 9 seconds
+  useEffect(() => {
+    if (activeBroadcast) {
+      const timer = setTimeout(() => {
+        setActiveBroadcast(null);
+      }, 9000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeBroadcast]);
 
   // Sync profile updates to storage
   const handleUpdateProfile = (updated: LearnerProfile) => {
@@ -67,6 +133,17 @@ export default function App() {
     setHasStarted(true);
     setShowLandingPage(false);
     setActiveTab('learn');
+
+    // Notify server of new student across devices
+    notifyJourneyBegunToServer(updated, `Candidate started placement preparation from ${institute || 'College'}`);
+    logLearnerActivity(
+      'REGISTER',
+      'Joined Placement Prep Track',
+      `Registered as ${department || 'Engineering'} student from ${institute || 'Engineering College'}`,
+      'System',
+      undefined,
+      100
+    );
   };
 
   const handleOpenAdminPortal = () => {
@@ -148,6 +225,57 @@ export default function App() {
         isAdmin={isAdmin}
         onGoToLanding={() => setShowLandingPage(true)}
       />
+
+      {/* Real-time Broadcast / Motivational Alert Toast */}
+      {activeBroadcast && (
+        <div id="admin-broadcast-toast" className="fixed top-20 right-4 sm:right-8 z-50 max-w-sm sm:max-w-md w-full animate-in slide-in-from-top-4 fade-in duration-300">
+          <div className={`p-4 rounded-2xl border shadow-xl flex items-start gap-3 backdrop-blur-md ${
+            activeBroadcast.type === 'urgent'
+              ? 'bg-rose-50/95 border-rose-300 text-rose-950 shadow-rose-100'
+              : activeBroadcast.type === 'congrats'
+              ? 'bg-emerald-50/95 border-emerald-300 text-emerald-950 shadow-emerald-100'
+              : 'bg-amber-50/95 border-amber-300 text-amber-950 shadow-amber-100'
+          }`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
+              activeBroadcast.type === 'urgent'
+                ? 'bg-rose-600 text-white'
+                : activeBroadcast.type === 'congrats'
+                ? 'bg-emerald-600 text-white'
+                : 'bg-amber-500 text-white'
+            }`}>
+              <Megaphone className="w-5 h-5" />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-1">
+                <span className={`text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded ${
+                  activeBroadcast.type === 'urgent'
+                    ? 'bg-rose-200 text-rose-900'
+                    : activeBroadcast.type === 'congrats'
+                    ? 'bg-emerald-200 text-emerald-900'
+                    : 'bg-amber-200 text-amber-900'
+                }`}>
+                  {activeBroadcast.type === 'urgent' ? '🚨 Urgent Announcement' : activeBroadcast.type === 'congrats' ? '🎉 Milestone Alert' : '📢 Director Broadcast'}
+                </span>
+                <button
+                  id="close-broadcast-toast-btn"
+                  onClick={() => setActiveBroadcast(null)}
+                  className="text-slate-400 hover:text-slate-700 text-xs p-1"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <h4 className="font-bold text-slate-900 text-sm mt-1">{activeBroadcast.title}</h4>
+              <p className="text-xs text-slate-700 mt-0.5 leading-relaxed">{activeBroadcast.message}</p>
+              <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500">
+                <span>From: {activeBroadcast.sender || 'Placement Director'}</span>
+                <span>Live Alert</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
