@@ -119,7 +119,7 @@ export const CertificatesView: React.FC<CertificatesViewProps> = ({ profile, mod
           <Calendar className="w-3.5 h-3.5 text-amber-400" />
           <span>🏛️ FAANG Tier-1 Credentials (3 Mock Tests)</span>
           <span className="px-1.5 py-0.2 bg-rose-500 text-white text-[9px] font-black rounded-full">
-            Tomorrow
+            Today
           </span>
         </button>
 
@@ -169,7 +169,7 @@ export const CertificatesView: React.FC<CertificatesViewProps> = ({ profile, mod
               onClick={onSelectMockTests}
               className="px-3.5 py-1.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs w-fit"
             >
-              <span>Take Tomorrow's Mock Test Arena</span>
+              <span>Take Today's Mock Test Arena</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}
@@ -199,9 +199,9 @@ export const CertificatesView: React.FC<CertificatesViewProps> = ({ profile, mod
         <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3 print:hidden">
           <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div className="text-xs leading-relaxed">
-            <p className="font-bold">Credential Verification Scheduled for Tomorrow</p>
+            <p className="font-bold">Credential Verification Scheduled for Today</p>
             <p className="text-amber-800 mt-0.5">
-              This preview reflects your verified candidate credentials. Score ≥ 60% in tomorrow's 60-minute <strong>{selectedFaangTest.title}</strong> to permanently lock this credential, secure the {selectedFaangTest.badgeRewardName} metallic badge, and activate LinkedIn verification.
+              This preview reflects your verified candidate credentials. Score ≥ 60% in Today's 60-minute <strong>{selectedFaangTest.title}</strong> to permanently lock this credential, secure the {selectedFaangTest.badgeRewardName} metallic badge, and activate LinkedIn verification.
             </p>
           </div>
         </div>

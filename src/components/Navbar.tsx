@@ -79,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Calendar className="w-4 h-4 text-indigo-600" />
               <span>FAANG Mocks</span>
               <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-rose-500 text-white animate-pulse">
-                Tomorrow
+                Today
               </span>
             </button>
             <button

@@ -1296,7 +1296,7 @@ const NETFLIX_UBER_QUESTIONS: FaangQuestion[] = [
   }
 ];
 
-// Master list of the 3 FAANG Mock Tests scheduled for tomorrow
+// Master list of the 3 FAANG Mock Tests scheduled for Today
 export const FAANG_MOCK_TESTS: FaangMockTest[] = [
   {
     id: 'faang-mock-1',
@@ -1304,7 +1304,7 @@ export const FAANG_MOCK_TESTS: FaangMockTest[] = [
     subtitle: '1-Hour High-Bar Screening Crucible • 25 Very Hard Questions',
     companyTier: 'Google & Meta Tier-1 OA',
     companies: ['Google', 'Meta'],
-    scheduledDate: 'Tomorrow, Wednesday, Sep 9, 2026 • Slot 1 (10:00 AM - 11:00 AM IST)',
+    scheduledDate: 'Today, Wednesday, Sep 9, 2026 • Slot 1 (10:00 AM - 11:00 AM IST)',
     durationMinutes: 60,
     totalQuestions: 25,
     marksPerQuestion: 4,
@@ -1333,7 +1333,7 @@ export const FAANG_MOCK_TESTS: FaangMockTest[] = [
     subtitle: '1-Hour Production Systems & Quantitative Crucible • 25 Very Hard Questions',
     companyTier: 'Amazon & Apple Tier-1 OA',
     companies: ['Amazon', 'Apple'],
-    scheduledDate: 'Tomorrow, Wednesday, Sep 9, 2026 • Slot 2 (02:30 PM - 03:30 PM IST)',
+    scheduledDate: 'Today, Wednesday, Sep 9, 2026 • Slot 2 (02:30 PM - 03:30 PM IST)',
     durationMinutes: 60,
     totalQuestions: 25,
     marksPerQuestion: 4,
@@ -1362,7 +1362,7 @@ export const FAANG_MOCK_TESTS: FaangMockTest[] = [
     subtitle: '1-Hour Mission-Critical Architecture Crucible • 25 Very Hard Questions',
     companyTier: 'Netflix & Uber Tier-1 OA',
     companies: ['Netflix', 'Uber'],
-    scheduledDate: 'Tomorrow, Wednesday, Sep 9, 2026 • Slot 3 (07:00 PM - 08:00 PM IST)',
+    scheduledDate: 'Today, Wednesday, Sep 9, 2026 • Slot 3 (07:00 PM - 08:00 PM IST)',
     durationMinutes: 60,
     totalQuestions: 25,
     marksPerQuestion: 4,
