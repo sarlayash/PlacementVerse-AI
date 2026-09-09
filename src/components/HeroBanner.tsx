@@ -10,6 +10,7 @@ interface HeroBannerProps {
   onOpenMissions: () => void;
   onOpenCoach: () => void;
   onOpenMockTests?: () => void;
+  onOpenFinalAssessment?: () => void;
 }
 
 export const HeroBanner: React.FC<HeroBannerProps> = ({
@@ -19,6 +20,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   onOpenMissions,
   onOpenCoach,
   onOpenMockTests,
+  onOpenFinalAssessment,
 }) => {
   const totalTopics = modules.reduce((acc, m) => acc + m.topics.length, 0);
   const completedCount = profile.completedTopicIds.length;
@@ -87,6 +89,19 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 <span>3 FAANG Mock Tests</span>
                 <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-rose-500 text-white animate-pulse">
                   Today
+                </span>
+              </button>
+            )}
+
+            {onOpenFinalAssessment && (
+              <button
+                onClick={onOpenFinalAssessment}
+                className="px-5 py-3 rounded-xl bg-gradient-to-r from-rose-600 via-rose-700 to-indigo-700 hover:from-rose-500 hover:to-indigo-600 text-white font-bold text-sm shadow-lg shadow-rose-600/20 flex items-center gap-2 transition-all hover:scale-102 active:scale-98"
+              >
+                <Zap className="w-4 h-4 fill-amber-300 text-amber-300" />
+                <span>Final Assessment</span>
+                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-white/20 text-white">
+                  250 Qs / 90m
                 </span>
               </button>
             )}

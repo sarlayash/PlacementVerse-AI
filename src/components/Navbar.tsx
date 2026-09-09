@@ -7,8 +7,8 @@ import { LearnerProfile } from '../types';
 
 interface NavbarProps {
   profile: LearnerProfile;
-  activeTab: 'learn' | 'mock-tests' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin';
-  onSelectTab: (tab: 'learn' | 'mock-tests' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin') => void;
+  activeTab: 'learn' | 'mock-tests' | 'final-assessment' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin';
+  onSelectTab: (tab: 'learn' | 'mock-tests' | 'final-assessment' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin') => void;
   onOpenCoach: () => void;
   onOpenMissions: () => void;
   onOpenAdmin: () => void;
@@ -80,6 +80,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>FAANG Mocks</span>
               <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-rose-500 text-white animate-pulse">
                 Today
+              </span>
+            </button>
+            <button
+              onClick={() => onSelectTab('final-assessment')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg transition-all relative ${
+                activeTab === 'final-assessment'
+                  ? 'bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold shadow-xs'
+                  : 'text-rose-700 hover:text-rose-900 hover:bg-rose-50'
+              }`}
+            >
+              <Zap className={`w-3.5 h-3.5 ${activeTab === 'final-assessment' ? 'fill-amber-300 text-amber-300' : 'fill-rose-500 text-rose-500'}`} />
+              <span>Final Assessment</span>
+              <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-black ${
+                activeTab === 'final-assessment' ? 'bg-white/20 text-white' : 'bg-rose-500 text-white'
+              }`}>
+                250 Qs
               </span>
             </button>
             <button
@@ -250,6 +266,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>FAANG Mocks (3)</span>
+          </button>
+          <button
+            onClick={() => onSelectTab('final-assessment')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 flex items-center gap-1 ${
+              activeTab === 'final-assessment' ? 'bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold' : 'text-rose-700 bg-rose-50 font-bold'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Final (250 Qs)</span>
           </button>
           <button
             onClick={() => onSelectTab('tasks')}

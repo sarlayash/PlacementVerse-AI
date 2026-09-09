@@ -1,4 +1,4 @@
-import { LearnerProfile, Module, Topic, Announcement, IssuedCertificateRecord, LeaderboardEntry, MockTestAttempt, LearnerDeviceMeta, LearnerActivityItem, ActivityActionType } from '../types';
+import { LearnerProfile, Module, Topic, Announcement, IssuedCertificateRecord, LeaderboardEntry, MockTestAttempt, FinalAssessmentAttempt, LearnerDeviceMeta, LearnerActivityItem, ActivityActionType } from '../types';
 import { INITIAL_MODULES } from '../data/learningPathData';
 import confetti from 'canvas-confetti';
 
@@ -896,4 +896,98 @@ export function recordMockTestResult(
 
   return { updatedProfile, certificate: cert, newlyUnlockedBadge };
 }
+
+const STORAGE_KEY_FINAL_ASSESSMENTS = 'placementverse_final_assessments';
+
+export function getFinalAssessmentAttempts(): FinalAssessmentAttempt[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_FINAL_ASSESSMENTS);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+export function recordFinalAssessmentAttempt(
+  attempt: FinalAssessmentAttempt,
+  profile: LearnerProfile
+): { updatedProfile: LearnerProfile; certificate?: IssuedCertificateRecord; newlyUnlockedBadge: boolean } {
+  // Save to persistent list of attempts
+  const allAttempts = getFinalAssessmentAttempts();
+  allAttempts.unshift(attempt);
+  try {
+    localStorage.setItem(STORAGE_KEY_FINAL_ASSESSMENTS, JSON.stringify(allAttempts.slice(0, 20)));
+  } catch (e) {
+    console.error('Failed to persist final assessment attempt:', e);
+  }
+
+  // Update profile XP & Badges
+  let newXp = (profile.xp || 0) + (attempt.passed ? 3500 : 500);
+  const badges = [...(profile.badgesEarned || [])];
+  let newlyUnlockedBadge = false;
+
+  // Final Assessment Master Badge
+  if (attempt.passed && !badges.includes('grand-master-faang')) {
+    badges.push('grand-master-faang');
+    newXp += 2000;
+    newlyUnlockedBadge = true;
+  }
+
+  // High distinction (>85%) bonus badge
+  if (attempt.percentage >= 85 && !badges.includes('boss-killer')) {
+    badges.push('boss-killer');
+    newXp += 1500;
+  }
+
+  const currentPlacement = profile.predictedPlacementScore || 70;
+  const targetAdjustment = attempt.percentage >= 85 ? 8 : attempt.percentage >= 70 ? 5 : 2;
+  const updatedPlacementScore = Math.min(99, Math.max(currentPlacement, currentPlacement + targetAdjustment));
+
+  const updatedProfile: LearnerProfile = {
+    ...profile,
+    xp: newXp,
+    badgesEarned: badges,
+    predictedPlacementScore: updatedPlacementScore,
+    finalAssessmentAttempts: allAttempts,
+  };
+  saveLearnerProfile(updatedProfile);
+
+  // Issue Official Grand Final Assessment Certificate if passed (>= 70%)
+  let cert: IssuedCertificateRecord | undefined = undefined;
+  if (attempt.passed) {
+    cert = {
+      id: `cert-final-${attempt.attemptId}`,
+      studentName: profile.name || 'Placement Candidate',
+      institute: profile.institute || 'National Institute of Technology',
+      type: 'grand-final-assessment',
+      title: 'Grand Placement Final Assessment Certification',
+      issueDate: new Date().toISOString().split('T')[0],
+      readinessScore: Math.round(attempt.percentage),
+      grade: attempt.percentage >= 90 
+        ? 'Grade O (Apex Prodigy)' 
+        : attempt.percentage >= 80 
+        ? 'Grade A+ (Elite Distinction)' 
+        : 'Grade A (Qualified FAANG Level)',
+      endorsedBy: 'Kapil Narula (Placement Director & FAANG Evaluator)',
+      verificationCode: attempt.certificateCode || `PV-FINAL-250Q-${Math.floor(100000 + Math.random() * 900000)}`,
+      status: 'Active',
+    };
+    issueOrReissueCertificate(cert);
+  }
+
+  // Log learner activity for real-time admin monitoring across devices
+  logLearnerActivity(
+    'FINAL_ASSESSMENT',
+    'Completed Grand Final Assessment (250 Qs / 90 Mins)',
+    `Finished with ${attempt.correctCount}/250 correct (${attempt.totalScore}/1000 marks, ${Math.round(attempt.percentage)}%) in ${Math.round(attempt.timeSpentSeconds / 60)} minutes. Result: ${attempt.passed ? 'PASSED & CERTIFIED' : 'FAILED - NEEDS RE-ATTEMPT'}.`,
+    'Exam',
+    Math.round(attempt.percentage),
+    attempt.passed ? 3500 : 500,
+    attempt.passed ? 'Grand FAANG Master' : undefined
+  );
+
+  return { updatedProfile, certificate: cert, newlyUnlockedBadge };
+}
+
 

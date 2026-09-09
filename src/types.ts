@@ -65,6 +65,7 @@ export type ActivityActionType =
   | 'BOSS_BATTLE'
   | 'REAL_WORLD_TASK'
   | 'FAANG_MOCK_TEST'
+  | 'FINAL_ASSESSMENT'
   | 'COACH_ASK'
   | 'BADGE_EARNED'
   | 'CERTIFICATE_ISSUED'
@@ -113,6 +114,7 @@ export interface LearnerProfile {
   };
   predictedPlacementScore: number;
   mockTestAttempts?: Record<string, MockTestAttempt>;
+  finalAssessmentAttempts?: FinalAssessmentAttempt[];
   deviceMeta?: LearnerDeviceMeta;
   activityLog?: LearnerActivityItem[];
   isOnline?: boolean;
@@ -159,7 +161,7 @@ export interface IssuedCertificateRecord {
   id: string;
   studentName: string;
   institute: string;
-  type: 'ultimate' | 'quantitative' | 'verbal' | 'corporate' | 'faang-google-meta' | 'faang-amazon-apple' | 'faang-netflix-uber';
+  type: 'ultimate' | 'quantitative' | 'verbal' | 'corporate' | 'faang-google-meta' | 'faang-amazon-apple' | 'faang-netflix-uber' | 'grand-final-assessment';
   title: string;
   issueDate: string;
   readinessScore: number;
@@ -218,3 +220,34 @@ export interface MockTestAttempt {
   userAnswers: Record<string, number>;
   certificateCode?: string;
 }
+
+export interface FinalAssessmentQuestion {
+  id: string;
+  questionNumber: number; // 1 to 250
+  section: string;
+  domainTag: string;
+  question: string;
+  codeSnippet?: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  shortcutOrInsight: string;
+  difficulty: 'Very Hard';
+}
+
+export interface FinalAssessmentAttempt {
+  attemptId: string;
+  completedAt: string;
+  timeSpentSeconds: number; // out of 5400s (90m)
+  totalScore: number; // +4 / -1
+  maxScore: number; // 1000
+  percentage: number;
+  correctCount: number;
+  wrongCount: number;
+  skippedCount: number;
+  passed: boolean;
+  userAnswers: Record<string, number>;
+  sectionScores: Record<string, { correct: number; wrong: number; skipped: number; score: number; total: number }>;
+  certificateCode?: string;
+}
+

@@ -4,7 +4,7 @@ import {
   AlertCircle, ShieldCheck, Flame, Sparkles, ExternalLink, ArrowRight,
   Plus, Trash2, Edit3, Eye, Printer, RefreshCw, Trophy, Crown,
   LogOut, Check, Building2, GraduationCap, Clock, QrCode, Filter, Radio,
-  Volume2, Laptop, Smartphone, Globe, Activity, Send, Megaphone, Bell, Monitor, MapPin, Wifi
+  Volume2, Laptop, Smartphone, Globe, Activity, Send, Megaphone, Bell, Monitor, MapPin, Wifi, Zap
 } from 'lucide-react';
 import { LearnerProfile, Module, Topic, Question, IssuedCertificateRecord, LearnerActivityItem } from '../types';
 import { ALL_BADGES } from '../data/badgesData';
@@ -1249,6 +1249,40 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                       )}
                     </div>
                   </div>
+                </div>
+
+                {/* Grand Final Assessment Performance */}
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-rose-600" />
+                    Grand Final Assessment (250 Qs / 90 Mins)
+                  </h4>
+                  {selectedStudentForInspect.finalAssessmentAttempts && selectedStudentForInspect.finalAssessmentAttempts.length > 0 ? (
+                    <div className="p-3.5 rounded-xl bg-rose-50/60 border border-rose-200 text-xs space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-rose-950">
+                          Latest Score: {selectedStudentForInspect.finalAssessmentAttempts[0].totalScore} / 1000 ({selectedStudentForInspect.finalAssessmentAttempts[0].percentage}%)
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                          selectedStudentForInspect.finalAssessmentAttempts[0].passed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                        }`}>
+                          {selectedStudentForInspect.finalAssessmentAttempts[0].passed ? 'PASSED (≥ 50%)' : 'NEEDS RETEST'}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-600">
+                        <div>Correct: <strong className="text-emerald-700">{selectedStudentForInspect.finalAssessmentAttempts[0].correctCount}</strong></div>
+                        <div>Wrong: <strong className="text-rose-700">{selectedStudentForInspect.finalAssessmentAttempts[0].wrongCount}</strong></div>
+                        <div>Skipped: <strong className="text-slate-700">{selectedStudentForInspect.finalAssessmentAttempts[0].unansweredCount}</strong></div>
+                      </div>
+                      <div className="text-[10px] font-mono text-slate-400">
+                        Code: {selectedStudentForInspect.finalAssessmentAttempts[0].certificateCode} • Time Spent: {Math.round(selectedStudentForInspect.finalAssessmentAttempts[0].timeSpentSeconds / 60)}m
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500">
+                      Candidate has not yet attempted the 250-Question Grand Final Assessment.
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-2 flex items-center justify-end gap-2">
