@@ -115,6 +115,7 @@ export interface LearnerProfile {
   predictedPlacementScore: number;
   mockTestAttempts?: Record<string, MockTestAttempt>;
   finalAssessmentAttempts?: FinalAssessmentAttempt[];
+  issuedCertificates?: IssuedCertificateRecord[];
   deviceMeta?: LearnerDeviceMeta;
   activityLog?: LearnerActivityItem[];
   isOnline?: boolean;

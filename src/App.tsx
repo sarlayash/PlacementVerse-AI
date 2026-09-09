@@ -16,6 +16,7 @@ import { CoachModal } from './components/CoachModal';
 import { LandingPage } from './components/LandingPage';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { AdminDashboardView } from './components/AdminDashboardView';
+import { CertificateVerificationModal } from './components/CertificateVerificationModal';
 
 import { 
   getLearnerProfile, 
@@ -51,6 +52,24 @@ export default function App() {
 
   // Broadcast alert toast
   const [activeBroadcast, setActiveBroadcast] = useState<any | null>(null);
+
+  // Global live credential verification modal (for QR scans & URL links)
+  const [globalVerificationCode, setGlobalVerificationCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const verifyParam = searchParams.get('verify') || searchParams.get('code') || searchParams.get('cert');
+      if (verifyParam) {
+        setGlobalVerificationCode(verifyParam.trim());
+      } else if (window.location.pathname.startsWith('/verify/')) {
+        const pathCode = window.location.pathname.replace('/verify/', '').trim();
+        if (pathCode) {
+          setGlobalVerificationCode(decodeURIComponent(pathCode));
+        }
+      }
+    } catch {}
+  }, []);
 
   // Modals state
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
@@ -200,12 +219,26 @@ export default function App() {
   // If user is on the Landing Page, display full landing experience
   if (showLandingPage) {
     return (
-      <LandingPage
-        profile={profile}
-        onStartJourney={handleStartJourney}
-        onContinueExisting={hasStarted ? () => setShowLandingPage(false) : undefined}
-        hasStartedBefore={hasStarted}
-      />
+      <>
+        <LandingPage
+          profile={profile}
+          onStartJourney={handleStartJourney}
+          onContinueExisting={hasStarted ? () => setShowLandingPage(false) : undefined}
+          hasStartedBefore={hasStarted}
+        />
+        {globalVerificationCode && (
+          <CertificateVerificationModal
+            isOpen={Boolean(globalVerificationCode)}
+            initialCode={globalVerificationCode}
+            onClose={() => setGlobalVerificationCode(null)}
+            onViewInCertificatesTab={() => {
+              setGlobalVerificationCode(null);
+              setShowLandingPage(false);
+              setActiveTab('certificates');
+            }}
+          />
+        )}
+      </>
     );
   }
 
@@ -457,6 +490,19 @@ export default function App() {
         onClose={() => setIsAdminLoginOpen(false)}
         onLoginSuccess={handleAdminLoginSuccess}
       />
+
+      {/* Global Live Certificate Verification Modal */}
+      {globalVerificationCode && (
+        <CertificateVerificationModal
+          isOpen={Boolean(globalVerificationCode)}
+          initialCode={globalVerificationCode}
+          onClose={() => setGlobalVerificationCode(null)}
+          onViewInCertificatesTab={() => {
+            setGlobalVerificationCode(null);
+            setActiveTab('certificates');
+          }}
+        />
+      )}
 
     </div>
   );

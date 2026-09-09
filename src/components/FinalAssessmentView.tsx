@@ -3,7 +3,7 @@ import {
   Timer, Award, CheckCircle2, XCircle, AlertTriangle, HelpCircle, 
   ChevronLeft, ChevronRight, Bookmark, ArrowRight, RotateCcw, 
   Sparkles, Zap, ShieldAlert, BarChart3, Search, Clock, 
-  ExternalLink, Check, AlertCircle, FileText, Share2, Layers
+  ExternalLink, Check, AlertCircle, FileText, Share2, Layers, ShieldCheck
 } from 'lucide-react';
 import { LearnerProfile, FinalAssessmentAttempt, FinalAssessmentQuestion, IssuedCertificateRecord } from '../types';
 import { 
@@ -18,6 +18,7 @@ import {
   fireCelebrationConfetti,
   playNotificationChime
 } from '../services/storageService';
+import { CertificateVerificationModal } from './CertificateVerificationModal';
 
 interface FinalAssessmentViewProps {
   profile: LearnerProfile;
@@ -47,6 +48,7 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
 
   // Review screen filter
   const [reviewFilter, setReviewFilter] = useState<'all' | 'wrong' | 'correct' | 'skipped'>('all');
+  const [verifyModalCode, setVerifyModalCode] = useState<string | null>(null);
 
   // Load past attempt if any
   useEffect(() => {
@@ -910,7 +912,15 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
               </span>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => setVerifyModalCode(attemptToDisplay.certificateCode || 'PV-FINAL-250Q-PASSED')}
+                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-md cursor-pointer"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>Verify Credential Live</span>
+              </button>
+
               {onViewCertificates && (
                 <button
                   onClick={onViewCertificates}
@@ -1162,6 +1172,15 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
           })}
         </div>
       </div>
+
+      {verifyModalCode && (
+        <CertificateVerificationModal
+          isOpen={Boolean(verifyModalCode)}
+          initialCode={verifyModalCode}
+          onClose={() => setVerifyModalCode(null)}
+          onViewInCertificatesTab={onViewCertificates}
+        />
+      )}
     </div>
   );
 };

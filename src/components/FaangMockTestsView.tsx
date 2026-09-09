@@ -8,6 +8,8 @@ import {
 import { LearnerProfile, FaangMockTest, FaangQuestion, MockTestAttempt, IssuedCertificateRecord } from '../types';
 import { FAANG_MOCK_TESTS } from '../data/faangMockTestsData';
 import { recordMockTestResult, fireCelebrationConfetti } from '../services/storageService';
+import { getCertificateVerificationUrl } from '../services/certificateVerificationService';
+import { CertificateVerificationModal } from './CertificateVerificationModal';
 
 interface FaangMockTestsViewProps {
   profile: LearnerProfile;
@@ -37,6 +39,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
   const [showCertificateModal, setShowCertificateModal] = useState<boolean>(false);
   const [activeCertificate, setActiveCertificate] = useState<IssuedCertificateRecord | null>(null);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  const [verifyModalCode, setVerifyModalCode] = useState<string | null>(null);
 
   // Countdown to Today's Slot 1 (Wednesday, Sep 9, 2026, 10:00 AM IST)
   const [countdownString, setCountdownString] = useState<string>('01d 02h 15m');
@@ -872,22 +875,31 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-2">
+              <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
+                <button
+                  onClick={() => setVerifyModalCode(completedAttempt.certificateCode || 'PV-FAANG-VERIFIED')}
+                  className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Verify Credential Live</span>
+                </button>
+
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(`https://placementverse.ai/verify/${completedAttempt.certificateCode}`);
+                    const realUrl = getCertificateVerificationUrl(completedAttempt.certificateCode || 'PV-FAANG-VERIFIED');
+                    navigator.clipboard.writeText(realUrl);
                     setCopiedLink(true);
                     setTimeout(() => setCopiedLink(false), 2000);
                   }}
-                  className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1.5"
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1.5 cursor-pointer"
                 >
                   <Share2 className="w-4 h-4" />
-                  <span>{copiedLink ? 'Link Copied!' : 'Share Verification'}</span>
+                  <span>{copiedLink ? 'Link Copied!' : 'Copy Real Verification Link'}</span>
                 </button>
 
                 <button
                   onClick={() => window.print()}
-                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print Official Certificate</span>
@@ -896,6 +908,14 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
 
             </div>
           </div>
+        )}
+
+        {verifyModalCode && (
+          <CertificateVerificationModal
+            isOpen={Boolean(verifyModalCode)}
+            initialCode={verifyModalCode}
+            onClose={() => setVerifyModalCode(null)}
+          />
         )}
 
       </div>
