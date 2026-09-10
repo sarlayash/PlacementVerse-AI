@@ -161,9 +161,9 @@ export const CertificatesView: React.FC<CertificatesViewProps> = ({
           }`}
         >
           <Calendar className="w-3.5 h-3.5 text-amber-400" />
-          <span>🏛️ FAANG Tier-1 Credentials (3 Mock Tests)</span>
-          <span className="px-1.5 py-0.2 bg-rose-500 text-white text-[9px] font-black rounded-full">
-            Today
+          <span>🏛️ FAANG & Daily Practice Credentials ({FAANG_MOCK_TESTS.length} Mock Tests)</span>
+          <span className="px-1.5 py-0.2 bg-emerald-500 text-white text-[9px] font-black rounded-full">
+            Updated
           </span>
         </button>
 

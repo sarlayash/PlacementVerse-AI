@@ -1,4 +1,5 @@
 import { FaangMockTest, FaangQuestion } from '../types';
+import { DAILY_PRACTICE_MOCK_TESTS } from './dailyPracticeMockTestsData';
 
 // ============================================================================
 // FAANG MOCK TEST 1: GOOGLE & META
@@ -1297,11 +1298,12 @@ const NETFLIX_UBER_QUESTIONS: FaangQuestion[] = [
 ];
 
 // Master list of the 3 FAANG Mock Tests scheduled for Today
-export const FAANG_MOCK_TESTS: FaangMockTest[] = [
+export const ORIGINAL_FAANG_MOCK_TESTS: FaangMockTest[] = [
   {
     id: 'faang-mock-1',
     title: 'Google & Meta: Algorithmic & Systems Diagnostic',
     subtitle: '1-Hour High-Bar Screening Crucible • 25 Very Hard Questions',
+    category: 'FAANG High-Bar',
     companyTier: 'Google & Meta Tier-1 OA',
     companies: ['Google', 'Meta'],
     scheduledDate: 'Today, Wednesday, Sep 9, 2026 • Slot 1 (10:00 AM - 11:00 AM IST)',
@@ -1331,6 +1333,7 @@ export const FAANG_MOCK_TESTS: FaangMockTest[] = [
     id: 'faang-mock-2',
     title: 'Amazon & Apple: Scale Engineering & Leadership High-Bar',
     subtitle: '1-Hour Production Systems & Quantitative Crucible • 25 Very Hard Questions',
+    category: 'FAANG High-Bar',
     companyTier: 'Amazon & Apple Tier-1 OA',
     companies: ['Amazon', 'Apple'],
     scheduledDate: 'Today, Wednesday, Sep 9, 2026 • Slot 2 (02:30 PM - 03:30 PM IST)',
@@ -1360,6 +1363,7 @@ export const FAANG_MOCK_TESTS: FaangMockTest[] = [
     id: 'faang-mock-3',
     title: 'Netflix & Uber: Apex Infrastructure & Systems Architecture',
     subtitle: '1-Hour Mission-Critical Architecture Crucible • 25 Very Hard Questions',
+    category: 'FAANG High-Bar',
     companyTier: 'Netflix & Uber Tier-1 OA',
     companies: ['Netflix', 'Uber'],
     scheduledDate: 'Today, Wednesday, Sep 9, 2026 • Slot 3 (07:00 PM - 08:00 PM IST)',
@@ -1386,3 +1390,12 @@ export const FAANG_MOCK_TESTS: FaangMockTest[] = [
     questions: NETFLIX_UBER_QUESTIONS
   }
 ];
+
+// Master list containing both FAANG High-Bar tests and DAILY PRACTICE Mocks
+export const FAANG_MOCK_TESTS: FaangMockTest[] = [
+  ...ORIGINAL_FAANG_MOCK_TESTS,
+  ...DAILY_PRACTICE_MOCK_TESTS
+];
+
+export { DAILY_PRACTICE_MOCK_TESTS };
+export const ALL_MOCK_TESTS: FaangMockTest[] = FAANG_MOCK_TESTS;

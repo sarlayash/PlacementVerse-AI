@@ -864,7 +864,12 @@ export function recordMockTestResult(
       ? 'faang-google-meta' 
       : attempt.testId === 'faang-mock-2' 
       ? 'faang-amazon-apple' 
-      : 'faang-netflix-uber';
+      : attempt.testId === 'faang-mock-3'
+      ? 'faang-netflix-uber'
+      : (attempt.testId as any);
+
+    const prefix = attempt.testId.startsWith('daily-practice') ? 'PV-DP' : 'PV-FAANG';
+    const cleanId = attempt.testId.replace('daily-practice-', 'DP-').toUpperCase();
 
     cert = {
       id: `cert-${attempt.testId}-${Date.now()}`,
@@ -876,7 +881,7 @@ export function recordMockTestResult(
       readinessScore: Math.round(attempt.percentage),
       grade: attempt.percentage >= 85 ? 'Grade O (Outstanding)' : attempt.percentage >= 70 ? 'Grade A+ (Distinction)' : 'Grade A (Qualified)',
       endorsedBy: 'Kapil Narula (Placement Director & FAANG Evaluator)',
-      verificationCode: attempt.certificateCode || `PV-FAANG-${attempt.testId.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      verificationCode: attempt.certificateCode || `${prefix}-${cleanId}-${Math.floor(1000 + Math.random() * 9000)}`,
       status: 'Active',
     };
     issueOrReissueCertificate(cert);

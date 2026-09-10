@@ -170,10 +170,16 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
     };
   }
 
-  // 3. FAANG Mock Test Certificates (PV-2026-FAANG-* or PV-FAANG-*)
-  if (code.includes('FAANG') || code.includes('MOCK') || code.includes('GGL') || code.includes('AMZ') || code.includes('NFLX')) {
+  // 3. FAANG & Daily Practice Mock Test Certificates
+  if (code.includes('FAANG') || code.includes('MOCK') || code.includes('GGL') || code.includes('AMZ') || code.includes('NFLX') || code.includes('DP') || code.includes('DAILY')) {
     let matchingMock = FAANG_MOCK_TESTS[0];
-    if (code.includes('MOCK-2') || code.includes('AMZ') || code.includes('APPLE')) {
+    if (code.includes('DP-MOCK-1') || code.includes('DAILY-1')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'daily-practice-mock-1') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('DP-MOCK-2') || code.includes('DAILY-2')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'daily-practice-mock-2') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('DP-MOCK-3') || code.includes('DAILY-3')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'daily-practice-mock-3') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('MOCK-2') || code.includes('AMZ') || code.includes('APPLE')) {
       matchingMock = FAANG_MOCK_TESTS[1];
     } else if (code.includes('MOCK-3') || code.includes('NFLX') || code.includes('UBER')) {
       matchingMock = FAANG_MOCK_TESTS[2];

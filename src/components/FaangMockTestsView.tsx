@@ -41,6 +41,19 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [verifyModalCode, setVerifyModalCode] = useState<string | null>(null);
 
+  // Category Filtering: 'ALL' | 'DAILY PRACTICE' | 'FAANG High-Bar'
+  const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'DAILY PRACTICE' | 'FAANG High-Bar'>('ALL');
+
+  const filteredTests = useMemo(() => {
+    if (selectedCategory === 'DAILY PRACTICE') {
+      return FAANG_MOCK_TESTS.filter(t => t.category === 'DAILY PRACTICE');
+    }
+    if (selectedCategory === 'FAANG High-Bar') {
+      return FAANG_MOCK_TESTS.filter(t => t.category === 'FAANG High-Bar' || !t.category);
+    }
+    return FAANG_MOCK_TESTS;
+  }, [selectedCategory]);
+
   // Countdown to Today's Slot 1 (Wednesday, Sep 9, 2026, 10:00 AM IST)
   const [countdownString, setCountdownString] = useState<string>('01d 02h 15m');
 
@@ -149,7 +162,9 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
     const passed = percentage >= activeTest.passingPercentage;
     const timeSpent = (activeTest.durationMinutes * 60) - timeLeftSeconds;
 
-    const certCode = `PV-FAANG-${activeTest.id.replace('faang-mock-', '')}-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`;
+    const certPrefix = activeTest.id.startsWith('daily-practice') ? 'PV-DP' : 'PV-FAANG';
+    const cleanTestCode = activeTest.id.replace('daily-practice-mock-', 'MOCK-').replace('faang-mock-', 'MOCK-');
+    const certCode = `${certPrefix}-${cleanTestCode}-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`;
 
     const attempt: MockTestAttempt = {
       testId: activeTest.id,
@@ -922,7 +937,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
     );
   }
 
-  // Primary FAANG Hub: 3 Mock Tests Scheduled for Today
+  // Primary Mock Tests Hub: FAANG High-Bar + DAILY PRACTICE Categories
   return (
     <div className="space-y-8">
       
@@ -933,18 +948,18 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-amber-400 text-slate-950 flex items-center gap-1.5 shadow-sm">
                 <Calendar className="w-3.5 h-3.5" />
-                Scheduled for Today
+                Scheduled for Today & Daily Practice
               </span>
-              <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-rose-500/20 text-rose-300 border border-rose-500/40">
-                100% FAANG Aligned
+              <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                New Category: DAILY PRACTICE
               </span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-black text-white font-display tracking-tight">
-              3 FAANG Placement Mock Tests
+              Placement Mock Tests & Daily Practice Zone
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Very hard, advanced technical screening crucibles 100% calibrated to real Online Assessments from Google, Meta, Amazon, Apple, Netflix, and Uber. Exactly 1 hour per exam with zero question repetition.
+              Featuring 3 new DAILY PRACTICE sprint exams (10 unique MCQs each) alongside 3 comprehensive 1-hour FAANG OA diagnostics. All questions are strictly non-repeated with negative marking and instant credentialing.
             </p>
           </div>
 
@@ -967,28 +982,91 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10 text-xs">
           <div className="flex items-center gap-2 text-slate-300">
             <Timer className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span><strong>Strict 1 Hour</strong> (60:00 Countdown)</span>
+            <span><strong>20m & 60m Options</strong> (Active Timers)</span>
           </div>
           <div className="flex items-center gap-2 text-slate-300">
             <Building2 className="w-4 h-4 text-blue-400 shrink-0" />
-            <span><strong>25 Very Hard Qs</strong> (+4 / -1 Marking)</span>
+            <span><strong>10 & 25 Unique Qs</strong> (+4 / -1 Marking)</span>
           </div>
           <div className="flex items-center gap-2 text-slate-300">
             <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
-            <span><strong>3 Metallic Badges</strong> (+1,000 XP)</span>
+            <span><strong>6 Metallic Badges</strong> (+1,000 XP Each)</span>
           </div>
           <div className="flex items-center gap-2 text-slate-300">
             <ShieldCheck className="w-4 h-4 text-indigo-400 shrink-0" />
-            <span><strong>Official Certificates</strong> (Zero Repetition)</span>
+            <span><strong>Verified Certificates</strong> (Zero Repetition)</span>
           </div>
         </div>
       </div>
 
-      {/* 3 Mock Test Cards Grid */}
+      {/* Category Filter Tabs Bar */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-3xl bg-white border border-slate-200 shadow-xs">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-black uppercase tracking-wider text-indigo-600">Category Selection</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+            <span className="text-xs text-slate-500 font-medium">
+              {filteredTests.length} {filteredTests.length === 1 ? 'Exam' : 'Exams'} Available
+            </span>
+          </div>
+          <h3 className="text-base font-black text-slate-900 font-display mt-0.5">
+            {selectedCategory === 'DAILY PRACTICE' 
+              ? '⚡ Category: DAILY PRACTICE (3 Mock Exams • 10 MCQs Each)' 
+              : selectedCategory === 'FAANG High-Bar'
+              ? '🏛️ Category: FAANG High-Bar (3 Mock Exams • 25 MCQs Each)'
+              : '🌟 All Placement Mock Exams (6 Total)'}
+          </h3>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setSelectedCategory('ALL')}
+            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all ${
+              selectedCategory === 'ALL'
+                ? 'bg-slate-900 text-white shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+            }`}
+          >
+            All Mocks ({FAANG_MOCK_TESTS.length})
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('DAILY PRACTICE')}
+            className={`px-4 py-2 rounded-2xl text-xs font-black transition-all flex items-center gap-2 ${
+              selectedCategory === 'DAILY PRACTICE'
+                ? 'bg-gradient-to-r from-amber-500 to-emerald-600 text-white shadow-md'
+                : 'bg-amber-50 text-amber-900 border border-amber-200/80 hover:bg-amber-100'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+            <span>DAILY PRACTICE (3 Mocks)</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-amber-400 text-slate-950 uppercase tracking-widest">
+              10 MCQs
+            </span>
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('FAANG High-Bar')}
+            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              selectedCategory === 'FAANG High-Bar'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+            }`}
+          >
+            <span>FAANG High-Bar (3 Mocks)</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-slate-200 text-slate-700">
+              25 MCQs
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Mock Test Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {FAANG_MOCK_TESTS.map((test, index) => {
+        {filteredTests.map((test, index) => {
           const attempt = profile.mockTestAttempts?.[test.id];
           const isPassed = attempt?.passed;
+          const isDailyPractice = test.category === 'DAILY PRACTICE';
 
           return (
             <div
@@ -996,6 +1074,8 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
               className={`bg-white rounded-3xl border transition-all flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 ${
                 isPassed 
                   ? 'border-emerald-300 ring-2 ring-emerald-100' 
+                  : isDailyPractice
+                  ? 'border-amber-200 hover:border-amber-300'
                   : 'border-slate-200'
               }`}
             >
@@ -1003,11 +1083,22 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
                 
                 {/* Header Tag */}
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-2.5 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-800 border border-indigo-200">
-                    Mock Test {index + 1}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    {test.companies.map(c => (
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2.5 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider ${
+                      isDailyPractice
+                        ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                        : 'bg-indigo-50 text-indigo-800 border border-indigo-200'
+                    }`}>
+                      {isDailyPractice ? `Daily Mock ${index + 1}` : `FAANG Mock ${index + 1}`}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
+                      isDailyPractice ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'
+                    }`}>
+                      {test.totalQuestions} MCQs
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                    {test.companies.slice(0, 3).map(c => (
                       <span key={c} className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700">
                         {c}
                       </span>
@@ -1032,21 +1123,23 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
                     <span>{test.scheduledDate}</span>
                   </div>
                   <div className="flex items-center gap-3 text-slate-500 text-[11px]">
-                    <span>⏱️ 60 Mins</span>
+                    <span>⏱️ {test.durationMinutes} Mins</span>
                     <span>•</span>
-                    <span>📝 25 Questions (100 Marks)</span>
+                    <span>📝 {test.totalQuestions} Questions ({test.totalQuestions * test.marksPerQuestion} Marks)</span>
                     <span>•</span>
-                    <span>⚖️ +4 / -1</span>
+                    <span>⚖️ +{test.marksPerQuestion} / -{test.negativeMark}</span>
                   </div>
                 </div>
 
                 {/* Syllabus Highlights */}
                 <div className="space-y-1.5">
-                  <p className="text-[10px] uppercase font-bold text-slate-400">High-Bar Screening Topics</p>
+                  <p className="text-[10px] uppercase font-bold text-slate-400">
+                    {isDailyPractice ? 'Daily Practice Syllabus' : 'High-Bar Screening Topics'}
+                  </p>
                   <ul className="space-y-1 text-[11px] text-slate-600">
                     {test.syllabusHighlights.slice(0, 4).map((topic, tIdx) => (
                       <li key={tIdx} className="flex items-start gap-1.5 leading-snug">
-                        <span className="text-indigo-600 font-black">•</span>
+                        <span className={`font-black ${isDailyPractice ? 'text-amber-600' : 'text-indigo-600'}`}>•</span>
                         <span>{topic}</span>
                       </li>
                     ))}
@@ -1079,7 +1172,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
                     <div className="flex items-center justify-between text-xs px-1">
                       <span className="text-slate-500">Previous Attempt:</span>
                       <span className={`font-black ${isPassed ? 'text-emerald-700' : 'text-slate-700'}`}>
-                        {attempt.totalScore}/100 ({attempt.percentage}%)
+                        {attempt.totalScore}/{test.totalQuestions * test.marksPerQuestion} ({attempt.percentage}%)
                       </span>
                     </div>
                     <button
@@ -1097,9 +1190,13 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
                 ) : (
                   <button
                     onClick={() => handleStartTest(test)}
-                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-black shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
+                    className={`w-full py-3 rounded-2xl text-white text-xs font-black shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                      isDailyPractice
+                        ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-600 hover:opacity-95'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500'
+                    }`}
                   >
-                    <span>Enter 1-Hour Test Arena</span>
+                    <span>Enter {test.durationMinutes}-Min Test Arena</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 )}

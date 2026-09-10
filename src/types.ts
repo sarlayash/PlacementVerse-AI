@@ -162,7 +162,7 @@ export interface IssuedCertificateRecord {
   id: string;
   studentName: string;
   institute: string;
-  type: 'ultimate' | 'quantitative' | 'verbal' | 'corporate' | 'faang-google-meta' | 'faang-amazon-apple' | 'faang-netflix-uber' | 'grand-final-assessment';
+  type: 'ultimate' | 'quantitative' | 'verbal' | 'corporate' | 'faang-google-meta' | 'faang-amazon-apple' | 'faang-netflix-uber' | 'grand-final-assessment' | 'daily-practice-mock-1' | 'daily-practice-mock-2' | 'daily-practice-mock-3' | string;
   title: string;
   issueDate: string;
   readinessScore: number;
@@ -175,7 +175,7 @@ export interface IssuedCertificateRecord {
 export interface FaangQuestion {
   id: string;
   testId: string;
-  section: 'Quantitative & Algorithmic' | 'Advanced Systems & Reasoning' | 'High-Bar Analytical & Architecture';
+  section: 'Quantitative & Algorithmic' | 'Advanced Systems & Reasoning' | 'High-Bar Analytical & Architecture' | string;
   companyTag: string;
   question: string;
   options: string[];
@@ -189,6 +189,7 @@ export interface FaangMockTest {
   id: string;
   title: string;
   subtitle: string;
+  category?: 'FAANG High-Bar' | 'DAILY PRACTICE' | string;
   companyTier: string;
   companies: string[];
   scheduledDate: string;
