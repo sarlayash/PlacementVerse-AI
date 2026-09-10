@@ -125,6 +125,9 @@ export interface LearnerProfile {
   lastHeartbeat?: string;
   ipAddress?: string;
   location?: string;
+  browser?: string;
+  os?: string;
+  deviceType?: string;
   loginCount?: number;
   firstLoginDate?: string;
 }

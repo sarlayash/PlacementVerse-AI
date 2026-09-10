@@ -41,10 +41,13 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [verifyModalCode, setVerifyModalCode] = useState<string | null>(null);
 
-  // Category Filtering: 'ALL' | 'DAILY PRACTICE' | 'FAANG High-Bar'
-  const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'DAILY PRACTICE' | 'FAANG High-Bar'>('ALL');
+  // Category Filtering: 'ALL' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'
+  const [selectedCategory, setSelectedCategory] = useState<'ALL' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'>('ALL');
 
   const filteredTests = useMemo(() => {
+    if (selectedCategory === '30-MIN RAPID SPRINT') {
+      return FAANG_MOCK_TESTS.filter(t => t.category === '30-MIN RAPID SPRINT');
+    }
     if (selectedCategory === 'DAILY PRACTICE') {
       return FAANG_MOCK_TESTS.filter(t => t.category === 'DAILY PRACTICE');
     }
@@ -982,7 +985,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10 text-xs">
           <div className="flex items-center gap-2 text-slate-300">
             <Timer className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span><strong>20m & 60m Options</strong> (Active Timers)</span>
+            <span><strong>20m, 30m & 60m Options</strong> (Active Timers)</span>
           </div>
           <div className="flex items-center gap-2 text-slate-300">
             <Building2 className="w-4 h-4 text-blue-400 shrink-0" />
@@ -990,7 +993,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
           </div>
           <div className="flex items-center gap-2 text-slate-300">
             <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
-            <span><strong>6 Metallic Badges</strong> (+1,000 XP Each)</span>
+            <span><strong>8 Metallic Badges</strong> (+1,000 XP Each)</span>
           </div>
           <div className="flex items-center gap-2 text-slate-300">
             <ShieldCheck className="w-4 h-4 text-indigo-400 shrink-0" />
@@ -1010,11 +1013,13 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
             </span>
           </div>
           <h3 className="text-base font-black text-slate-900 font-display mt-0.5">
-            {selectedCategory === 'DAILY PRACTICE' 
-              ? '⚡ Category: DAILY PRACTICE (3 Mock Exams • 10 MCQs Each)' 
+            {selectedCategory === '30-MIN RAPID SPRINT'
+              ? '⚡ Category: 30-MIN RAPID SPRINT (2 High-Yield Mock Exams • 25 MCQs • 30 Mins Each)'
+              : selectedCategory === 'DAILY PRACTICE' 
+              ? '⚡ Category: DAILY PRACTICE (3 Mock Exams • 10 MCQs • 20 Mins Each)' 
               : selectedCategory === 'FAANG High-Bar'
-              ? '🏛️ Category: FAANG High-Bar (3 Mock Exams • 25 MCQs Each)'
-              : '🌟 All Placement Mock Exams (6 Total)'}
+              ? '🏛️ Category: FAANG High-Bar (3 Mock Exams • 25 MCQs • 60 Mins Each)'
+              : '🌟 All Placement Mock Exams (8 Total)'}
           </h3>
         </div>
 
@@ -1028,6 +1033,21 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
             }`}
           >
             All Mocks ({FAANG_MOCK_TESTS.length})
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('30-MIN RAPID SPRINT')}
+            className={`px-4 py-2 rounded-2xl text-xs font-black transition-all flex items-center gap-2 ${
+              selectedCategory === '30-MIN RAPID SPRINT'
+                ? 'bg-gradient-to-r from-red-600 via-amber-500 to-zinc-900 text-white shadow-md'
+                : 'bg-red-50 text-red-900 border border-red-200 hover:bg-red-100'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5 fill-red-400 text-red-400" />
+            <span>30-MIN RAPID SPRINT (2 Mocks)</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-red-600 text-white uppercase tracking-widest">
+              25 MCQs • 30M
+            </span>
           </button>
 
           <button
@@ -1067,6 +1087,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
           const attempt = profile.mockTestAttempts?.[test.id];
           const isPassed = attempt?.passed;
           const isDailyPractice = test.category === 'DAILY PRACTICE';
+          const isRapidSprint = test.category === '30-MIN RAPID SPRINT';
 
           return (
             <div
@@ -1074,6 +1095,8 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
               className={`bg-white rounded-3xl border transition-all flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 ${
                 isPassed 
                   ? 'border-emerald-300 ring-2 ring-emerald-100' 
+                  : isRapidSprint
+                  ? 'border-red-200 hover:border-red-400 ring-1 ring-red-100'
                   : isDailyPractice
                   ? 'border-amber-200 hover:border-amber-300'
                   : 'border-slate-200'
@@ -1085,16 +1108,26 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className={`px-2.5 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider ${
-                      isDailyPractice
+                      isRapidSprint
+                        ? 'bg-red-100 text-red-900 border border-red-300'
+                        : isDailyPractice
                         ? 'bg-amber-100 text-amber-900 border border-amber-300'
                         : 'bg-indigo-50 text-indigo-800 border border-indigo-200'
                     }`}>
-                      {isDailyPractice ? `Daily Mock ${index + 1}` : `FAANG Mock ${index + 1}`}
+                      {isRapidSprint 
+                        ? `Rapid Mock ${test.id === 'rapid-mock-4' ? 'I' : 'II'}` 
+                        : isDailyPractice 
+                        ? `Daily Mock ${index + 1}` 
+                        : `FAANG Mock ${index + 1}`}
                     </span>
                     <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
-                      isDailyPractice ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'
+                      isRapidSprint
+                        ? 'bg-red-600 text-white'
+                        : isDailyPractice 
+                        ? 'bg-emerald-100 text-emerald-800' 
+                        : 'bg-slate-100 text-slate-700'
                     }`}>
-                      {test.totalQuestions} MCQs
+                      {test.totalQuestions} MCQs • {test.durationMinutes}m
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 flex-wrap justify-end">

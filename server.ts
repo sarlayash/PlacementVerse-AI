@@ -635,6 +635,47 @@ app.post('/api/students', (req, res) => {
   });
 });
 
+// Batch sync multiple students (e.g. from Firebase Firestore)
+app.post('/api/students/sync-batch', (req, res) => {
+  const incomingList: ServerStudent[] = req.body?.students;
+  if (!Array.isArray(incomingList)) {
+    return res.status(400).json({ error: 'Array of students expected' });
+  }
+
+  let addedOrUpdatedCount = 0;
+  for (const item of incomingList) {
+    if (!item || !item.name || !item.name.trim()) continue;
+    const existingIdx = serverStudents.findIndex(
+      (s) => (item.uid && s.uid && s.uid === item.uid) ||
+             (item.email && s.email && s.email.toLowerCase() === item.email.toLowerCase()) ||
+             (s.name.trim().toLowerCase() === item.name.trim().toLowerCase())
+    );
+
+    if (existingIdx >= 0) {
+      serverStudents[existingIdx] = {
+        ...serverStudents[existingIdx],
+        ...item,
+        xp: Math.max(serverStudents[existingIdx].xp || 0, item.xp || 0),
+        predictedPlacementScore: Math.max(serverStudents[existingIdx].predictedPlacementScore || 0, item.predictedPlacementScore || 0),
+      };
+      addedOrUpdatedCount++;
+    } else {
+      serverStudents.push(item);
+      addedOrUpdatedCount++;
+    }
+  }
+
+  saveStudentsToDisk();
+  broadcastStudentUpdate('UPDATE', { count: addedOrUpdatedCount, total: serverStudents.length });
+
+  res.json({
+    success: true,
+    syncedCount: addedOrUpdatedCount,
+    totalStudents: serverStudents.length,
+    students: getEnrichedStudents(),
+  });
+});
+
 // 4. Log specific student activity (MCQ, Timed Challenge, Boss Battle, Mock Test, Real World Task)
 app.post('/api/students/activity', (req, res) => {
   const { studentName, activity, deviceMeta: clientDeviceMeta } = req.body;

@@ -173,7 +173,11 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
   // 3. FAANG & Daily Practice Mock Test Certificates
   if (code.includes('FAANG') || code.includes('MOCK') || code.includes('GGL') || code.includes('AMZ') || code.includes('NFLX') || code.includes('DP') || code.includes('DAILY')) {
     let matchingMock = FAANG_MOCK_TESTS[0];
-    if (code.includes('DP-MOCK-1') || code.includes('DAILY-1')) {
+    if (code.includes('RAPID-1') || code.includes('RPM-4') || code.includes('RAPID-MOCK-4')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'rapid-mock-4') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('RAPID-2') || code.includes('RPM-5') || code.includes('RAPID-MOCK-5')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'rapid-mock-5') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('DP-MOCK-1') || code.includes('DAILY-1')) {
       matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'daily-practice-mock-1') || FAANG_MOCK_TESTS[0];
     } else if (code.includes('DP-MOCK-2') || code.includes('DAILY-2')) {
       matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'daily-practice-mock-2') || FAANG_MOCK_TESTS[0];

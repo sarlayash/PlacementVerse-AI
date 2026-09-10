@@ -1,5 +1,6 @@
 import { FaangMockTest, FaangQuestion } from '../types';
 import { DAILY_PRACTICE_MOCK_TESTS } from './dailyPracticeMockTestsData';
+import { RAPID_MOCK_EXAMS } from './rapidMockExamsData';
 
 // ============================================================================
 // FAANG MOCK TEST 1: GOOGLE & META
@@ -1391,11 +1392,12 @@ export const ORIGINAL_FAANG_MOCK_TESTS: FaangMockTest[] = [
   }
 ];
 
-// Master list containing both FAANG High-Bar tests and DAILY PRACTICE Mocks
+// Master list containing FAANG High-Bar tests, DAILY PRACTICE Mocks, and RAPID 30-MIN Sprints
 export const FAANG_MOCK_TESTS: FaangMockTest[] = [
   ...ORIGINAL_FAANG_MOCK_TESTS,
-  ...DAILY_PRACTICE_MOCK_TESTS
+  ...DAILY_PRACTICE_MOCK_TESTS,
+  ...RAPID_MOCK_EXAMS
 ];
 
-export { DAILY_PRACTICE_MOCK_TESTS };
+export { DAILY_PRACTICE_MOCK_TESTS, RAPID_MOCK_EXAMS };
 export const ALL_MOCK_TESTS: FaangMockTest[] = FAANG_MOCK_TESTS;

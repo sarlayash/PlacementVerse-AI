@@ -548,17 +548,25 @@ export { adminLogout as logoutAdmin };
 export function getAllStudents(): LearnerProfile[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_STUDENTS);
-    if (!raw) {
-      const current = getLearnerProfile();
-      if (hasStartedJourney() && current && current.name && current.name.trim()) {
-        const list = [current];
-        localStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(list));
-        return list;
+    let list: LearnerProfile[] = [];
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        list = parsed.filter(s => s && typeof s === 'object' && s.name && s.name.trim());
       }
-      return [];
     }
-    const parsed: LearnerProfile[] = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    const current = getLearnerProfile();
+    if (hasStartedJourney() && current && current.name && current.name.trim()) {
+      const exists = list.some(s => 
+        (current.uid && s.uid && s.uid === current.uid) ||
+        (current.email && s.email && s.email.toLowerCase() === current.email.toLowerCase()) ||
+        s.name.trim().toLowerCase() === current.name.trim().toLowerCase()
+      );
+      if (!exists) {
+        list.unshift(current);
+      }
+    }
+    return list;
   } catch {
     const current = getLearnerProfile();
     if (hasStartedJourney() && current && current.name && current.name.trim()) {
@@ -570,7 +578,10 @@ export function getAllStudents(): LearnerProfile[] {
 
 export function saveAllStudents(students: LearnerProfile[]): void {
   try {
-    localStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(students));
+    const valid = Array.isArray(students) 
+      ? students.filter(s => s && typeof s === 'object' && s.name && s.name.trim())
+      : [];
+    localStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(valid));
   } catch (e) {
     console.error('Failed to save students:', e);
   }
@@ -579,7 +590,11 @@ export function saveAllStudents(students: LearnerProfile[]): void {
 function syncProfileToRoster(profile: LearnerProfile): void {
   try {
     const students = getAllStudents();
-    const idx = students.findIndex(s => s.name.toLowerCase() === profile.name.toLowerCase());
+    const idx = students.findIndex(s => 
+      (profile.uid && s.uid && s.uid === profile.uid) ||
+      (profile.email && s.email && s.email.toLowerCase() === profile.email.toLowerCase()) ||
+      s.name.trim().toLowerCase() === profile.name.trim().toLowerCase()
+    );
     if (idx >= 0) {
       students[idx] = { ...students[idx], ...profile };
     } else {
@@ -593,7 +608,11 @@ function syncProfileToRoster(profile: LearnerProfile): void {
 
 export function updateStudentInRoster(updatedStudent: LearnerProfile): void {
   const students = getAllStudents();
-  const idx = students.findIndex(s => s.name.toLowerCase() === updatedStudent.name.toLowerCase());
+  const idx = students.findIndex(s => 
+    (updatedStudent.uid && s.uid && s.uid === updatedStudent.uid) ||
+    (updatedStudent.email && s.email && s.email.toLowerCase() === updatedStudent.email.toLowerCase()) ||
+    s.name.trim().toLowerCase() === updatedStudent.name.trim().toLowerCase()
+  );
   if (idx >= 0) {
     students[idx] = updatedStudent;
   } else {
@@ -603,7 +622,11 @@ export function updateStudentInRoster(updatedStudent: LearnerProfile): void {
 
   // If this student is the active learner profile, update it too
   const currentProfile = getLearnerProfile();
-  if (currentProfile.name.toLowerCase() === updatedStudent.name.toLowerCase()) {
+  if (
+    (currentProfile.uid && updatedStudent.uid && currentProfile.uid === updatedStudent.uid) ||
+    (currentProfile.email && updatedStudent.email && currentProfile.email.toLowerCase() === updatedStudent.email.toLowerCase()) ||
+    currentProfile.name.trim().toLowerCase() === updatedStudent.name.trim().toLowerCase()
+  ) {
     localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(updatedStudent));
   }
 
@@ -613,8 +636,12 @@ export function updateStudentInRoster(updatedStudent: LearnerProfile): void {
 
 export function addStudentToRoster(newStudent: LearnerProfile): void {
   const students = getAllStudents();
-  // Ensure unique name
-  const existingIdx = students.findIndex(s => s.name.toLowerCase() === newStudent.name.toLowerCase());
+  // Ensure unique matching
+  const existingIdx = students.findIndex(s => 
+    (newStudent.uid && s.uid && s.uid === newStudent.uid) ||
+    (newStudent.email && s.email && s.email.toLowerCase() === newStudent.email.toLowerCase()) ||
+    s.name.trim().toLowerCase() === newStudent.name.trim().toLowerCase()
+  );
   if (existingIdx >= 0) {
     students[existingIdx] = newStudent;
   } else {
@@ -626,7 +653,8 @@ export function addStudentToRoster(newStudent: LearnerProfile): void {
 }
 
 export function deleteStudentFromRoster(studentName: string): void {
-  const students = getAllStudents().filter(s => s.name.toLowerCase() !== studentName.toLowerCase());
+  const cleanTarget = studentName.trim().toLowerCase();
+  const students = getAllStudents().filter(s => s.name.trim().toLowerCase() !== cleanTarget);
   saveAllStudents(students);
   notifyStudentsUpdated();
 

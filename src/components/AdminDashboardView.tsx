@@ -154,51 +154,85 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     }
   };
 
-// Robust helper to merge multiple candidate lists preserving IDs, Google OAuth emails, and activity progress
+// Robust helper to merge multiple candidate lists preserving distinct IDs, Google OAuth emails, and activity progress
 function mergeAllStudentLists(...lists: (LearnerProfile[] | null | undefined)[]): LearnerProfile[] {
   const map = new Map<string, LearnerProfile>();
-
-  const getMatchKey = (s: LearnerProfile, existingKeys: string[]): string => {
-    if (s.uid && s.uid.trim()) {
-      return `uid:${s.uid.trim()}`;
-    }
-    if (s.email && s.email.trim()) {
-      return `email:${s.email.trim().toLowerCase()}`;
-    }
-    const cleanName = s.name.trim().toLowerCase();
-    for (const key of existingKeys) {
-      if (key.startsWith('name:')) {
-        const val = key.replace('name:', '');
-        if (val === cleanName || val.includes(cleanName) || cleanName.includes(val)) {
-          return key;
-        }
-      }
-    }
-    return `name:${cleanName}`;
-  };
 
   for (const list of lists) {
     if (!Array.isArray(list)) continue;
     for (const item of list) {
       if (!item || !item.name || !item.name.trim()) continue;
-      const existingKeys = Array.from(map.keys());
-      const key = getMatchKey(item, existingKeys);
-      if (map.has(key)) {
-        const prev = map.get(key)!;
-        map.set(key, {
+
+      const trimmedName = item.name.trim();
+      const lowerName = trimmedName.toLowerCase();
+      const uid = (item.uid || '').trim();
+      const email = (item.email || '').trim().toLowerCase();
+
+      // Check if item matches any record already in map
+      let matchedKey: string | null = null;
+      for (const [key, existing] of map.entries()) {
+        const existUid = (existing.uid || '').trim();
+        const existEmail = (existing.email || '').trim().toLowerCase();
+        const existName = (existing.name || '').trim().toLowerCase();
+
+        // 1. Exact UID match (highest confidence)
+        if (uid && existUid && uid === existUid) {
+          matchedKey = key;
+          break;
+        }
+
+        // 2. Exact Email match (high confidence)
+        if (email && existEmail && email === existEmail) {
+          matchedKey = key;
+          break;
+        }
+
+        // 3. Exact full name match (only if neither has a contradictory email)
+        if (lowerName === existName) {
+          if (!email || !existEmail || email === existEmail) {
+            matchedKey = key;
+            break;
+          }
+        }
+      }
+
+      const targetKey = matchedKey || (uid ? `uid:${uid}` : email ? `email:${email}` : `name:${lowerName}`);
+
+      if (map.has(targetKey)) {
+        const prev = map.get(targetKey)!;
+        map.set(targetKey, {
           ...prev,
           ...item,
+          name: trimmedName || prev.name,
           uid: item.uid || prev.uid,
           email: item.email || prev.email,
           photoUrl: item.photoUrl || prev.photoUrl,
+          institute: (item.institute && item.institute !== 'Engineering Institute') ? item.institute : (prev.institute || item.institute),
+          department: (item.department && item.department !== 'Computer Science & Engineering') ? item.department : (prev.department || item.department),
+          classYear: item.classYear || prev.classYear,
           xp: Math.max(prev.xp || 0, item.xp || 0),
+          level: Math.max(prev.level || 1, item.level || 1),
+          levelTitle: item.levelTitle || prev.levelTitle,
+          streakDays: Math.max(prev.streakDays || 1, item.streakDays || 1),
           predictedPlacementScore: Math.max(prev.predictedPlacementScore || 0, item.predictedPlacementScore || 0),
           badgesEarned: Array.from(new Set([...(prev.badgesEarned || []), ...(item.badgesEarned || [])])),
           completedTopicIds: Array.from(new Set([...(prev.completedTopicIds || []), ...(item.completedTopicIds || [])])),
           unlockedTopicIds: Array.from(new Set([...(prev.unlockedTopicIds || []), ...(item.unlockedTopicIds || [])])),
+          isOnline: item.isOnline !== undefined ? item.isOnline : prev.isOnline,
+          ipAddress: item.ipAddress || prev.ipAddress,
+          location: item.location || prev.location,
+          browser: item.browser || prev.browser,
+          os: item.os || prev.os,
+          deviceType: item.deviceType || prev.deviceType,
+          activityLog: (item.activityLog && item.activityLog.length > 0) ? item.activityLog : prev.activityLog,
         });
       } else {
-        map.set(key, item);
+        map.set(targetKey, {
+          ...item,
+          name: trimmedName,
+          uid: uid || undefined,
+          email: email || undefined,
+        });
       }
     }
   }
@@ -419,17 +453,25 @@ function mergeAllStudentLists(...lists: (LearnerProfile[] | null | undefined)[])
 
   const handleManualSync = async () => {
     setIsManualSyncing(true);
-    const [serverList, firestoreList] = await Promise.all([
-      fetchServerStudents(),
-      fetchLearnersFromFirestore(),
-    ]);
-    const local = getAllStudents();
-    const merged = mergeAllStudentLists(students, local, serverList, firestoreList);
-    if (merged.length > 0) {
-      setStudents(merged);
-      saveAllStudents(merged);
+    try {
+      const [serverList, firestoreList] = await Promise.all([
+        fetchServerStudents(),
+        fetchLearnersFromFirestore(),
+      ]);
+      const local = getAllStudents();
+      const merged = mergeAllStudentLists(students, local, serverList, firestoreList);
+      if (merged.length > 0) {
+        setStudents(merged);
+        saveAllStudents(merged);
+        fetch('/api/students/sync-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ students: merged }),
+        }).catch(() => {});
+      }
+    } finally {
+      setTimeout(() => setIsManualSyncing(false), 500);
     }
-    setTimeout(() => setIsManualSyncing(false), 500);
   };
 
   // 1. Reissue Badge Handler
