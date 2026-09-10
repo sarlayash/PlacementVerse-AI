@@ -10,6 +10,7 @@ import { LearnerProfile, Module, Topic, Question, IssuedCertificateRecord, Learn
 import { ALL_BADGES } from '../data/badgesData';
 import {
   getAllStudents,
+  saveAllStudents,
   fetchServerStudents,
   fetchServerActivities,
   sendAdminBroadcast,
@@ -153,10 +154,69 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     }
   };
 
+// Robust helper to merge multiple candidate lists preserving IDs, Google OAuth emails, and activity progress
+function mergeAllStudentLists(...lists: (LearnerProfile[] | null | undefined)[]): LearnerProfile[] {
+  const map = new Map<string, LearnerProfile>();
+
+  const getMatchKey = (s: LearnerProfile, existingKeys: string[]): string => {
+    if (s.uid && s.uid.trim()) {
+      return `uid:${s.uid.trim()}`;
+    }
+    if (s.email && s.email.trim()) {
+      return `email:${s.email.trim().toLowerCase()}`;
+    }
+    const cleanName = s.name.trim().toLowerCase();
+    for (const key of existingKeys) {
+      if (key.startsWith('name:')) {
+        const val = key.replace('name:', '');
+        if (val === cleanName || val.includes(cleanName) || cleanName.includes(val)) {
+          return key;
+        }
+      }
+    }
+    return `name:${cleanName}`;
+  };
+
+  for (const list of lists) {
+    if (!Array.isArray(list)) continue;
+    for (const item of list) {
+      if (!item || !item.name || !item.name.trim()) continue;
+      const existingKeys = Array.from(map.keys());
+      const key = getMatchKey(item, existingKeys);
+      if (map.has(key)) {
+        const prev = map.get(key)!;
+        map.set(key, {
+          ...prev,
+          ...item,
+          uid: item.uid || prev.uid,
+          email: item.email || prev.email,
+          photoUrl: item.photoUrl || prev.photoUrl,
+          xp: Math.max(prev.xp || 0, item.xp || 0),
+          predictedPlacementScore: Math.max(prev.predictedPlacementScore || 0, item.predictedPlacementScore || 0),
+          badgesEarned: Array.from(new Set([...(prev.badgesEarned || []), ...(item.badgesEarned || [])])),
+          completedTopicIds: Array.from(new Set([...(prev.completedTopicIds || []), ...(item.completedTopicIds || [])])),
+          unlockedTopicIds: Array.from(new Set([...(prev.unlockedTopicIds || []), ...(item.unlockedTopicIds || [])])),
+        });
+      } else {
+        map.set(key, item);
+      }
+    }
+  }
+  return Array.from(map.values());
+}
+
   // Refresh students list
-  const refreshStudents = () => {
-    const updated = getAllStudents();
-    setStudents(updated);
+  const refreshStudents = async () => {
+    const [serverList, firestoreList] = await Promise.all([
+      fetchServerStudents(),
+      fetchLearnersFromFirestore(),
+    ]);
+    const local = getAllStudents();
+    const merged = mergeAllStudentLists(students, local, serverList, firestoreList);
+    if (merged.length > 0) {
+      setStudents(merged);
+      saveAllStudents(merged);
+    }
   };
 
   // Real-time synchronization state
@@ -166,32 +226,16 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
 
   // Real-time synchronization effect across tabs and devices
   useEffect(() => {
-    // Helper to merge lists
-    const mergeStudentLists = (serverList: LearnerProfile[], firestoreList: LearnerProfile[]): LearnerProfile[] => {
-      const map = new Map<string, LearnerProfile>();
-      for (const s of serverList) {
-        const key = s.uid || s.email?.toLowerCase() || s.name.toLowerCase();
-        map.set(key, s);
-      }
-      for (const f of firestoreList) {
-        const key = f.uid || f.email?.toLowerCase() || f.name.toLowerCase();
-        if (map.has(key)) {
-          map.set(key, { ...map.get(key)!, ...f });
-        } else {
-          map.set(key, f);
-        }
-      }
-      return Array.from(map.values());
-    };
-
     // 1. Initial server and firestore pull
     Promise.all([
       fetchServerStudents(),
       fetchLearnersFromFirestore(),
     ]).then(([serverList, firestoreList]) => {
-      const merged = mergeStudentLists(serverList || [], firestoreList || []);
+      const local = getAllStudents();
+      const merged = mergeAllStudentLists(local, serverList, firestoreList);
       if (merged.length > 0) {
         setStudents(merged);
+        saveAllStudents(merged);
       }
     });
 
@@ -204,7 +248,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     // 2. Subscribe to real-time Firestore learners collection
     const unsubscribeFirestore = subscribeToFirestoreLearners((firestoreList) => {
       if (firestoreList && firestoreList.length > 0) {
-        setStudents(prev => mergeStudentLists(prev, firestoreList));
+        setStudents(prev => {
+          const merged = mergeAllStudentLists(prev, firestoreList);
+          saveAllStudents(merged);
+          return merged;
+        });
       }
     });
 
@@ -219,7 +267,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
         try {
           const data = JSON.parse(event.data);
           if (Array.isArray(data.allStudents)) {
-            setStudents(prev => mergeStudentLists(data.allStudents, prev));
+            setStudents(prev => {
+              const merged = mergeAllStudentLists(prev, data.allStudents);
+              saveAllStudents(merged);
+              return merged;
+            });
           }
           if (data.type === 'JOURNEY_BEGUN' && data.payload?.name) {
             playNotificationChime();
@@ -271,10 +323,20 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
 
     // 3. Storage & local cross-tab event listeners
     const handleStorageChange = () => {
-      setStudents(getAllStudents());
+      const local = getAllStudents();
+      setStudents(prev => {
+        const merged = mergeAllStudentLists(prev, local);
+        saveAllStudents(merged);
+        return merged;
+      });
     };
     const handleLocalCustomEvent = (e: any) => {
-      setStudents(getAllStudents());
+      const local = getAllStudents();
+      setStudents(prev => {
+        const merged = mergeAllStudentLists(prev, local);
+        saveAllStudents(merged);
+        return merged;
+      });
       if (e.detail?.journeyBegun && e.detail?.name) {
         playNotificationChime();
         setLiveEventBanner({
@@ -299,7 +361,12 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
       if ('BroadcastChannel' in window) {
         bc = new BroadcastChannel('placementverse_sync');
         bc.onmessage = (msg) => {
-          setStudents(getAllStudents());
+          const local = getAllStudents();
+          setStudents(prev => {
+            const merged = mergeAllStudentLists(prev, local);
+            saveAllStudents(merged);
+            return merged;
+          });
           if (msg.data?.journeyBegun && msg.data?.student?.name) {
             playNotificationChime();
             setLiveEventBanner({
@@ -324,9 +391,13 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
         fetchServerStudents(),
         fetchLearnersFromFirestore(),
       ]).then(([serverList, firestoreList]) => {
-        const merged = mergeStudentLists(serverList || [], firestoreList || []);
+        const merged = mergeAllStudentLists(serverList, firestoreList);
         if (merged.length > 0) {
-          setStudents(prev => mergeStudentLists(prev, merged));
+          setStudents(prev => {
+            const combined = mergeAllStudentLists(prev, merged);
+            saveAllStudents(combined);
+            return combined;
+          });
         }
       });
       fetchServerActivities().then(actList => {
@@ -352,13 +423,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
       fetchServerStudents(),
       fetchLearnersFromFirestore(),
     ]);
-    const merged = (serverList && firestoreList)
-      ? [...serverList, ...firestoreList.filter(f => !serverList.some(s => (f.uid && s.uid === f.uid) || (f.email && s.email && f.email.toLowerCase() === s.email.toLowerCase()) || (s.name.toLowerCase() === f.name.toLowerCase())))]
-      : (serverList || firestoreList || getAllStudents());
-    if (merged && merged.length > 0) {
+    const local = getAllStudents();
+    const merged = mergeAllStudentLists(students, local, serverList, firestoreList);
+    if (merged.length > 0) {
       setStudents(merged);
-    } else {
-      setStudents(getAllStudents());
+      saveAllStudents(merged);
     }
     setTimeout(() => setIsManualSyncing(false), 500);
   };

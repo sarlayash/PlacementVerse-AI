@@ -1,0 +1,32 @@
+{
+  "entities": {
+    "Learner": {
+      "title": "Learner",
+      "description": "Candidate profile in PlacementVerse AI",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "institute": { "type": "string" },
+        "department": { "type": "string" },
+        "classYear": { "type": "string" },
+        "xp": { "type": "number" },
+        "level": { "type": "number" },
+        "levelTitle": { "type": "string" },
+        "streakDays": { "type": "number" },
+        "predictedPlacementScore": { "type": "number" },
+        "lastActiveDate": { "type": "string" },
+        "isOnline": { "type": "boolean" }
+      },
+      "required": ["name"]
+    }
+  },
+  "firestore": {
+    "/learners/{learnerId}": {
+      "schema": { "$ref": "#/entities/Learner" },
+      "description": "Collection of all enrolled learners and candidates"
+    }
+  }
+}

@@ -112,8 +112,8 @@ export interface LearnerProfile {
   realWorldSubmissions: {
     email?: { score: number; date: string; feedback: string };
     gd?: { score: number; date: string; feedback: string };
-    resume?: { atsScore: number; date: string };
-    linkedin?: { score: number; date: string };
+    resume?: { atsScore: number; date: string; feedback?: string };
+    linkedin?: { score: number; date: string; feedback?: string };
   };
   predictedPlacementScore: number;
   mockTestAttempts?: Record<string, MockTestAttempt>;

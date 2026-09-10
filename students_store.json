@@ -1,0 +1,528 @@
+[
+  {
+    "uid": "05dSYe7XPlM6BNJfLOSnC2qV7u42",
+    "name": "Kapil Narula",
+    "email": "kapilnarula27july@gmail.com",
+    "institute": "National Institute of Technology",
+    "department": "Computer Science & Engineering",
+    "classYear": "Final Year 2025",
+    "xp": 340,
+    "level": 1,
+    "levelTitle": "Level 1 Rookie",
+    "streakDays": 1,
+    "lastActiveDate": "2026-09-10T11:21:59.107Z",
+    "completedTopicIds": [],
+    "unlockedTopicIds": [
+      "mod1-topic-1"
+    ],
+    "topicScores": {},
+    "badgesEarned": [
+      "streak-fire-1"
+    ],
+    "dailyMissions": [
+      {
+        "id": "m1",
+        "title": "Finish 20 Practice MCQs",
+        "target": 20,
+        "current": 20,
+        "completed": true,
+        "rewardXp": 40
+      },
+      {
+        "id": "m2",
+        "title": "Solve 1 Timed Challenge Arena",
+        "target": 1,
+        "current": 0,
+        "completed": false,
+        "rewardXp": 30
+      },
+      {
+        "id": "m3",
+        "title": "Complete 1 Real-World Task (Email / Resume / GD)",
+        "target": 1,
+        "current": 0,
+        "completed": false,
+        "rewardXp": 30
+      }
+    ],
+    "realWorldSubmissions": {},
+    "predictedPlacementScore": 84,
+    "deviceMeta": {
+      "deviceId": "dev_mttuabx6_fnkgqu",
+      "browser": "Google Chrome",
+      "os": "Windows 11 / 10",
+      "deviceType": "Laptop / Desktop",
+      "screenResolution": "1280x720",
+      "timezone": "Asia/Calcutta",
+      "language": "en-US",
+      "ipAddress": "2402:3a80:4399:6c03:ce5:2426:b828:d544",
+      "location": "India (IST)",
+      "lastHeartbeat": "2026-09-10T11:21:59.107Z",
+      "isOnline": true
+    },
+    "ipAddress": "2402:3a80:4399:6c03:ce5:2426:b828:d544",
+    "location": "India (IST)",
+    "browser": "Google Chrome",
+    "os": "Windows 11 / 10",
+    "deviceType": "Laptop / Desktop",
+    "isOnline": true,
+    "lastHeartbeat": "2026-09-10T11:21:59.107Z",
+    "firstLoginDate": "2026-09-10T08:46:14.069Z",
+    "loginCount": 1,
+    "activityLog": [
+      {
+        "id": "act-init-1789029974069",
+        "timestamp": "2026-09-10T08:46:14.069Z",
+        "actionType": "LOGIN",
+        "title": "Candidate Profile Connected",
+        "details": "Connected from Windows 11 / 10 (Google Chrome) in India (IST)",
+        "category": "System",
+        "deviceSummary": "Windows 11 / 10 · Google Chrome"
+      }
+    ]
+  },
+  {
+    "uid": "zqrmqvl3LbO6Ok9lOB6dtFCn61C3",
+    "name": "Suhan BH",
+    "email": "suhansuhanbh@gmail.com",
+    "institute": "RV College of Engineering, Bengaluru",
+    "department": "Information Science & Engineering",
+    "classYear": "Final Year 2025",
+    "xp": 3920,
+    "level": 3,
+    "levelTitle": "Level 3 Contender",
+    "streakDays": 4,
+    "lastActiveDate": "2026-09-10T09:15:00.000Z",
+    "firstLoginDate": "2026-09-08T10:00:00.000Z",
+    "completedTopicIds": [
+      "mod1-topic-1",
+      "mod1-topic-2"
+    ],
+    "unlockedTopicIds": [
+      "mod1-topic-1",
+      "mod1-topic-2",
+      "mod1-topic-3"
+    ],
+    "topicScores": {
+      "mod1-topic-1": {
+        "practiceBest": 90,
+        "challengeBest": 22,
+        "bossPassed": true
+      },
+      "mod1-topic-2": {
+        "practiceBest": 88,
+        "challengeBest": 20,
+        "bossPassed": true
+      }
+    },
+    "badgesEarned": [
+      "streak-fire-1",
+      "first-topic-clear",
+      "quant-specialist"
+    ],
+    "dailyMissions": [
+      {
+        "id": "m1",
+        "title": "Finish 20 Practice MCQs",
+        "target": 20,
+        "current": 20,
+        "completed": true,
+        "rewardXp": 40
+      },
+      {
+        "id": "m2",
+        "title": "Solve 1 Timed Challenge Arena",
+        "target": 1,
+        "current": 1,
+        "completed": true,
+        "rewardXp": 30
+      }
+    ],
+    "realWorldSubmissions": {
+      "resume": {
+        "atsScore": 87,
+        "date": "2026-09-09T08:00:00.000Z",
+        "feedback": "Strong software development project metrics."
+      }
+    },
+    "predictedPlacementScore": 89,
+    "ipAddress": "106.51.240.12",
+    "location": "Bengaluru / Karnataka, India",
+    "browser": "Google Chrome 128",
+    "os": "macOS Sonoma (MacBook Pro)",
+    "deviceType": "Laptop / Desktop",
+    "isOnline": true,
+    "lastHeartbeat": "2026-09-10T09:15:00.000Z",
+    "loginCount": 4,
+    "activityLog": [
+      {
+        "id": "act-suhan-1",
+        "timestamp": "2026-09-10T09:15:00.000Z",
+        "actionType": "PRACTICE_MCQ",
+        "title": "Completed Numerical Reasoning Practice Zone",
+        "details": "Scored 90% across 20 practice questions.",
+        "category": "Aptitude",
+        "score": 90,
+        "xpEarned": 40,
+        "deviceSummary": "macOS Sonoma · Chrome"
+      }
+    ]
+  },
+  {
+    "uid": "2xHe3ElDKtcAKbidAC2JqkeQSb93",
+    "name": "Amber Zai",
+    "email": "amberzai03@gmail.com",
+    "institute": "Vellore Institute of Technology (VIT)",
+    "department": "Computer Science & Engineering",
+    "classYear": "Final Year 2025",
+    "xp": 3650,
+    "level": 3,
+    "levelTitle": "Level 3 Contender",
+    "streakDays": 3,
+    "lastActiveDate": "2026-09-10T08:50:00.000Z",
+    "firstLoginDate": "2026-09-08T14:30:00.000Z",
+    "completedTopicIds": [
+      "mod1-topic-1",
+      "mod3-topic-1"
+    ],
+    "unlockedTopicIds": [
+      "mod1-topic-1",
+      "mod1-topic-2",
+      "mod3-topic-1"
+    ],
+    "topicScores": {
+      "mod1-topic-1": {
+        "practiceBest": 86,
+        "challengeBest": 19,
+        "bossPassed": true
+      },
+      "mod3-topic-1": {
+        "practiceBest": 92,
+        "challengeBest": 21,
+        "bossPassed": true
+      }
+    },
+    "badgesEarned": [
+      "streak-fire-1",
+      "verbal-virtuoso"
+    ],
+    "dailyMissions": [
+      {
+        "id": "m1",
+        "title": "Finish 20 Practice MCQs",
+        "target": 20,
+        "current": 20,
+        "completed": true,
+        "rewardXp": 40
+      }
+    ],
+    "realWorldSubmissions": {
+      "email": {
+        "score": 90,
+        "date": "2026-09-09T10:00:00.000Z",
+        "feedback": "Clear, professional recruiter pitch."
+      }
+    },
+    "predictedPlacementScore": 87,
+    "ipAddress": "182.73.194.50",
+    "location": "Vellore / Tamil Nadu, India",
+    "browser": "Google Chrome 128",
+    "os": "Windows 11 Laptop",
+    "deviceType": "Laptop / Desktop",
+    "isOnline": true,
+    "lastHeartbeat": "2026-09-10T08:50:00.000Z",
+    "loginCount": 3,
+    "activityLog": [
+      {
+        "id": "act-amber-1",
+        "timestamp": "2026-09-10T08:50:00.000Z",
+        "actionType": "REAL_WORLD_TASK",
+        "title": "Submitted Professional Email Pitch",
+        "details": "Evaluation completed with 90/100 score.",
+        "category": "Communication",
+        "score": 90,
+        "xpEarned": 50,
+        "deviceSummary": "Windows 11 · Chrome"
+      }
+    ]
+  },
+  {
+    "name": "Aarav Sharma",
+    "institute": "National Institute of Technology, Trichy",
+    "department": "Computer Science & Engineering",
+    "classYear": "Final Year 2025",
+    "xp": 4850,
+    "level": 4,
+    "levelTitle": "Level 4 Mastermind",
+    "streakDays": 7,
+    "lastActiveDate": "2026-09-10T08:45:58.353Z",
+    "firstLoginDate": "2026-09-09T08:45:58.353Z",
+    "completedTopicIds": [
+      "mod1-topic-1",
+      "mod1-topic-2",
+      "mod1-topic-3",
+      "mod2-topic-1"
+    ],
+    "unlockedTopicIds": [
+      "mod1-topic-1",
+      "mod1-topic-2",
+      "mod1-topic-3",
+      "mod2-topic-1",
+      "mod2-topic-2"
+    ],
+    "topicScores": {
+      "mod1-topic-1": {
+        "practiceBest": 95,
+        "challengeBest": 24,
+        "bossPassed": true
+      },
+      "mod1-topic-2": {
+        "practiceBest": 90,
+        "challengeBest": 22,
+        "bossPassed": true
+      },
+      "mod1-topic-3": {
+        "practiceBest": 85,
+        "challengeBest": 20,
+        "bossPassed": true
+      }
+    },
+    "badgesEarned": [
+      "streak-fire-1",
+      "first-topic-clear",
+      "quant-specialist",
+      "faang-titan"
+    ],
+    "dailyMissions": [
+      {
+        "id": "m1",
+        "title": "Finish 20 Practice MCQs",
+        "target": 20,
+        "current": 20,
+        "completed": true,
+        "rewardXp": 40
+      },
+      {
+        "id": "m2",
+        "title": "Solve 1 Timed Challenge Arena",
+        "target": 1,
+        "current": 1,
+        "completed": true,
+        "rewardXp": 30
+      }
+    ],
+    "realWorldSubmissions": {
+      "resume": {
+        "atsScore": 88,
+        "date": "2026-09-09T08:45:58.353Z",
+        "feedback": "Strong ATS compliance with quantitative metrics."
+      },
+      "email": {
+        "score": 92,
+        "date": "2026-09-09T08:45:58.353Z",
+        "feedback": "Crisp subject line and professional call to action."
+      }
+    },
+    "predictedPlacementScore": 94,
+    "ipAddress": "103.112.45.18",
+    "location": "Chennai / Tamil Nadu, India",
+    "browser": "Google Chrome 128",
+    "os": "Windows 11 Laptop",
+    "deviceType": "Laptop / Desktop",
+    "isOnline": true,
+    "lastHeartbeat": "2026-09-10T08:45:58.353Z",
+    "loginCount": 5,
+    "activityLog": [
+      {
+        "id": "act-101",
+        "timestamp": "2026-09-10T08:45:58.353Z",
+        "actionType": "FAANG_MOCK_TEST",
+        "title": "Attempted Google & Meta Crucible Mock Test",
+        "details": "Scored 76% (19/25 correct) in 54 minutes. Awarded FAANG Titan badge!",
+        "category": "Exam",
+        "score": 76,
+        "xpEarned": 250,
+        "badgeName": "FAANG Titan",
+        "deviceSummary": "Windows 11 Laptop · Google Chrome"
+      },
+      {
+        "id": "act-102",
+        "timestamp": "2026-09-10T07:45:58.353Z",
+        "actionType": "BOSS_BATTLE",
+        "title": "Defeated Google Boss Battle in Time & Work",
+        "details": "Cleared timed multi-pipe work rate scenario with 100% accuracy.",
+        "category": "Aptitude",
+        "score": 100,
+        "xpEarned": 100,
+        "deviceSummary": "Windows 11 Laptop · Google Chrome"
+      },
+      {
+        "id": "act-103",
+        "timestamp": "2026-09-10T06:45:58.353Z",
+        "actionType": "REAL_WORLD_TASK",
+        "title": "Submitted Professional Recruiter Cold Email",
+        "details": "Evaluated by Placement AI: 92/100 for high readability and STAR pitch.",
+        "category": "Soft Skills",
+        "score": 92,
+        "xpEarned": 80,
+        "deviceSummary": "Windows 11 Laptop · Google Chrome"
+      }
+    ]
+  },
+  {
+    "name": "Priya Nair",
+    "institute": "Delhi Technological University (DTU)",
+    "department": "Information Technology",
+    "classYear": "Final Year 2025",
+    "xp": 4200,
+    "level": 4,
+    "levelTitle": "Level 4 Mastermind",
+    "streakDays": 5,
+    "lastActiveDate": "2026-09-10T07:45:58.353Z",
+    "firstLoginDate": "2026-09-09T08:45:58.353Z",
+    "completedTopicIds": [
+      "mod1-topic-1",
+      "mod1-topic-2",
+      "mod3-topic-1"
+    ],
+    "unlockedTopicIds": [
+      "mod1-topic-1",
+      "mod1-topic-2",
+      "mod3-topic-1",
+      "mod3-topic-2"
+    ],
+    "topicScores": {
+      "mod1-topic-1": {
+        "practiceBest": 92,
+        "challengeBest": 21,
+        "bossPassed": true
+      },
+      "mod3-topic-1": {
+        "practiceBest": 96,
+        "challengeBest": 23,
+        "bossPassed": true
+      }
+    },
+    "badgesEarned": [
+      "streak-fire-1",
+      "verbal-virtuoso",
+      "speed-demon"
+    ],
+    "dailyMissions": [
+      {
+        "id": "m1",
+        "title": "Finish 20 Practice MCQs",
+        "target": 20,
+        "current": 20,
+        "completed": true,
+        "rewardXp": 40
+      }
+    ],
+    "realWorldSubmissions": {
+      "resume": {
+        "atsScore": 86,
+        "date": "2026-09-09T08:45:58.353Z",
+        "feedback": "Great project impact statements."
+      },
+      "gd": {
+        "score": 89,
+        "date": "2026-09-09T08:45:58.353Z",
+        "feedback": "Strong structured arguments on AI Ethics."
+      }
+    },
+    "predictedPlacementScore": 91,
+    "ipAddress": "122.161.82.90",
+    "location": "New Delhi / NCR, India",
+    "browser": "Apple Safari 17.4",
+    "os": "macOS Sonoma (MacBook Pro)",
+    "deviceType": "Laptop / Desktop",
+    "isOnline": false,
+    "lastHeartbeat": "2026-09-10T07:45:58.353Z",
+    "loginCount": 3,
+    "activityLog": [
+      {
+        "id": "act-201",
+        "timestamp": "2026-09-10T07:45:58.353Z",
+        "actionType": "REAL_WORLD_TASK",
+        "title": "Submitted AI Group Discussion Simulation",
+        "details": "Scored 89/100 for leadership moderation and clear vocal cadence.",
+        "category": "Soft Skills",
+        "score": 89,
+        "xpEarned": 90,
+        "deviceSummary": "macOS Sonoma · Apple Safari"
+      },
+      {
+        "id": "act-202",
+        "timestamp": "2026-09-10T06:45:58.353Z",
+        "actionType": "CHALLENGE",
+        "title": "Cleared 15-Minute Verbal Challenge Arena",
+        "details": "Solved 10 sentence correction and vocabulary MCQs with net score +23/25.",
+        "category": "Aptitude",
+        "score": 92,
+        "xpEarned": 60,
+        "deviceSummary": "macOS Sonoma · Apple Safari"
+      }
+    ]
+  },
+  {
+    "name": "Rohan Gupta",
+    "institute": "BITS Pilani",
+    "department": "Electronics & Communication",
+    "classYear": "Pre-Final Year 2026",
+    "xp": 3650,
+    "level": 3,
+    "levelTitle": "Level 3 Contender",
+    "streakDays": 4,
+    "lastActiveDate": "2026-09-10T06:45:58.353Z",
+    "firstLoginDate": "2026-09-09T08:45:58.353Z",
+    "completedTopicIds": [
+      "mod1-topic-1",
+      "mod2-topic-1"
+    ],
+    "unlockedTopicIds": [
+      "mod1-topic-1",
+      "mod2-topic-1",
+      "mod2-topic-2"
+    ],
+    "topicScores": {
+      "mod1-topic-1": {
+        "practiceBest": 88,
+        "challengeBest": 19,
+        "bossPassed": true
+      }
+    },
+    "badgesEarned": [
+      "streak-fire-1",
+      "first-topic-clear"
+    ],
+    "dailyMissions": [],
+    "realWorldSubmissions": {
+      "resume": {
+        "atsScore": 82,
+        "date": "2026-09-09T08:45:58.353Z"
+      }
+    },
+    "predictedPlacementScore": 86,
+    "ipAddress": "14.139.128.33",
+    "location": "Pilani / Rajasthan, India",
+    "browser": "Mozilla Firefox 129",
+    "os": "Ubuntu Linux 24.04",
+    "deviceType": "Laptop / Desktop",
+    "isOnline": false,
+    "lastHeartbeat": "2026-09-10T06:45:58.353Z",
+    "loginCount": 2,
+    "activityLog": [
+      {
+        "id": "act-301",
+        "timestamp": "2026-09-10T06:45:58.353Z",
+        "actionType": "PRACTICE_MCQ",
+        "title": "Completed Coding-Decoding Practice Zone",
+        "details": "Practiced 15 substitution cipher and binary pattern questions (Accuracy: 88%).",
+        "category": "Technical",
+        "score": 88,
+        "xpEarned": 45,
+        "deviceSummary": "Ubuntu Linux · Firefox"
+      }
+    ]
+  }
+]

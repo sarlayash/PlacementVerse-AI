@@ -447,6 +447,19 @@ function getEnrichedStudents(): ServerStudent[] {
 
 // 1. Get all learners across all devices/browsers
 app.get('/api/students', (req, res) => {
+  const disk = loadStudentsFromDisk();
+  for (const ds of disk) {
+    const idx = serverStudents.findIndex(
+      (s) => (ds.uid && s.uid === ds.uid) ||
+             (ds.email && s.email && s.email.toLowerCase() === ds.email.toLowerCase()) ||
+             (s.name.toLowerCase() === ds.name.toLowerCase())
+    );
+    if (idx === -1) {
+      serverStudents.push(ds);
+    } else {
+      serverStudents[idx] = { ...ds, ...serverStudents[idx] };
+    }
+  }
   const enriched = getEnrichedStudents();
   res.json({
     students: enriched,
