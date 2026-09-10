@@ -86,6 +86,9 @@ export interface LearnerActivityItem {
 
 export interface LearnerProfile {
   name: string;
+  email?: string;
+  photoUrl?: string;
+  uid?: string;
   institute: string;
   department: string;
   classYear: string;

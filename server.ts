@@ -71,6 +71,9 @@ interface ServerDeviceMeta {
 
 interface ServerStudent {
   name: string;
+  email?: string;
+  photoUrl?: string;
+  uid?: string;
   institute: string;
   department: string;
   classYear: string;
@@ -462,7 +465,9 @@ app.post('/api/students/journey-begun', (req, res) => {
 
   const device = parseClientInfo(req, clientDeviceMeta || student.deviceMeta);
   const existingIdx = serverStudents.findIndex(
-    (s) => s.name.toLowerCase() === student.name.toLowerCase()
+    (s) => (student.uid && s.uid === student.uid) ||
+           (student.email && s.email && s.email.toLowerCase() === student.email.toLowerCase()) ||
+           (s.name.toLowerCase() === student.name.toLowerCase())
   );
 
   const registerActivity: ServerActivityItem = {
@@ -545,7 +550,9 @@ app.post('/api/students', (req, res) => {
 
   const device = parseClientInfo(req, studentData.deviceMeta);
   const existingIdx = serverStudents.findIndex(
-    (s) => s.name.toLowerCase() === studentData.name.toLowerCase()
+    (s) => (studentData.uid && s.uid === studentData.uid) ||
+           (studentData.email && s.email && s.email.toLowerCase() === studentData.email.toLowerCase()) ||
+           (s.name.toLowerCase() === studentData.name.toLowerCase())
   );
 
   let isNew = false;

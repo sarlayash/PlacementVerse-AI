@@ -28,6 +28,7 @@ import {
   calculateLevel,
   playNotificationChime,
 } from '../services/storageService';
+import { subscribeToFirestoreLearners, fetchLearnersFromFirestore } from '../services/firebaseAuthService';
 
 interface AdminDashboardViewProps {
   currentProfile: LearnerProfile;
@@ -165,10 +166,32 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
 
   // Real-time synchronization effect across tabs and devices
   useEffect(() => {
-    // 1. Initial server pull
-    fetchServerStudents().then(serverList => {
-      if (serverList && serverList.length > 0) {
-        setStudents(serverList);
+    // Helper to merge lists
+    const mergeStudentLists = (serverList: LearnerProfile[], firestoreList: LearnerProfile[]): LearnerProfile[] => {
+      const map = new Map<string, LearnerProfile>();
+      for (const s of serverList) {
+        const key = s.uid || s.email?.toLowerCase() || s.name.toLowerCase();
+        map.set(key, s);
+      }
+      for (const f of firestoreList) {
+        const key = f.uid || f.email?.toLowerCase() || f.name.toLowerCase();
+        if (map.has(key)) {
+          map.set(key, { ...map.get(key)!, ...f });
+        } else {
+          map.set(key, f);
+        }
+      }
+      return Array.from(map.values());
+    };
+
+    // 1. Initial server and firestore pull
+    Promise.all([
+      fetchServerStudents(),
+      fetchLearnersFromFirestore(),
+    ]).then(([serverList, firestoreList]) => {
+      const merged = mergeStudentLists(serverList || [], firestoreList || []);
+      if (merged.length > 0) {
+        setStudents(merged);
       }
     });
 
@@ -178,7 +201,14 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
       }
     });
 
-    // 2. Server-Sent Events (SSE) stream for instant live updates across all devices
+    // 2. Subscribe to real-time Firestore learners collection
+    const unsubscribeFirestore = subscribeToFirestoreLearners((firestoreList) => {
+      if (firestoreList && firestoreList.length > 0) {
+        setStudents(prev => mergeStudentLists(prev, firestoreList));
+      }
+    });
+
+    // 3. Server-Sent Events (SSE) stream for instant live updates across all devices
     let eventSource: EventSource | null = null;
     try {
       eventSource = new EventSource('/api/students/stream');
@@ -189,7 +219,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
         try {
           const data = JSON.parse(event.data);
           if (Array.isArray(data.allStudents)) {
-            setStudents(data.allStudents);
+            setStudents(prev => mergeStudentLists(data.allStudents, prev));
           }
           if (data.type === 'JOURNEY_BEGUN' && data.payload?.name) {
             playNotificationChime();
@@ -290,9 +320,13 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
 
     // 4. Polling fallback every 3.5 seconds
     const interval = setInterval(() => {
-      fetchServerStudents().then(serverList => {
-        if (serverList && serverList.length > 0) {
-          setStudents(serverList);
+      Promise.all([
+        fetchServerStudents(),
+        fetchLearnersFromFirestore(),
+      ]).then(([serverList, firestoreList]) => {
+        const merged = mergeStudentLists(serverList || [], firestoreList || []);
+        if (merged.length > 0) {
+          setStudents(prev => mergeStudentLists(prev, merged));
         }
       });
       fetchServerActivities().then(actList => {
@@ -303,6 +337,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     }, 3500);
 
     return () => {
+      unsubscribeFirestore();
       if (eventSource) eventSource.close();
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('placementverse_students_updated', handleLocalCustomEvent);
@@ -313,9 +348,15 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
 
   const handleManualSync = async () => {
     setIsManualSyncing(true);
-    const serverList = await fetchServerStudents();
-    if (serverList && serverList.length > 0) {
-      setStudents(serverList);
+    const [serverList, firestoreList] = await Promise.all([
+      fetchServerStudents(),
+      fetchLearnersFromFirestore(),
+    ]);
+    const merged = (serverList && firestoreList)
+      ? [...serverList, ...firestoreList.filter(f => !serverList.some(s => (f.uid && s.uid === f.uid) || (f.email && s.email && f.email.toLowerCase() === s.email.toLowerCase()) || (s.name.toLowerCase() === f.name.toLowerCase())))]
+      : (serverList || firestoreList || getAllStudents());
+    if (merged && merged.length > 0) {
+      setStudents(merged);
     } else {
       setStudents(getAllStudents());
     }
@@ -647,9 +688,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
 
   // Filter students for roster view
   const filteredStudents = students.filter(s => {
-    const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.institute.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.department.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = s.name.toLowerCase().includes(q) ||
+      (s.email && s.email.toLowerCase().includes(q)) ||
+      (s.institute && s.institute.toLowerCase().includes(q)) ||
+      (s.department && s.department.toLowerCase().includes(q));
     if (!matchesSearch) return false;
 
     if (tierFilter === 'top') return s.predictedPlacementScore >= 90;
@@ -898,9 +941,18 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-3">
                         <div className="relative">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-700 text-white font-black text-sm flex items-center justify-center uppercase shadow-xs">
-                            {student.name.charAt(0)}
-                          </div>
+                          {student.photoUrl ? (
+                            <img
+                              src={student.photoUrl}
+                              alt={student.name}
+                              referrerPolicy="no-referrer"
+                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-xs"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-700 text-white font-black text-sm flex items-center justify-center uppercase shadow-xs">
+                              {student.name.charAt(0)}
+                            </div>
+                          )}
                           {isOnlineNow && (
                             <span
                               className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white animate-pulse"
@@ -916,7 +968,17 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                                 Current
                               </span>
                             )}
+                            {student.email && (
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                Google Verified
+                              </span>
+                            )}
                           </div>
+                          {student.email && (
+                            <p className="text-[10px] text-indigo-600 font-medium truncate max-w-[180px]">
+                              {student.email}
+                            </p>
+                          )}
                           <p className="text-[11px] text-slate-500 font-medium">
                             {student.institute} • {student.department}
                           </p>

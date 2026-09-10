@@ -1,6 +1,7 @@
 import { LearnerProfile, Module, Topic, Announcement, IssuedCertificateRecord, LeaderboardEntry, MockTestAttempt, FinalAssessmentAttempt, LearnerDeviceMeta, LearnerActivityItem, ActivityActionType } from '../types';
 import { INITIAL_MODULES } from '../data/learningPathData';
 import confetti from 'canvas-confetti';
+import { saveLearnerToFirestore, signOutLearner } from './firebaseAuthService';
 
 const STORAGE_KEY_PROFILE = 'placementverse_profile';
 const STORAGE_KEY_MODULES = 'placementverse_modules';
@@ -183,10 +184,14 @@ export async function registerNewLearnerJourney(student: LearnerProfile): Promis
 // Learner Sign Out functionality
 export function learnerLogout(): void {
   try {
+    signOutLearner().catch(() => {});
     localStorage.removeItem(STORAGE_KEY_JOURNEY_STARTED);
     const blankProfile: LearnerProfile = {
       ...DEFAULT_PROFILE,
       name: '',
+      email: '',
+      uid: '',
+      photoUrl: '',
       xp: 0,
       predictedPlacementScore: 0,
       completedTopicIds: [],
@@ -236,6 +241,10 @@ export function saveLearnerProfile(profile: LearnerProfile): void {
     syncProfileToRoster(profile);
     // Background sync to server API
     syncStudentToServer(profile);
+    // Sync to Firebase Firestore
+    if (profile.uid || profile.email) {
+      saveLearnerToFirestore(profile).catch(() => {});
+    }
     // Cross-tab broadcast
     notifyStudentsUpdated(profile);
   } catch (e) {

@@ -219,16 +219,30 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onGoToLanding}
                 className="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all text-left group"
-                title="Change Name / Revisit Profile"
+                title="Profile & Settings"
               >
-                <div className="w-8 h-8 rounded-lg bg-slate-900 group-hover:bg-blue-600 text-white flex items-center justify-center font-bold text-xs uppercase transition-colors">
-                  {profile.name ? profile.name.charAt(0) : 'K'}
-                </div>
+                {profile.photoUrl ? (
+                  <img
+                    src={profile.photoUrl}
+                    alt={profile.name}
+                    referrerPolicy="no-referrer"
+                    className="w-8 h-8 rounded-lg object-cover border border-slate-200"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-lg bg-slate-900 group-hover:bg-blue-600 text-white flex items-center justify-center font-bold text-xs uppercase transition-colors">
+                    {profile.name ? profile.name.charAt(0) : 'K'}
+                  </div>
+                )}
                 <div className="hidden xl:block text-xs">
-                  <p className="font-bold text-slate-800 group-hover:text-blue-700 leading-tight">
-                    {profile.name || 'Set Name'}
-                  </p>
-                  <p className="text-[10px] text-slate-500">{profile.department?.split(' ')[0] || 'Learner'}</p>
+                  <div className="flex items-center gap-1">
+                    <p className="font-bold text-slate-800 group-hover:text-blue-700 leading-tight">
+                      {profile.name || 'Set Name'}
+                    </p>
+                    {profile.email && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Google Account Connected" />
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-500">{profile.email || profile.department?.split(' ')[0] || 'Learner'}</p>
                 </div>
               </button>
             )}

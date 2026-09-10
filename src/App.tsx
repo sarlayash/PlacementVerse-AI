@@ -141,12 +141,21 @@ export default function App() {
     saveLearnerProfile(updated);
   };
 
-  const handleStartJourney = (name: string, institute: string, department: string, targetCompany: string) => {
+  const handleStartJourney = (
+    name: string, 
+    institute: string, 
+    department: string, 
+    targetCompany: string,
+    googleData?: { uid?: string; email?: string; photoUrl?: string }
+  ) => {
     const updated: LearnerProfile = {
       ...profile,
       name: name.trim(),
       institute: institute.trim() || profile.institute,
       department: department.trim() || profile.department,
+      ...(googleData?.uid ? { uid: googleData.uid } : {}),
+      ...(googleData?.email ? { email: googleData.email } : {}),
+      ...(googleData?.photoUrl ? { photoUrl: googleData.photoUrl } : {}),
     };
     handleUpdateProfile(updated);
     setJourneyStarted(true);
