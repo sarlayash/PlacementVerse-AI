@@ -10,6 +10,7 @@ import { BadgesView } from './components/BadgesView';
 import { CertificatesView } from './components/CertificatesView';
 import { FaangMockTestsView } from './components/FaangMockTestsView';
 import { FinalAssessmentView } from './components/FinalAssessmentView';
+import { GrammarPartsOfSpeechView } from './components/GrammarPartsOfSpeechView';
 import { TopicDetailModal } from './components/TopicDetailModal';
 import { DailyMissionsModal } from './components/DailyMissionsModal';
 import { CoachModal } from './components/CoachModal';
@@ -40,7 +41,7 @@ import { LearnerProfile, Module, Topic } from './types';
 export default function App() {
   const [profile, setProfile] = useState<LearnerProfile>(getLearnerProfile());
   const [modules, setModules] = useState<Module[]>(getModulesWithTopics());
-  const [activeTab, setActiveTab] = useState<'learn' | 'mock-tests' | 'final-assessment' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin'>('learn');
+  const [activeTab, setActiveTab] = useState<'learn' | 'grammar' | 'mock-tests' | 'final-assessment' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin'>('learn');
 
   // Admin authentication state
   const [isAdmin, setIsAdmin] = useState<boolean>(() => isAdminAuthenticated());
@@ -345,6 +346,14 @@ export default function App() {
             modules={modules}
             profile={profile}
             onSelectTopic={handleSelectTopic}
+            onOpenGrammar={() => setActiveTab('grammar')}
+          />
+        )}
+
+        {/* Tab: Grammar - The 8 Parts of Speech Mastery */}
+        {activeTab === 'grammar' && (
+          <GrammarPartsOfSpeechView
+            onBackToLearn={() => setActiveTab('learn')}
           />
         )}
 

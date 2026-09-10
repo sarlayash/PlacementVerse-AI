@@ -10,12 +10,14 @@ interface LearningPathViewProps {
   modules: Module[];
   profile: LearnerProfile;
   onSelectTopic: (topic: Topic) => void;
+  onOpenGrammar?: () => void;
 }
 
 export const LearningPathView: React.FC<LearningPathViewProps> = ({
   modules,
   profile,
   onSelectTopic,
+  onOpenGrammar,
 }) => {
   const [activeModuleId, setActiveModuleId] = useState<number>(1);
 
@@ -107,6 +109,36 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
           <span>Every topic unlocks +500 Total XP</span>
         </div>
       </div>
+
+      {/* Featured Grammar: The 8 Parts of Speech Banner (Special placement module) */}
+      {activeModule.id === 3 && onOpenGrammar && (
+        <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-3xl p-6 sm:p-7 text-white shadow-md border border-indigo-700/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950">
+                Placement Masterclass
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white">
+                80 Curated MCQs + Notes
+              </span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-white">
+              Grammar: The 8 Parts of Speech Mastery
+            </h3>
+            <p className="text-xs sm:text-sm text-indigo-200 max-w-2xl leading-relaxed">
+              In-depth notes, 10 MCQs for each of the 8 parts (Nouns, Pronouns, Verbs, Adjectives, Adverbs, Prepositions, Conjunctions, Interjections), plus interview tips with common spoken mistakes candidates make.
+            </p>
+          </div>
+          <button
+            onClick={onOpenGrammar}
+            className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-amber-500/20 active:scale-95"
+          >
+            <BookOpen className="w-4 h-4 text-slate-950" />
+            <span>Launch 8 Parts Studio</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Topics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

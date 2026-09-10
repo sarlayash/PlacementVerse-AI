@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { 
   Sparkles, Rocket, ArrowRight, CheckCircle2, Trophy, Award, 
   Flame, BookOpen, Target, Brain, Briefcase, ShieldCheck, 
-  Star, Users, Zap, Building2, GraduationCap, Check, HelpCircle
+  Star, Users, Zap, Building2, GraduationCap, Check, HelpCircle,
+  AlertTriangle, Copy, ExternalLink, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { LearnerProfile } from '../types';
 import { fireCelebrationConfetti } from '../services/storageService';
@@ -48,13 +49,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const [googleUser, setGoogleUser] = useState<{ uid?: string; email?: string; photoUrl?: string } | null>(
     profile.uid || profile.email ? { uid: profile.uid, email: profile.email, photoUrl: profile.photoUrl } : null
   );
-  const [error, setError] = useState('');
+  const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
+  const [googleAuthError, setGoogleAuthError] = useState<{
+    code?: string;
+    message: string;
+    isUnauthorizedDomain: boolean;
+    domain: string;
+  } | null>(null);
+  const [showDomainHelp, setShowDomainHelp] = useState(false);
+  const [copiedDomain, setCopiedDomain] = useState(false);
 
   const handleGoogleSignIn = async () => {
     try {
-      setError('');
+      setGoogleAuthError(null);
+      setFormError('');
       setIsGoogleSigningIn(true);
       const { user, profile: googleProfile } = await signInWithGoogle();
       const resolvedName = googleProfile.name || user.displayName || user.email?.split('@')[0] || 'Learner';
@@ -83,24 +93,74 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     } catch (err: any) {
       console.error('Google Sign In Error:', err);
       setIsGoogleSigningIn(false);
-      // If popup was closed by user or blocked
-      if (err?.code === 'auth/popup-closed-by-user') {
-        setError('Sign-in cancelled. Please click "Sign in with Google" again.');
+
+      const isUnauthorized = 
+        err?.code === 'auth/unauthorized-domain' || 
+        String(err?.message || '').includes('auth/unauthorized-domain') ||
+        String(err?.message || '').includes('unauthorized-domain');
+
+      if (isUnauthorized) {
+        const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'sarlayash.github.io';
+        setGoogleAuthError({
+          code: 'auth/unauthorized-domain',
+          message: `Firebase blocked Google sign-in because domain "${currentDomain}" is not in the Firebase Authorized Domains list.`,
+          isUnauthorizedDomain: true,
+          domain: currentDomain,
+        });
+      } else if (err?.code === 'auth/popup-closed-by-user') {
+        setGoogleAuthError({
+          code: 'auth/popup-closed-by-user',
+          message: 'Sign-in cancelled. The Google popup was closed before completing.',
+          isUnauthorizedDomain: false,
+          domain: '',
+        });
+      } else if (err?.code === 'auth/popup-blocked') {
+        setGoogleAuthError({
+          code: 'auth/popup-blocked',
+          message: 'Sign-in popup was blocked by your browser. Please allow popups for this site and try again.',
+          isUnauthorizedDomain: false,
+          domain: '',
+        });
       } else {
-        setError(err?.message || 'Google Sign-In failed. Please try again or complete the form.');
+        setGoogleAuthError({
+          code: err?.code,
+          message: err?.message || 'Google Sign-In failed. Please try again or complete the form below.',
+          isUnauthorizedDomain: false,
+          domain: '',
+        });
       }
     }
+  };
+
+  // Instant bypass handler allowing the learner to proceed immediately with entered or demo profile
+  const handleBypassGoogleAuth = () => {
+    const resolvedName = name.trim() || 'Kapil Narula';
+    if (!name.trim()) setName(resolvedName);
+    fireCelebrationConfetti();
+    setIsSubmitting(true);
+    setTimeout(() => {
+      onStartJourney(
+        resolvedName,
+        institute,
+        department,
+        selectedTarget,
+        {
+          uid: 'learner-guest-' + Date.now(),
+          email: 'kapilnarula27july@gmail.com',
+        }
+      );
+    }, 400);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) {
-      setError('Please sign in with Google or enter your name to personalize your placement journey.');
+      setFormError('Please enter your full name to personalize your placement journey.');
       return;
     }
 
-    setError('');
+    setFormError('');
     setIsSubmitting(true);
     fireCelebrationConfetti();
 
@@ -218,7 +278,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   type="button"
                   onClick={handleGoogleSignIn}
                   disabled={isGoogleSigningIn}
-                  className="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-900 font-bold text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all border border-slate-200 active:scale-[0.99]"
+                  className="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-900 font-bold text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all border border-slate-200 active:scale-[0.99] disabled:opacity-75"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path
@@ -240,12 +300,121 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </svg>
                   <span>{isGoogleSigningIn ? 'Connecting with Google...' : 'Continue with Google Account'}</span>
                 </button>
+
                 {googleUser?.email && (
-                  <p className="mt-2 text-xs text-emerald-400 flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  <p className="mt-2.5 text-xs text-emerald-400 flex items-center gap-1.5 font-medium">
+                    <CheckCircle2 className="w-4 h-4" />
                     Authenticated as {googleUser.email}
                   </p>
                 )}
+
+                {/* Rich Domain Authorization / Error Banner */}
+                {googleAuthError && (
+                  <div className="mt-3.5">
+                    {googleAuthError.isUnauthorizedDomain ? (
+                      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs shadow-lg">
+                        <div className="flex items-start gap-2.5">
+                          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-amber-300 text-sm">
+                              Google Sign-In Domain Not Authorized
+                            </p>
+                            <p className="mt-1 text-slate-300 leading-relaxed text-xs">
+                              Firebase OAuth requires each hosting host to be whitelisted. Your current hosting domain{' '}
+                              <span className="inline-block font-mono bg-slate-950 px-2 py-0.5 rounded text-amber-300 border border-amber-500/30 font-semibold my-0.5">
+                                {googleAuthError.domain}
+                              </span>{' '}
+                              has not been added to Firebase Console Authorized Domains yet.
+                            </p>
+
+                            {/* Immediate Zero-Block Action Buttons */}
+                            <div className="mt-3.5 flex flex-wrap items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={handleBypassGoogleAuth}
+                                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-950/50 transition-all active:scale-95"
+                              >
+                                <Rocket className="w-3.5 h-3.5" />
+                                <span>⚡ Continue Directly as {name.trim() || 'Kapil Narula'}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setShowDomainHelp(!showDomainHelp)}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all"
+                              >
+                                <span>{showDomainHelp ? 'Hide Guide' : 'How to Authorize Domain'}</span>
+                                {showDomainHelp ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={handleGoogleSignIn}
+                                className="text-xs text-slate-400 hover:text-white underline ml-auto py-1"
+                              >
+                                Retry
+                              </button>
+                            </div>
+
+                            {/* Step-by-Step Resolution Guide */}
+                            {showDomainHelp && (
+                              <div className="mt-3 p-3.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-[11px] text-slate-300 space-y-2.5">
+                                <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-800">
+                                  <span className="font-semibold text-slate-300">
+                                    Domain to add: <code className="text-amber-300 font-mono font-bold">{googleAuthError.domain}</code>
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(googleAuthError.domain);
+                                      setCopiedDomain(true);
+                                      setTimeout(() => setCopiedDomain(false), 2000);
+                                    }}
+                                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-all active:scale-95"
+                                  >
+                                    {copiedDomain ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                    <span>{copiedDomain ? 'Copied!' : 'Copy Domain'}</span>
+                                  </button>
+                                </div>
+                                <ol className="list-decimal list-inside space-y-1.5 text-slate-300">
+                                  <li>
+                                    Open{' '}
+                                    <a
+                                      href="https://console.firebase.google.com/project/gen-lang-client-0409052582/authentication/settings"
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-blue-400 hover:text-blue-300 underline font-semibold inline-flex items-center gap-1"
+                                    >
+                                      Firebase Console Settings <ExternalLink className="w-3 h-3 inline" />
+                                    </a>
+                                  </li>
+                                  <li>Scroll to the <strong>Authorized domains</strong> section.</li>
+                                  <li>Click <strong>Add domain</strong> and paste <code className="bg-slate-800 px-1.5 py-0.5 rounded text-amber-300 font-mono">{googleAuthError.domain}</code>.</li>
+                                  <li>Click <strong>Save</strong> — Google Sign-In will then work seamlessly on your GitHub Pages deployment!</li>
+                                </ol>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                          <span>{googleAuthError.message}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setGoogleAuthError(null)}
+                          className="text-slate-400 hover:text-white text-xs px-2 py-1"
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex items-center gap-3 my-4">
                   <div className="flex-1 h-px bg-slate-700/80" />
                   <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Or configure profile manually</span>
@@ -266,12 +435,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       value={name}
                       onChange={(e) => {
                         setName(e.target.value);
-                        if (error) setError('');
+                        if (formError) setFormError('');
                       }}
                       placeholder="e.g. Rahul Sharma or Priya Verma"
                       autoFocus
                       className={`w-full bg-slate-900/90 border ${
-                        error ? 'border-rose-500 ring-1 ring-rose-500' : 'border-slate-600 focus:border-blue-400'
+                        formError ? 'border-rose-500 ring-1 ring-rose-500' : 'border-slate-600 focus:border-blue-400'
                       } rounded-xl px-4 py-3.5 text-base font-medium text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all`}
                     />
                     {name.trim().length > 0 && (
@@ -280,10 +449,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       </div>
                     )}
                   </div>
-                  {error && (
+                  {formError && (
                     <p className="mt-2 text-xs text-rose-400 flex items-center gap-1.5">
                       <HelpCircle className="w-3.5 h-3.5" />
-                      {error}
+                      {formError}
                     </p>
                   )}
                 </div>
