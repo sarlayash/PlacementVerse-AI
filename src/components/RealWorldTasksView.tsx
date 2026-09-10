@@ -1,10 +1,20 @@
 import React, { useState, useRef } from 'react';
 import { 
   Mail, Mic, MicOff, FileText, Share2, Sparkles, CheckCircle2, 
-  AlertCircle, Copy, Check, Loader2, ArrowRight, Star, RefreshCw
+  AlertCircle, Copy, Check, Loader2, ArrowRight, Star, RefreshCw, Wand2
 } from 'lucide-react';
 import { LearnerProfile } from '../types';
 import { fireCelebrationConfetti } from '../services/storageService';
+import {
+  evaluateResumeATS,
+  evaluateEmailWriting,
+  evaluateSpeechGD,
+  evaluateLinkedInProfile,
+  ResumeAuditResult,
+  EmailEvaluationResult,
+  SpeechEvaluationResult,
+  LinkedInOptimizationResult,
+} from '../services/aiEvaluationService';
 
 interface RealWorldTasksViewProps {
   profile: LearnerProfile;
@@ -16,6 +26,32 @@ export const RealWorldTasksView: React.FC<RealWorldTasksViewProps> = ({
   onUpdateProfile,
 }) => {
   const [activeTaskTab, setActiveTaskTab] = useState<'email' | 'gd' | 'resume' | 'linkedin'>('email');
+
+  // Helper for safe clipboard copy across browser iframes
+  const safeCopy = async (text: string, onSuccess: () => void) => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        onSuccess();
+        return;
+      }
+    } catch {
+      // fallback below
+    }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      onSuccess();
+    } catch (e) {
+      console.warn('Clipboard copy error:', e);
+    }
+  };
 
   // Task 1: Email Writing State
   const [emailScenario, setEmailScenario] = useState('Follow-up with HR asking for interview feedback & status after Technical Round');
@@ -32,7 +68,7 @@ Warm regards,
 ${profile.name || 'Learner'}
 ${profile.institute || 'National Engineering College'}`);
   const [emailEvaluating, setEmailEvaluating] = useState(false);
-  const [emailResult, setEmailResult] = useState<any>(null);
+  const [emailResult, setEmailResult] = useState<EmailEvaluationResult | null>(null);
   const [copiedPolishedEmail, setCopiedPolishedEmail] = useState(false);
 
   // Task 2: GD / Speech State
@@ -41,7 +77,7 @@ ${profile.institute || 'National Engineering College'}`);
   const [speechTranscript, setSpeechTranscript] = useState(
 `Good morning distinguished panel and peers. While automation has indeed altered baseline coding tasks, historical precedent demonstrates that technology shifts developers to higher-order problem formulation and architecture. In Indian tech hubs, engineers leveraging generative AI will build faster, not be replaced.`);
   const [speechEvaluating, setSpeechEvaluating] = useState(false);
-  const [speechResult, setSpeechResult] = useState<any>(null);
+  const [speechResult, setSpeechResult] = useState<SpeechEvaluationResult | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   // Task 3: Resume ATS Reviewer State
@@ -70,7 +106,7 @@ ACHIEVEMENTS & LEADERSHIP:
 - Winner, Smart India Hackathon (College Internal Round)
 - 400+ algorithmic questions solved on LeetCode (Knight badge)`);
   const [resumeEvaluating, setResumeEvaluating] = useState(false);
-  const [resumeResult, setResumeResult] = useState<any>(null);
+  const [resumeResult, setResumeResult] = useState<ResumeAuditResult | null>(null);
 
   // Task 4: LinkedIn Optimization State
   const [targetField, setTargetField] = useState('Software Engineering & AI');
@@ -80,18 +116,18 @@ ACHIEVEMENTS & LEADERSHIP:
 
 I enjoy building real-world applications with React, TypeScript, and modern backend architectures. Always eager to collaborate on high-impact software systems!`);
   const [liEvaluating, setLiEvaluating] = useState(false);
-  const [liResult, setLiResult] = useState<any>(null);
+  const [liResult, setLiResult] = useState<LinkedInOptimizationResult | null>(null);
 
   // Submit Email Writing
   const handleEvaluateEmail = async () => {
     setEmailEvaluating(true);
     try {
-      const res = await fetch('/api/evaluate/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emailContent: emailText, promptScenario: emailScenario }),
-      });
-      const data = await res.json();
+      const data = await evaluateEmailWriting(
+        emailText,
+        emailScenario,
+        profile.name || 'Candidate',
+        profile.institute || 'College'
+      );
       setEmailResult(data);
 
       // Award XP
@@ -106,7 +142,7 @@ I enjoy building real-world applications with React, TypeScript, and modern back
       onUpdateProfile(updated);
       fireCelebrationConfetti();
     } catch (e) {
-      console.error(e);
+      console.error('Email evaluation error:', e);
     } finally {
       setEmailEvaluating(false);
     }
@@ -121,7 +157,7 @@ I enjoy building real-world applications with React, TypeScript, and modern back
         mediaRecorderRef.current = recorder;
         recorder.start();
         setIsRecording(true);
-      } catch (err) {
+      } catch {
         alert('Microphone permission not granted or not supported in this frame. You can type or edit your spoken transcript directly in the box below!');
         setIsRecording(false);
       }
@@ -137,12 +173,7 @@ I enjoy building real-world applications with React, TypeScript, and modern back
   const handleEvaluateSpeech = async () => {
     setSpeechEvaluating(true);
     try {
-      const res = await fetch('/api/evaluate/speech', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript: speechTranscript, topic: gdTopic, durationSeconds: 45 }),
-      });
-      const data = await res.json();
+      const data = await evaluateSpeechGD(speechTranscript, gdTopic, 45);
       setSpeechResult(data);
 
       const updated = {
@@ -157,7 +188,7 @@ I enjoy building real-world applications with React, TypeScript, and modern back
       onUpdateProfile(updated);
       fireCelebrationConfetti();
     } catch (e) {
-      console.error(e);
+      console.error('Speech evaluation error:', e);
     } finally {
       setSpeechEvaluating(false);
     }
@@ -167,12 +198,7 @@ I enjoy building real-world applications with React, TypeScript, and modern back
   const handleEvaluateResume = async () => {
     setResumeEvaluating(true);
     try {
-      const res = await fetch('/api/evaluate/resume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resumeText, targetRole }),
-      });
-      const data = await res.json();
+      const data = await evaluateResumeATS(resumeText, targetRole);
       setResumeResult(data);
 
       const updated = {
@@ -187,7 +213,7 @@ I enjoy building real-world applications with React, TypeScript, and modern back
       onUpdateProfile(updated);
       fireCelebrationConfetti();
     } catch (e) {
-      console.error(e);
+      console.error('Resume evaluation error:', e);
     } finally {
       setResumeEvaluating(false);
     }
@@ -197,12 +223,13 @@ I enjoy building real-world applications with React, TypeScript, and modern back
   const handleEvaluateLinkedIn = async () => {
     setLiEvaluating(true);
     try {
-      const res = await fetch('/api/evaluate/linkedin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ headline: liHeadline, about: liAbout, targetField }),
-      });
-      const data = await res.json();
+      const data = await evaluateLinkedInProfile(
+        liHeadline,
+        liAbout,
+        targetField,
+        profile.name || 'Candidate',
+        profile.institute || 'College'
+      );
       setLiResult(data);
 
       const updated = {
@@ -217,7 +244,7 @@ I enjoy building real-world applications with React, TypeScript, and modern back
       onUpdateProfile(updated);
       fireCelebrationConfetti();
     } catch (e) {
-      console.error(e);
+      console.error('LinkedIn evaluation error:', e);
     } finally {
       setLiEvaluating(false);
     }
