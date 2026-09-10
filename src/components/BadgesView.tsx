@@ -57,7 +57,7 @@ export const BadgesView: React.FC<BadgesViewProps> = ({ profile }) => {
                 <Trophy className="w-5 h-5" />
               </span>
               <span className="text-xs font-black uppercase tracking-widest text-amber-400 font-display">
-                PlacementVerse Verified Credential Registry
+                Classrooms To Boardrooms Verified Credential Registry
               </span>
             </div>
             

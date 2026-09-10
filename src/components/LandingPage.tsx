@@ -124,19 +124,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-extrabold text-xl shadow-lg shadow-blue-500/25">
-              P
+              C
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white font-display">
-                  PlacementVerse <span className="text-blue-400">AI</span>
+                <span className="font-extrabold text-base sm:text-lg tracking-tight text-white font-display">
+                  Classrooms To Boardrooms <span className="text-blue-400">Placement Readiness</span>
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-blue-950/80 text-blue-300 border border-blue-700/50">
-                  Powered by Kapil
+                  Powered By Kapil
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 hidden sm:block">
-                India's Ultimate Placement Readiness Challenge
+                Comprehensive Campus Placement Readiness Challenge
               </p>
             </div>
           </div>
@@ -378,7 +378,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-[10px] uppercase font-mono tracking-widest text-slate-400">
-                    PLACEMENTVERSE CANDIDATE PASS
+                    CLASSROOMS TO BOARDROOMS CANDIDATE PASS
                   </span>
                   <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -485,7 +485,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               Proven 4-Stage Learning Architecture
             </span>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white mt-2">
-              How You Win in PlacementVerse
+              How You Win in Classrooms To Boardrooms
             </h2>
             <p className="text-sm sm:text-base text-slate-400 mt-3">
               Every topic is engineered to turn textbook knowledge into high-speed interview reflexes.
@@ -616,7 +616,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 Real-World Tasks Beyond Just MCQs
               </h2>
               <p className="text-sm text-slate-300 mt-3 leading-relaxed">
-                Campus recruitment isn't just about formulas. PlacementVerse tests your actual professional skills with live AI evaluations.
+                Campus recruitment isn't just about formulas. Classrooms To Boardrooms Placement Readiness tests your actual professional skills with live AI evaluations.
               </p>
 
               <div className="mt-6 space-y-4">
@@ -704,7 +704,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               {/* Kapil Narula Endorsement Quote */}
               <div className="mt-6 pt-5 border-t border-slate-800">
                 <p className="italic text-xs text-slate-300 leading-relaxed">
-                  "Speed without accuracy leads to negative marks. Accuracy without speed leaves 10 unattempted questions. PlacementVerse builds both."
+                  "Speed without accuracy leads to negative marks. Accuracy without speed leaves 10 unattempted questions. Classrooms To Boardrooms builds both."
                 </p>
                 <p className="text-right text-[11px] font-bold text-blue-400 mt-1">
                   — Kapil Narula, Placement Director
@@ -746,10 +746,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <footer className="mt-auto border-t border-slate-800 bg-slate-950 py-8 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-semibold text-slate-400">
-            PlacementVerse AI • Powered by Kapil Narula
+            Classrooms To Boardrooms Placement Readiness • Powered By Kapil Narula
           </p>
           <p>
-            India's Premier Campus Placement Readiness & Diagnostic Platform
+            Premier Campus Placement Readiness & Diagnostic Platform
           </p>
         </div>
       </footer>

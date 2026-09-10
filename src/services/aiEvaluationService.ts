@@ -1,5 +1,6 @@
 /**
- * PlacementVerse AI - Real-World Task Evaluation Service
+ * Classrooms To Boardrooms Placement Readiness - Real-World Task Evaluation Service
+ * Powered By Kapil
  * Dual-Engine AI Architecture:
  * 1. Server-side Gemini Engine (when backend API /api/evaluate/* is available)
  * 2. High-Fidelity Client-Side Natural Language & ATS Engine (instant, resilient fallback for GitHub Pages, offline, or server timeout)

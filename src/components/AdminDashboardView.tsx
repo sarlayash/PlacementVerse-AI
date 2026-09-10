@@ -678,7 +678,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
 
   // Delete student
   const handleDeleteStudent = (name: string) => {
-    if (window.confirm(`Are you sure you want to remove ${name} from the PlacementVerse roster?`)) {
+    if (window.confirm(`Are you sure you want to remove ${name} from the Classrooms To Boardrooms roster?`)) {
       deleteStudentFromRoster(name);
       refreshStudents();
       setUserSuccessMessage(`Removed ${name} from candidate registry.`);
@@ -718,10 +718,10 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white font-display tracking-tight">
-            PlacementVerse Administration Console
+            Classrooms To Boardrooms Administration Console
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-            Real-time candidate monitoring, credential governance, badge re-issuance, curriculum lesson authoring, and student profile administration.
+            Classrooms To Boardrooms Placement Readiness Powered By Kapil • Real-time candidate monitoring, credential governance, badge re-issuance, curriculum lesson authoring, and student profile administration.
           </p>
         </div>
 

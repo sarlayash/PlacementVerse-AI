@@ -77,7 +77,7 @@ export const CertificateVerificationModal: React.FC<CertificateVerificationModal
   const handleShareLinkedIn = () => {
     const liveUrl = getCertificateVerificationUrl(result.code);
     const text = encodeURIComponent(
-      `Verified PlacementVerse AI Credential: ${result.title} formally conferred upon ${result.studentName}. Endorsed by Program Director Kapil Narula.`
+      `Verified Classrooms To Boardrooms Placement Readiness Credential: ${result.title} formally conferred upon ${result.studentName}. Powered By Kapil Narula.`
     );
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(liveUrl)}&summary=${text}`, '_blank');
   };
@@ -101,13 +101,13 @@ export const CertificateVerificationModal: React.FC<CertificateVerificationModal
             </div>
             <div>
               <h3 className="font-extrabold text-base sm:text-lg font-display tracking-tight text-white flex items-center gap-2">
-                <span>PlacementVerse Credential Verification Portal</span>
+                <span>Classrooms To Boardrooms Credential Verification Portal</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
                   Live System
                 </span>
               </h3>
               <p className="text-xs text-slate-300">
-                Official public verification authority endorsed by Kapil Narula
+                Official public verification authority powered by Kapil Narula
               </p>
             </div>
           </div>
@@ -358,7 +358,7 @@ export const CertificateVerificationModal: React.FC<CertificateVerificationModal
         <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs text-slate-500 flex items-center gap-1">
             <Lock className="w-3.5 h-3.5 text-emerald-600" />
-            <span>SSL Secured Public Verification by PlacementVerse AI</span>
+            <span>SSL Secured Public Verification by Classrooms To Boardrooms Placement Readiness</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -385,8 +385,8 @@ export const CertificateVerificationModal: React.FC<CertificateVerificationModal
         {/* Bottom Google Colored Ribbon */}
         <GoogleRibbonBar 
           position="bottom"
-          label="PlacementVerse AI • Official Verification Ledger"
-          subtitle="Direct Verification Engine • Authorized by Kapil Narula"
+          label="Classrooms To Boardrooms Placement Readiness • Powered By Kapil Narula"
+          subtitle="Direct Verification Engine • Official Credential Ledger"
         />
 
       </div>

@@ -339,7 +339,7 @@ export const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({
 
   const handleShareLinkedIn = () => {
     const text = encodeURIComponent(
-      `Earned the Google-standard verified credential: ${badge.name} (${badge.category} Category) on PlacementVerse AI! Authorized by Program Director Kapil Narula.`
+      `Earned the Google-standard verified credential: ${badge.name} (${badge.category} Category) on Classrooms To Boardrooms Placement Readiness! Authorized by Program Director Kapil Narula.`
     );
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verificationUrl)}&summary=${text}`, '_blank');
   };
@@ -352,7 +352,7 @@ export const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({
         <GoogleRibbonBar 
           position="top" 
           label="Google Standard Verified Skill Badge" 
-          subtitle="PlacementVerse Authority" 
+          subtitle="Classrooms To Boardrooms Authority" 
         />
 
         {/* Modal Header with Close button */}
@@ -454,7 +454,7 @@ export const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({
         {/* Bottom Google 4-Color Ribbon */}
         <GoogleRibbonBar 
           position="bottom" 
-          label="PLACEMENTVERSE NATIONAL ACCREDITATION AUTHORITY" 
+          label="CLASSROOMS TO BOARDROOMS PLACEMENT READINESS AUTHORITY" 
           variant="slim" 
         />
 

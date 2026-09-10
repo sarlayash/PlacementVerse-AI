@@ -836,8 +836,8 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
                 
                 <div className="flex items-center justify-between border-b border-amber-900/10 pb-4">
                   <div className="text-left">
-                    <p className="text-[10px] uppercase font-black text-amber-800 tracking-widest">PlacementVerse AI</p>
-                    <p className="text-xs font-bold text-slate-600">FAANG Placement Certification Board</p>
+                    <p className="text-[10px] uppercase font-black text-amber-800 tracking-widest">Classrooms To Boardrooms Placement Readiness</p>
+                    <p className="text-xs font-bold text-slate-600">FAANG Placement Certification Board • Powered By Kapil</p>
                   </div>
                   <div className="text-right">
                     <p className="text-[10px] font-mono text-slate-500 font-bold">

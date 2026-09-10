@@ -76,7 +76,7 @@ export const CertificatesView: React.FC<CertificatesViewProps> = ({
         ? selectedFaangTest.certificateTitle 
         : (certType === 'ultimate' ? 'Ultimate Placement Readiness Certification' : 'Topic Competency Certification'));
     const text = encodeURIComponent(
-      `Excited to share that I have earned the ${titleText} on PlacementVerse AI! Verified by Program Director Kapil Narula.`
+      `Excited to share that I have earned the ${titleText} on Classrooms To Boardrooms Placement Readiness! Powered By Kapil Narula.`
     );
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(liveVerificationUrl)}&summary=${text}`, '_blank');
   };
@@ -337,16 +337,16 @@ export const CertificatesView: React.FC<CertificatesViewProps> = ({
                     <div className="flex-1 bg-[#FBBC05]" />
                     <div className="flex-1 bg-[#34A853]" />
                   </div>
-                  <span>PV</span>
+                  <span>C2B</span>
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
                     <p className="font-extrabold text-sm tracking-tight text-slate-900 font-display">
-                      PLACEMENTVERSE AI
+                      CLASSROOMS TO BOARDROOMS PLACEMENT READINESS
                     </p>
                     <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4]" />
                     <span className="text-[9px] font-black uppercase tracking-wider text-indigo-700">
-                      Google Standards
+                      Powered By Kapil
                     </span>
                   </div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
@@ -529,7 +529,7 @@ export const CertificatesView: React.FC<CertificatesViewProps> = ({
                 </div>
                 <div className="w-36 sm:w-44 ml-auto border-t border-slate-400 pt-1">
                   <p className="text-xs font-bold text-slate-900">Kapil Narula</p>
-                  <p className="text-[10px] text-slate-500">Program Director, PlacementVerse AI</p>
+                  <p className="text-[10px] text-slate-500">Program Director, Classrooms To Boardrooms</p>
                 </div>
               </div>
 

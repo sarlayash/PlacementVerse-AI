@@ -38,12 +38,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Brand Logo & Title */}
           <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => onSelectTab('learn')}>
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-blue-500/20">
-              P
+              C
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900 font-display">
-                  PlacementVerse <span className="text-blue-600">AI</span>
+                <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 font-display">
+                  Classrooms To Boardrooms <span className="text-blue-600">Placement Readiness</span>
                 </span>
                 <span className="hidden md:inline-flex items-center text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                   Powered By Kapil

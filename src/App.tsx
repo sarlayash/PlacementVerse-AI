@@ -446,10 +446,10 @@ export default function App() {
       <footer className="mt-auto border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 print:hidden">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="font-semibold text-slate-700">
-            PlacementVerse AI • Powered by Kapil Narula
+            Classrooms To Boardrooms Placement Readiness • Powered By Kapil Narula
           </p>
           <p>
-            India's Ultimate Placement Readiness Challenge • 24/7 AI-Guided Practice
+            Ultimate Placement Readiness Challenge • 24/7 AI-Guided Practice
           </p>
         </div>
       </footer>

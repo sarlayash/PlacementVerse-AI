@@ -218,7 +218,7 @@ const DEFAULT_ANNOUNCEMENTS: Announcement[] = [
   {
     id: 'ann-2',
     title: '🏆 Top 5% Earn Direct Referral to Top MNC Hiring Desks',
-    content: 'Learners crossing 5,000 XP with 80%+ Boss Battle clearance receive verified PlacementVerse Certificates of Excellence.',
+    content: 'Learners crossing 5,000 XP with 80%+ Boss Battle clearance receive verified Classrooms To Boardrooms Certificates of Excellence.',
     date: 'Yesterday',
     author: 'Placement Cell Lead',
   },

@@ -158,7 +158,7 @@ export const DailyMissionsModal: React.FC<DailyMissionsModalProps> = ({
 
         {/* XP Rules Reference */}
         <div className="pt-2 border-t border-slate-100 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
-          <p className="text-xs font-bold text-slate-700 mb-2">⚡ PlacementVerse XP Rewards Guide</p>
+          <p className="text-xs font-bold text-slate-700 mb-2">⚡ Classrooms To Boardrooms XP Rewards Guide</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-slate-600">
             <div>• Learning: <strong className="text-blue-600">+50 XP</strong></div>
             <div>• Quiz Practice: <strong className="text-blue-600">+100 XP</strong></div>

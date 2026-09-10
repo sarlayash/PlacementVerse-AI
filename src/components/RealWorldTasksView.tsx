@@ -93,7 +93,7 @@ Databases: PostgreSQL, MongoDB, Redis
 Tools: Git, Docker, Linux, Postman, Jest
 
 EXPERIENCE & PROJECTS:
-1. PlacementVerse AI Platform (Full-Stack Developer)
+1. Classrooms To Boardrooms Placement Platform (Full-Stack Developer)
 - Built an interactive placement preparation platform using React, Node.js and Gemini GenAI.
 - Handled 200+ practice questions and real-time audio evaluation for mock interviews.
 - Reduced API response latency by 35% using server caching and debounced state.

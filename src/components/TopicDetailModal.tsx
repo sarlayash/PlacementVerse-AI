@@ -747,7 +747,7 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
                   </div>
                   <div>
                     <h3 className="text-2xl font-black text-slate-900 font-display">Challenge Completed!</h3>
-                    <p className="text-xs text-slate-500 mt-1">Official PlacementVerse Challenge Assessment</p>
+                    <p className="text-xs text-slate-500 mt-1">Official Classrooms To Boardrooms Challenge Assessment</p>
                   </div>
 
                   <div className="grid grid-cols-3 gap-3">
