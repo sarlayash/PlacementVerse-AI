@@ -1,4 +1,5 @@
 import { Badge } from '../types';
+import { NEW_DOMAIN_BADGES } from './newDomainsData';
 
 export const ALL_BADGES: Badge[] = [
   // Milestones & Metallic Tiers
@@ -430,4 +431,5 @@ export const ALL_BADGES: Badge[] = [
     requirement: 'Score ≥60% in Enterprise Domains & Security 10-MCQ Sprint',
     gradient: 'from-cyan-600 via-indigo-700 to-purple-950',
   },
+  ...NEW_DOMAIN_BADGES
 ];

@@ -171,9 +171,19 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
   }
 
   // 3. FAANG, Daily Practice, Technical Core & Enterprise Domain Mock Test Certificates
-  if (code.includes('FAANG') || code.includes('MOCK') || code.includes('GGL') || code.includes('AMZ') || code.includes('NFLX') || code.includes('DP') || code.includes('DAILY') || code.includes('TECH') || code.includes('DOM') || code.includes('DBMS') || code.includes('EXCEL') || code.includes('POWERBI') || code.includes('PBI') || code.includes('HACK') || code.includes('CYBER') || code.includes('C-') || code.includes('CPP') || code.includes('JAVA') || code.includes('PYTHON') || code.includes('DSA')) {
+  if (code.includes('FAANG') || code.includes('MOCK') || code.includes('GGL') || code.includes('AMZ') || code.includes('NFLX') || code.includes('DP') || code.includes('DAILY') || code.includes('TECH') || code.includes('DOM') || code.includes('DBMS') || code.includes('EXCEL') || code.includes('POWERBI') || code.includes('PBI') || code.includes('HACK') || code.includes('CYBER') || code.includes('C-') || code.includes('CPP') || code.includes('JAVA') || code.includes('PYTHON') || code.includes('DSA') || code.includes('TALLY') || code.includes('TESTING') || code.includes('QA') || code.includes('GENAI') || code.includes('GEN-AI') || code.includes('AGENTIC') || code.includes('CLAUDE')) {
     let matchingMock = FAANG_MOCK_TESTS[0];
-    if (code.includes('DBMS')) {
+    if (code.includes('TALLY')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-tally-prime') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('TESTING') || code.includes('QA')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-software-testing-qa') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('GENAI') || code.includes('GEN-AI')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-gen-ai') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('AGENTIC') || code.includes('AGENT')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-agentic-ai') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('CLAUDE') || code.includes('ANTHROPIC')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-claude-ai') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('DBMS')) {
       matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-dbms-sql') || FAANG_MOCK_TESTS[0];
     } else if (code.includes('EXCEL')) {
       matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-excel-analytics') || FAANG_MOCK_TESTS[0];

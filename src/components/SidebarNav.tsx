@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { LearnerProfile } from '../types';
 import { calculateLevel } from '../services/storageService';
+import { ALL_BADGES } from '../data/badgesData';
+import { FAANG_MOCK_TESTS } from '../data/faangMockTestsData';
 
 export type NavTabType = 
   | 'learn' 
@@ -68,9 +70,9 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     {
       id: 'mock-tests' as NavTabType,
       label: 'Domain & Tech Mocks',
-      sublabel: '14 High-Bar Mock Tests',
+      sublabel: `${FAANG_MOCK_TESTS.length} Technical Mocks`,
       icon: Calendar,
-      badgeText: '14 Mocks',
+      badgeText: `${FAANG_MOCK_TESTS.length} Mocks`,
       badgeColor: 'bg-purple-600 text-white',
     },
     {
@@ -103,7 +105,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     {
       id: 'badges' as NavTabType,
       label: 'Badges & Honors',
-      sublabel: `${earnedBadgesCount}/29 Earned`,
+      sublabel: `${earnedBadgesCount}/${ALL_BADGES.length} Earned`,
       icon: Medal,
       badgeText: `${earnedBadgesCount}`,
       badgeColor: 'bg-amber-500 text-slate-950',

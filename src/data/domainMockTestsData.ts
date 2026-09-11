@@ -1,4 +1,5 @@
 import { FaangMockTest, FaangQuestion } from '../types';
+import { NEW_DOMAIN_MOCK_TESTS } from './newDomainsData';
 
 // ============================================================================
 // 1. DBMS & ENTERPRISE SQL MOCK TEST (10 MCQs)
@@ -1094,5 +1095,6 @@ export const DOMAIN_MOCK_TESTS: FaangMockTest[] = [
       'Cyber Security: Asymmetric Non-Repudiation & OAuth 2.0 PKCE for SPAs'
     ],
     questions: ENTERPRISE_DOMAINS_SPRINT_QUESTIONS
-  }
+  },
+  ...NEW_DOMAIN_MOCK_TESTS
 ];

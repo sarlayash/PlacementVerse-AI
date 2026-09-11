@@ -918,7 +918,7 @@ export function recordMockTestResult(
       ? 'faang-netflix-uber'
       : (attempt.testId as any);
 
-    const isDomainMock = attempt.testId.includes('dbms') || attempt.testId.includes('excel') || attempt.testId.includes('powerbi') || attempt.testId.includes('hacking') || attempt.testId.includes('cyber') || attempt.testId.includes('domains');
+    const isDomainMock = attempt.testId.includes('dbms') || attempt.testId.includes('excel') || attempt.testId.includes('powerbi') || attempt.testId.includes('hacking') || attempt.testId.includes('cyber') || attempt.testId.includes('domains') || attempt.testId.includes('tally') || attempt.testId.includes('testing') || attempt.testId.includes('qa') || attempt.testId.includes('gen-ai') || attempt.testId.includes('agentic') || attempt.testId.includes('claude');
     const prefix = attempt.testId.startsWith('daily-practice') 
       ? 'PV-DP' 
       : attempt.testId.startsWith('rapid-sprint') 

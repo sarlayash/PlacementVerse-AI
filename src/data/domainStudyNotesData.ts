@@ -1,3 +1,5 @@
+import { NEW_DOMAIN_STUDY_NOTES } from './newDomainsData';
+
 export interface DomainFormulaOrQuery {
   title: string;
   codeOrFormula: string;
@@ -22,7 +24,7 @@ export interface DomainCoreTopicNote {
 export interface DomainStudyNote {
   id: string;
   domainName: string;
-  category: 'Enterprise Domains' | 'Programming Languages' | 'Algorithms & Core' | 'General Placement';
+  category: 'Enterprise Domains' | 'Programming Languages' | 'Algorithms & Core' | 'General Placement' | 'AI & Emerging Tech';
   icon: string;
   tagline: string;
   estimatedReadTime: string;
@@ -801,5 +803,6 @@ if (safeFile) {
       'AVL Trees maintain balance factor in {-1, 0, +1}; require double rotations (LR/RL) for zig-zag imbalances.',
       'Monotonic Stack solves Next Greater Element and Histogram Rectangle problems in strict O(N) linear time.'
     ]
-  }
+  },
+  ...NEW_DOMAIN_STUDY_NOTES
 ];

@@ -43,10 +43,13 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [verifyModalCode, setVerifyModalCode] = useState<string | null>(null);
 
-  // Category Filtering: 'ALL' | 'ENTERPRISE DOMAINS' | 'TECHNICAL CORE' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'
-  const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'ENTERPRISE DOMAINS' | 'TECHNICAL CORE' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'>('ALL');
+  // Category Filtering: 'ALL' | 'AI & EMERGING TECH' | 'ENTERPRISE DOMAINS' | 'TECHNICAL CORE' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'
+  const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'AI & EMERGING TECH' | 'ENTERPRISE DOMAINS' | 'TECHNICAL CORE' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'>('ALL');
 
   const filteredTests = useMemo(() => {
+    if (selectedCategory === 'AI & EMERGING TECH') {
+      return FAANG_MOCK_TESTS.filter(t => t.category === 'AI & EMERGING TECH');
+    }
     if (selectedCategory === 'ENTERPRISE DOMAINS') {
       return FAANG_MOCK_TESTS.filter(t => t.category === 'ENTERPRISE DOMAINS');
     }
@@ -1045,8 +1048,10 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
             </span>
           </div>
           <h3 className="text-base font-black text-slate-900 font-display mt-0.5">
-            {selectedCategory === 'ENTERPRISE DOMAINS'
-              ? '📊 Category: ENTERPRISE DOMAINS & SECURITY (6 Mocks: DBMS, Excel, Power BI, Ethical Hacking, Cyber Security & Sprint • 10 MCQs Each)'
+            {selectedCategory === 'AI & EMERGING TECH'
+              ? '✨ Category: AI & EMERGING TECH (3 Mocks: Generative AI, Agentic AI, Claude & Anthropic LLMs • 10 MCQs Each)'
+              : selectedCategory === 'ENTERPRISE DOMAINS'
+              ? '📊 Category: ENTERPRISE DOMAINS & SECURITY (8 Mocks: Tally Prime, Software Testing & QA, DBMS, Excel, Power BI, Ethical Hacking, Cyber Security & Sprint • 10 MCQs Each)'
               : selectedCategory === 'TECHNICAL CORE'
               ? '💻 Category: TECHNICAL CORE (5 Mocks: C, C++, Java, Python, DSA • 10 MCQs Each)'
               : selectedCategory === '30-MIN RAPID SPRINT'
@@ -1072,6 +1077,20 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
           </button>
 
           <button
+            onClick={() => setSelectedCategory('AI & EMERGING TECH')}
+            className={`px-3.5 py-2 rounded-2xl text-xs font-black transition-all flex items-center gap-1.5 ${
+              selectedCategory === 'AI & EMERGING TECH'
+                ? 'bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-800 text-white shadow-md'
+                : 'bg-violet-50 text-violet-900 border border-violet-200 hover:bg-violet-100'
+            }`}
+          >
+            <span>✨ AI & EMERGING TECH</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-violet-700 text-white uppercase tracking-widest">
+              Gen AI, Agents, Claude (3)
+            </span>
+          </button>
+
+          <button
             onClick={() => setSelectedCategory('ENTERPRISE DOMAINS')}
             className={`px-3.5 py-2 rounded-2xl text-xs font-black transition-all flex items-center gap-1.5 ${
               selectedCategory === 'ENTERPRISE DOMAINS'
@@ -1081,7 +1100,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
           >
             <span>📊 DOMAINS & SECURITY</span>
             <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-purple-700 text-white uppercase tracking-widest">
-              DBMS, Excel, PBI, Sec (6)
+              Tally, QA, DBMS, Excel (8)
             </span>
           </button>
 
