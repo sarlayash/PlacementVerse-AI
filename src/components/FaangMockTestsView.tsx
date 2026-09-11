@@ -16,6 +16,7 @@ interface FaangMockTestsViewProps {
   onUpdateProfile: (updated: LearnerProfile) => void;
   onViewCertificates?: () => void;
   onViewBadges?: () => void;
+  initialTestId?: string;
 }
 
 export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
@@ -23,6 +24,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
   onUpdateProfile,
   onViewCertificates,
   onViewBadges,
+  initialTestId,
 }) => {
   // Active Test State
   const [activeTest, setActiveTest] = useState<FaangMockTest | null>(null);
@@ -117,6 +119,18 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
     setShowConfirmSubmit(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    if (initialTestId) {
+      const match = FAANG_MOCK_TESTS.find(t => t.id === initialTestId);
+      if (match) {
+        if (match.category) {
+          setSelectedCategory(match.category as any);
+        }
+        handleStartTest(match);
+      }
+    }
+  }, [initialTestId]);
 
   // Select an option
   const handleSelectOption = (qId: string, optIndex: number) => {

@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Megaphone } from 'lucide-react';
+import { SidebarNav, NavTabType } from './components/SidebarNav';
+import { TopHeader } from './components/TopHeader';
+import { LearnerDashboardView } from './components/LearnerDashboardView';
 import { Navbar } from './components/Navbar';
 import { HeroBanner } from './components/HeroBanner';
 import { LearningPathView } from './components/LearningPathView';
@@ -42,6 +45,8 @@ export default function App() {
   const [profile, setProfile] = useState<LearnerProfile>(getLearnerProfile());
   const [modules, setModules] = useState<Module[]>(getModulesWithTopics());
   const [activeTab, setActiveTab] = useState<'learn' | 'grammar' | 'mock-tests' | 'final-assessment' | 'tasks' | 'analytics' | 'leaderboard' | 'badges' | 'certificates' | 'admin'>('learn');
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
+  const [selectedMockTestId, setSelectedMockTestId] = useState<string | undefined>(undefined);
 
   // Admin authentication state
   const [isAdmin, setIsAdmin] = useState<boolean>(() => isAdminAuthenticated());
@@ -253,13 +258,18 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white antialiased">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans selection:bg-blue-600 selection:text-white antialiased">
       
-      {/* Top Main Navigation Bar */}
-      <Navbar
+      {/* 1. Left Sidebar Navigation */}
+      <SidebarNav
         profile={profile}
         activeTab={activeTab}
-        onSelectTab={setActiveTab}
+        onSelectTab={(tab) => {
+          setActiveTab(tab);
+          if (tab !== 'mock-tests') {
+            setSelectedMockTestId(undefined);
+          }
+        }}
         onOpenMissions={() => setIsMissionsModalOpen(true)}
         onOpenCoach={() => {
           setCoachInitialQuery(undefined);
@@ -268,104 +278,120 @@ export default function App() {
         onOpenAdmin={handleOpenAdminPortal}
         isAdmin={isAdmin}
         onGoToLanding={() => setShowLandingPage(true)}
+        isMobileOpen={isMobileNavOpen}
+        setIsMobileOpen={setIsMobileNavOpen}
       />
 
-      {/* Real-time Broadcast / Motivational Alert Toast */}
-      {activeBroadcast && (
-        <div id="admin-broadcast-toast" className="fixed top-20 right-4 sm:right-8 z-50 max-w-sm sm:max-w-md w-full animate-in slide-in-from-top-4 fade-in duration-300">
-          <div className={`p-4 rounded-2xl border shadow-xl flex items-start gap-3 backdrop-blur-md ${
-            activeBroadcast.type === 'urgent'
-              ? 'bg-rose-50/95 border-rose-300 text-rose-950 shadow-rose-100'
-              : activeBroadcast.type === 'congrats'
-              ? 'bg-emerald-50/95 border-emerald-300 text-emerald-950 shadow-emerald-100'
-              : 'bg-amber-50/95 border-amber-300 text-amber-950 shadow-amber-100'
-          }`}>
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
-              activeBroadcast.type === 'urgent'
-                ? 'bg-rose-600 text-white'
-                : activeBroadcast.type === 'congrats'
-                ? 'bg-emerald-600 text-white'
-                : 'bg-amber-500 text-white'
-            }`}>
-              <Megaphone className="w-5 h-5" />
-            </div>
+      {/* 2. Right-Hand Page Area */}
+      <div className="flex-1 flex flex-col min-w-0 md:pl-72 lg:pl-80 transition-all duration-300">
+        
+        {/* Top Header */}
+        <TopHeader
+          profile={profile}
+          activeTab={activeTab}
+          onToggleMobileNav={() => setIsMobileNavOpen(!isMobileNavOpen)}
+          onOpenCoach={() => {
+            setCoachInitialQuery(undefined);
+            setIsCoachModalOpen(true);
+          }}
+          onOpenMissions={() => setIsMissionsModalOpen(true)}
+          onOpenAdmin={handleOpenAdminPortal}
+          isAdmin={isAdmin}
+          onGoToLanding={() => setShowLandingPage(true)}
+        />
 
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-1">
-                <span className={`text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded ${
-                  activeBroadcast.type === 'urgent'
-                    ? 'bg-rose-200 text-rose-900'
-                    : activeBroadcast.type === 'congrats'
-                    ? 'bg-emerald-200 text-emerald-900'
-                    : 'bg-amber-200 text-amber-900'
-                }`}>
-                  {activeBroadcast.type === 'urgent' ? '🚨 Urgent Announcement' : activeBroadcast.type === 'congrats' ? '🎉 Milestone Alert' : '📢 Director Broadcast'}
-                </span>
-                <button
-                  id="close-broadcast-toast-btn"
-                  onClick={() => setActiveBroadcast(null)}
-                  className="text-slate-400 hover:text-slate-700 text-xs p-1"
-                >
-                  ✕
-                </button>
+        {/* Real-time Broadcast / Motivational Alert Toast */}
+        {activeBroadcast && (
+          <div id="admin-broadcast-toast" className="fixed top-20 right-4 sm:right-8 z-50 max-w-sm sm:max-w-md w-full animate-in slide-in-from-top-4 fade-in duration-300">
+            <div className={`p-4 rounded-2xl border shadow-xl flex items-start gap-3 backdrop-blur-md ${
+              activeBroadcast.type === 'urgent'
+                ? 'bg-rose-50/95 border-rose-300 text-rose-950 shadow-rose-100'
+                : activeBroadcast.type === 'congrats'
+                ? 'bg-emerald-50/95 border-emerald-300 text-emerald-950 shadow-emerald-100'
+                : 'bg-amber-50/95 border-amber-300 text-amber-950 shadow-amber-100'
+            }`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
+                activeBroadcast.type === 'urgent'
+                  ? 'bg-rose-600 text-white'
+                  : activeBroadcast.type === 'congrats'
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-amber-500 text-white'
+              }`}>
+                <Megaphone className="w-5 h-5" />
               </div>
 
-              <h4 className="font-bold text-slate-900 text-sm mt-1">{activeBroadcast.title}</h4>
-              <p className="text-xs text-slate-700 mt-0.5 leading-relaxed">{activeBroadcast.message}</p>
-              <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500">
-                <span>From: {activeBroadcast.sender || 'Placement Director'}</span>
-                <span>Live Alert</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-1">
+                  <span className={`text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded ${
+                    activeBroadcast.type === 'urgent'
+                      ? 'bg-rose-200 text-rose-900'
+                      : activeBroadcast.type === 'congrats'
+                      ? 'bg-emerald-200 text-emerald-900'
+                      : 'bg-amber-200 text-amber-900'
+                  }`}>
+                    {activeBroadcast.type === 'urgent' ? '🚨 Urgent Announcement' : activeBroadcast.type === 'congrats' ? '🎉 Milestone Alert' : '📢 Director Broadcast'}
+                  </span>
+                  <button
+                    id="close-broadcast-toast-btn"
+                    onClick={() => setActiveBroadcast(null)}
+                    className="text-slate-400 hover:text-slate-700 text-xs p-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <h4 className="font-bold text-slate-900 text-sm mt-1">{activeBroadcast.title}</h4>
+                <p className="text-xs text-slate-700 mt-0.5 leading-relaxed">{activeBroadcast.message}</p>
+                <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500">
+                  <span>From: {activeBroadcast.sender || 'Placement Director'}</span>
+                  <span>Live Alert</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
-        
-        {/* Hero Banner displayed on primary Learning View */}
-        {activeTab === 'learn' && (
-          <HeroBanner
-            profile={profile}
-            modules={modules}
-            onContinueJourney={handleContinueJourney}
-            onOpenMissions={() => setIsMissionsModalOpen(true)}
-            onOpenCoach={() => {
-              setCoachInitialQuery(undefined);
-              setIsCoachModalOpen(true);
-            }}
-            onOpenMockTests={() => setActiveTab('mock-tests')}
-            onOpenFinalAssessment={() => setActiveTab('final-assessment')}
-          />
         )}
 
-        {/* Tab 1: Learning Path View */}
-        {activeTab === 'learn' && (
-          <LearningPathView
-            modules={modules}
-            profile={profile}
-            onSelectTopic={handleSelectTopic}
-            onOpenGrammar={() => setActiveTab('grammar')}
-          />
-        )}
+        {/* Main Content Area */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+          
+          {/* Tab 1: Learner Dashboard (Home Page with Domain Chooser, Notes & Mocks) */}
+          {activeTab === 'learn' && (
+            <LearnerDashboardView
+              profile={profile}
+              modules={modules}
+              onSelectTopic={handleSelectTopic}
+              onContinueJourney={handleContinueJourney}
+              onOpenMissions={() => setIsMissionsModalOpen(true)}
+              onOpenCoach={() => {
+                setCoachInitialQuery(undefined);
+                setIsCoachModalOpen(true);
+              }}
+              onOpenMockTests={(testId) => {
+                setSelectedMockTestId(testId);
+                setActiveTab('mock-tests');
+              }}
+              onOpenFinalAssessment={() => setActiveTab('final-assessment')}
+              onOpenGrammar={() => setActiveTab('grammar')}
+            />
+          )}
 
-        {/* Tab: Grammar - The 8 Parts of Speech Mastery */}
-        {activeTab === 'grammar' && (
-          <GrammarPartsOfSpeechView
-            onBackToLearn={() => setActiveTab('learn')}
-          />
-        )}
+          {/* Tab: Grammar - The 8 Parts of Speech Mastery */}
+          {activeTab === 'grammar' && (
+            <GrammarPartsOfSpeechView
+              onBackToLearn={() => setActiveTab('learn')}
+            />
+          )}
 
-        {/* Tab: FAANG 1-Hour Mock Tests (Google, Meta, Amazon, Apple, Netflix, Uber) */}
-        {activeTab === 'mock-tests' && (
-          <FaangMockTestsView
-            profile={profile}
-            onUpdateProfile={handleUpdateProfile}
-            onViewCertificates={() => setActiveTab('certificates')}
-            onViewBadges={() => setActiveTab('badges')}
-          />
-        )}
+          {/* Tab: FAANG & Domain Mock Tests */}
+          {activeTab === 'mock-tests' && (
+            <FaangMockTestsView
+              profile={profile}
+              onUpdateProfile={handleUpdateProfile}
+              onViewCertificates={() => setActiveTab('certificates')}
+              onViewBadges={() => setActiveTab('badges')}
+              initialTestId={selectedMockTestId}
+            />
+          )}
 
         {/* Tab: The Grand Final Assessment (Very Hard 250 Questions / 90 Minutes) */}
         {activeTab === 'final-assessment' && (
@@ -467,6 +493,7 @@ export default function App() {
           </p>
         </div>
       </footer>
+      </div>
 
       {/* Topic Detail 4-Step Modal */}
       {isTopicModalOpen && selectedTopic && (
