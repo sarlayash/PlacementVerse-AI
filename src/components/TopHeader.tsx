@@ -27,7 +27,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   isAdmin = false,
   onGoToLanding,
 }) => {
-  const completedMissionsCount = profile.dailyMissions.filter(m => m.completed).length;
+  const completedMissionsCount = (profile?.dailyMissions || []).filter(m => m?.completed).length;
 
   const tabTitles: Record<NavTabType, { title: string; subtitle: string }> = {
     learn: { title: 'Learner Dashboard', subtitle: 'Select Domain • In-Depth Notes • High-Bar Assessments' },

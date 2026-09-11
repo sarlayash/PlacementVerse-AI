@@ -50,12 +50,12 @@ export const LearnerDashboardView: React.FC<LearnerDashboardViewProps> = ({
 
   // Matching master badge for this domain
   const matchingBadge = ALL_BADGES.find(b => b.id === activeDomain.badgeId);
-  const hasEarnedBadge = profile.badges.some(b => b.id === activeDomain.badgeId);
+  const hasEarnedBadge = (profile?.badgesEarned || []).includes(activeDomain.badgeId);
 
   // Gamification math
-  const levelInfo = calculateLevel(profile.xp);
-  const totalTopics = modules.reduce((acc, m) => acc + m.topics.length, 0);
-  const completedTopicsCount = profile.completedTopicIds.length;
+  const levelInfo = calculateLevel(profile?.xp || 0);
+  const totalTopics = modules.reduce((acc, m) => acc + (m?.topics?.length || 0), 0);
+  const completedTopicsCount = (profile?.completedTopicIds || []).length;
   const completionPercentage = totalTopics > 0 ? Math.round((completedTopicsCount / totalTopics) * 100) : 0;
 
   const handleCopyCode = (text: string, index: number) => {
@@ -170,7 +170,7 @@ export const LearnerDashboardView: React.FC<LearnerDashboardViewProps> = ({
                 Predicted Placement Index
               </p>
               <p className="text-[11px] text-slate-400">
-                {profile.badges.length} Badges Earned • {completedTopicsCount}/{totalTopics} Topics Completed
+                {(profile?.badgesEarned || []).length} Badges Earned • {completedTopicsCount}/{totalTopics} Topics Completed
               </p>
             </div>
           </div>
@@ -687,8 +687,9 @@ export const LearnerDashboardView: React.FC<LearnerDashboardViewProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {modules.map((module) => {
-            const completedCount = module.topics.filter(t => profile.completedTopicIds.includes(t.id)).length;
-            const progress = module.topics.length > 0 ? Math.round((completedCount / module.topics.length) * 100) : 0;
+            const completedCount = (module?.topics || []).filter(t => (profile?.completedTopicIds || []).includes(t.id)).length;
+            const topicTotal = (module?.topics || []).length;
+            const progress = topicTotal > 0 ? Math.round((completedCount / topicTotal) * 100) : 0;
 
             return (
               <div 
@@ -701,7 +702,7 @@ export const LearnerDashboardView: React.FC<LearnerDashboardViewProps> = ({
                       Module 0{module.id}
                     </span>
                     <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700">
-                      {completedCount}/{module.topics.length} Done
+                      {completedCount}/{topicTotal} Done
                     </span>
                   </div>
 
@@ -731,9 +732,9 @@ export const LearnerDashboardView: React.FC<LearnerDashboardViewProps> = ({
 
                 {/* Topics Preview List */}
                 <div className="pt-2 border-t border-slate-100 space-y-1.5">
-                  {module.topics.slice(0, 3).map((topic) => {
-                    const isUnlocked = profile.unlockedTopicIds.includes(topic.id);
-                    const isCompleted = profile.completedTopicIds.includes(topic.id);
+                  {(module?.topics || []).slice(0, 3).map((topic) => {
+                    const isUnlocked = (profile?.unlockedTopicIds || []).includes(topic.id);
+                    const isCompleted = (profile?.completedTopicIds || []).includes(topic.id);
 
                     return (
                       <button
@@ -760,15 +761,15 @@ export const LearnerDashboardView: React.FC<LearnerDashboardViewProps> = ({
                     );
                   })}
 
-                  {module.topics.length > 3 && (
+                  {(module?.topics || []).length > 3 && (
                     <button
                       onClick={() => {
-                        const firstUnlocked = module.topics.find(t => profile.unlockedTopicIds.includes(t.id)) || module.topics[0];
+                        const firstUnlocked = (module?.topics || []).find(t => (profile?.unlockedTopicIds || []).includes(t.id)) || module.topics[0];
                         onSelectTopic(firstUnlocked);
                       }}
                       className="w-full text-center text-[11px] font-bold text-blue-600 hover:text-blue-800 pt-1"
                     >
-                      + {module.topics.length - 3} more topics in this module
+                      + {(module?.topics || []).length - 3} more topics in this module
                     </button>
                   )}
                 </div>

@@ -44,8 +44,9 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   isMobileOpen,
   setIsMobileOpen,
 }) => {
-  const completedMissionsCount = profile.dailyMissions.filter(m => m.completed).length;
-  const levelInfo = calculateLevel(profile.xp);
+  const completedMissionsCount = (profile?.dailyMissions || []).filter(m => m?.completed).length;
+  const levelInfo = calculateLevel(profile?.xp || 0);
+  const earnedBadgesCount = (profile?.badgesEarned || []).length;
 
   const navItems = [
     {
@@ -102,9 +103,9 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     {
       id: 'badges' as NavTabType,
       label: 'Badges & Honors',
-      sublabel: `${profile.badges.length}/29 Earned`,
+      sublabel: `${earnedBadgesCount}/29 Earned`,
       icon: Medal,
-      badgeText: `${profile.badges.length}`,
+      badgeText: `${earnedBadgesCount}`,
       badgeColor: 'bg-amber-500 text-slate-950',
     },
     {

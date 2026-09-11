@@ -228,7 +228,20 @@ export function getLearnerProfile(): LearnerProfile {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_PROFILE);
     if (!raw) return DEFAULT_PROFILE;
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return {
+      ...DEFAULT_PROFILE,
+      ...parsed,
+      badgesEarned: Array.isArray(parsed?.badgesEarned) ? parsed.badgesEarned : DEFAULT_PROFILE.badgesEarned,
+      completedTopicIds: Array.isArray(parsed?.completedTopicIds) ? parsed.completedTopicIds : [],
+      unlockedTopicIds: Array.isArray(parsed?.unlockedTopicIds) ? parsed.unlockedTopicIds : DEFAULT_PROFILE.unlockedTopicIds,
+      dailyMissions: Array.isArray(parsed?.dailyMissions) ? parsed.dailyMissions : DEFAULT_PROFILE.dailyMissions,
+      topicScores: parsed?.topicScores || {},
+      realWorldSubmissions: parsed?.realWorldSubmissions || {},
+      mockTestAttempts: parsed?.mockTestAttempts || {},
+      finalAssessmentAttempts: Array.isArray(parsed?.finalAssessmentAttempts) ? parsed.finalAssessmentAttempts : [],
+      issuedCertificates: Array.isArray(parsed?.issuedCertificates) ? parsed.issuedCertificates : [],
+    };
   } catch {
     return DEFAULT_PROFILE;
   }
