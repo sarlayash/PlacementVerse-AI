@@ -107,7 +107,7 @@ export const CertificateVerificationModal: React.FC<CertificateVerificationModal
                 </span>
               </h3>
               <p className="text-xs text-zinc-400">
-                Official placement verification authority powered by Kapil Narula
+                CLASSROOMS TO BOARDROOMS WITH KAPIL • Powered By SarlaYash Mission
               </p>
             </div>
           </div>

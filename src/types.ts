@@ -188,7 +188,7 @@ export interface FaangQuestion {
   correctIndex: number;
   explanation: string;
   shortcutOrInsight: string;
-  difficulty: 'Very Hard';
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Very Hard' | string;
 }
 
 export interface FaangMockTest {

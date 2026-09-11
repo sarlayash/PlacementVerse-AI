@@ -189,14 +189,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-base sm:text-lg tracking-tight text-white font-display">
-                  Classrooms To Boardrooms <span className="text-blue-400">Placement Readiness</span>
+                  Classrooms To Boardrooms <span className="text-blue-400">With Kapil</span>
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-blue-950/80 text-blue-300 border border-blue-700/50">
-                  Powered By Kapil
+                  Powered By SarlaYash Mission
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 hidden sm:block">
-                Comprehensive Campus Placement Readiness Challenge
+                Connecting Classrooms • Assessments • Intelligence • Boardrooms
               </p>
             </div>
           </div>
@@ -645,6 +645,112 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
       </section>
 
+      {/* The Ecosystem Architecture: Classrooms -> Assessment -> Intelligence -> Boardrooms */}
+      <section className="relative z-10 py-12 bg-gradient-to-b from-slate-900 via-indigo-950/40 to-slate-950 border-t border-slate-800/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-300 text-xs font-bold uppercase tracking-wider mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              Powered By SarlaYash Mission
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+              An End-to-End Placement Ecosystem
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-slate-300 font-medium italic">
+              "Technology is the engine. Learning is the mission. Careers are the outcome."
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* Step 1: Classrooms */}
+            <div className="bg-slate-900/90 border border-blue-500/30 hover:border-blue-400 rounded-2xl p-6 transition-all shadow-lg flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] uppercase font-black tracking-widest text-blue-400">Step 01</span>
+                  <GraduationCap className="w-5 h-5 text-blue-400" />
+                </div>
+                <h3 className="text-lg font-black text-white mb-2 font-display">Classrooms</h3>
+                <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                  Core curriculum foundational mastery across key programming & computational disciplines:
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-3 border-t border-slate-800 text-[11px] font-semibold text-blue-200">
+                <span className="px-2 py-0.5 rounded bg-blue-950/80 border border-blue-800/60">Python</span>
+                <span className="px-2 py-0.5 rounded bg-blue-950/80 border border-blue-800/60">Java</span>
+                <span className="px-2 py-0.5 rounded bg-blue-950/80 border border-blue-800/60">C & C++</span>
+                <span className="px-2 py-0.5 rounded bg-blue-950/80 border border-blue-800/60">DBMS</span>
+                <span className="px-2 py-0.5 rounded bg-blue-950/80 border border-blue-800/60">DSA</span>
+                <span className="px-2 py-0.5 rounded bg-blue-950/80 border border-blue-800/60">AI/ML</span>
+              </div>
+            </div>
+
+            {/* Step 2: Assessment */}
+            <div className="bg-slate-900/90 border border-emerald-500/30 hover:border-emerald-400 rounded-2xl p-6 transition-all shadow-lg flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] uppercase font-black tracking-widest text-emerald-400">Step 02</span>
+                  <Target className="w-5 h-5 text-emerald-400" />
+                </div>
+                <h3 className="text-lg font-black text-white mb-2 font-display">Assessment</h3>
+                <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                  High-stakes diagnostic test arenas calibrated with authentic negative marking:
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-3 border-t border-slate-800 text-[11px] font-semibold text-emerald-200">
+                <span className="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-800/60">13 Mocks</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-800/60">Coding</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-800/60">Aptitude</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-800/60">Technical</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-800/60">-0.25 Marking</span>
+              </div>
+            </div>
+
+            {/* Step 3: Intelligence */}
+            <div className="bg-slate-900/90 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-6 transition-all shadow-lg flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] uppercase font-black tracking-widest text-amber-400">Step 03</span>
+                  <Brain className="w-5 h-5 text-amber-400" />
+                </div>
+                <h3 className="text-lg font-black text-white mb-2 font-display">Intelligence</h3>
+                <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                  AI diagnostic engine pinpointing blind spots, question speed, and personalized recommendations:
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-3 border-t border-slate-800 text-[11px] font-semibold text-amber-200">
+                <span className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-800/60">AI Evaluation</span>
+                <span className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-800/60">Skill Gaps</span>
+                <span className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-800/60">Coach Kapil</span>
+                <span className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-800/60">Analytics</span>
+              </div>
+            </div>
+
+            {/* Step 4: Boardrooms */}
+            <div className="bg-slate-900/90 border border-purple-500/30 hover:border-purple-400 rounded-2xl p-6 transition-all shadow-lg flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] uppercase font-black tracking-widest text-purple-400">Step 04</span>
+                  <Building2 className="w-5 h-5 text-purple-400" />
+                </div>
+                <h3 className="text-lg font-black text-white mb-2 font-display">Boardrooms</h3>
+                <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                  Corporate employability conversion, career preparation, and verified placement outcomes:
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-3 border-t border-slate-800 text-[11px] font-semibold text-purple-200">
+                <span className="px-2 py-0.5 rounded bg-purple-950/80 border border-purple-800/60">Placement Ready</span>
+                <span className="px-2 py-0.5 rounded bg-purple-950/80 border border-purple-800/60">Employability</span>
+                <span className="px-2 py-0.5 rounded bg-purple-950/80 border border-purple-800/60">Tier-1 Offers</span>
+                <span className="px-2 py-0.5 rounded bg-purple-950/80 border border-purple-800/60">Certificates</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
       {/* 4-Stage Learning Engine Showcase */}
       <section className="relative z-10 py-16 bg-slate-950/60 border-y border-slate-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -873,11 +979,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               {/* Kapil Narula Endorsement Quote */}
               <div className="mt-6 pt-5 border-t border-slate-800">
                 <p className="italic text-xs text-slate-300 leading-relaxed">
-                  "Speed without accuracy leads to negative marks. Accuracy without speed leaves 10 unattempted questions. Classrooms To Boardrooms builds both."
+                  "Technology is the engine. Learning is the mission. Careers are the outcome. We connect learning, assessments, AI intelligence, and placement readiness into one unified ecosystem."
                 </p>
-                <p className="text-right text-[11px] font-bold text-blue-400 mt-1">
-                  — Kapil Narula, Placement Director
-                </p>
+                <div className="mt-2 text-right">
+                  <p className="text-xs font-bold text-blue-400">Kapil Narula</p>
+                  <p className="text-[10px] text-slate-400">Chief Learning Officer | Chief Ecosystem Architect | Founder</p>
+                  <p className="text-[10px] text-slate-500">SarlaYash Learning Solutions LLP • Powered By SarlaYash Mission</p>
+                </div>
               </div>
 
             </div>
@@ -914,11 +1022,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* Footer */}
       <footer className="mt-auto border-t border-slate-800 bg-slate-950 py-8 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="font-semibold text-slate-400">
-            Classrooms To Boardrooms Placement Readiness • Powered By Kapil Narula
-          </p>
-          <p>
-            Premier Campus Placement Readiness & Diagnostic Platform
+          <div className="text-left">
+            <p className="font-semibold text-slate-300">
+              CLASSROOMS TO BOARDROOMS WITH KAPIL
+            </p>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Powered By SarlaYash Mission • SarlaYash Learning Solutions LLP
+            </p>
+          </div>
+          <p className="text-[11px] text-slate-400 text-right">
+            Technology is the engine. Learning is the mission. Careers are the outcome.
           </p>
         </div>
       </footer>

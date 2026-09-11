@@ -29,7 +29,7 @@ export const CoachModal: React.FC<CoachModalProps> = ({
     {
       id: 'welcome',
       sender: 'coach',
-      text: `Hello ${profile.name || 'there'}! I'm Kapil, your 24/7 Placement Readiness Coach. Whether you want rapid shortcut tricks for aptitude, a 5-day campus sprint strategy, or interview answers for Tier-1 MNCs, ask me anything!`,
+      text: `Hello ${profile.name || 'there'}! I'm Kapil Narula, your Chief Ecosystem Architect and 24/7 Placement Coach. Technology is the engine, learning is the mission, and careers are the outcome. Whether you need rapid shortcuts for aptitude, technical guidance in C, C++, Java, Python, or DSA, or interview strategies for Tier-1 MNCs, ask me anything!`,
       timestamp: 'Just now',
     },
   ]);
@@ -138,10 +138,10 @@ export const CoachModal: React.FC<CoachModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-extrabold font-display">Kapil AI Coach</h3>
+                <h3 className="text-base font-extrabold font-display">Coach Kapil Narula</h3>
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               </div>
-              <p className="text-xs text-slate-400">24/7 Concept Explainer & Interview Strategist</p>
+              <p className="text-xs text-slate-400">Chief Ecosystem Architect • SarlaYash Mission</p>
             </div>
           </div>
 

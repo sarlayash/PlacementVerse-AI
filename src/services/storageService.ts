@@ -905,8 +905,18 @@ export function recordMockTestResult(
       ? 'faang-netflix-uber'
       : (attempt.testId as any);
 
-    const prefix = attempt.testId.startsWith('daily-practice') ? 'PV-DP' : 'PV-FAANG';
-    const cleanId = attempt.testId.replace('daily-practice-', 'DP-').toUpperCase();
+    const prefix = attempt.testId.startsWith('daily-practice') 
+      ? 'PV-DP' 
+      : attempt.testId.startsWith('rapid-sprint') 
+      ? 'PV-RS' 
+      : attempt.testId.startsWith('mock-') 
+      ? 'PV-TECH' 
+      : 'PV-FAANG';
+    const cleanId = attempt.testId
+      .replace('daily-practice-', 'DP-')
+      .replace('rapid-sprint-', 'RS-')
+      .replace('mock-', 'TECH-')
+      .toUpperCase();
 
     cert = {
       id: `cert-${attempt.testId}-${Date.now()}`,
@@ -917,7 +927,7 @@ export function recordMockTestResult(
       issueDate: new Date().toISOString().split('T')[0],
       readinessScore: Math.round(attempt.percentage),
       grade: attempt.percentage >= 85 ? 'Grade O (Outstanding)' : attempt.percentage >= 70 ? 'Grade A+ (Distinction)' : 'Grade A (Qualified)',
-      endorsedBy: 'Kapil Narula (Placement Director & FAANG Evaluator)',
+      endorsedBy: 'Kapil Narula (Chief Learning Officer | Chief Ecosystem Architect | Founder • SarlaYash Learning Solutions LLP)',
       verificationCode: attempt.certificateCode || `${prefix}-${cleanId}-${Math.floor(1000 + Math.random() * 9000)}`,
       status: 'Active',
     };

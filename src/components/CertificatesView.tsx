@@ -333,17 +333,17 @@ export const CertificatesView: React.FC<CertificatesViewProps> = ({
                     <span className="font-display tracking-wider">C2B</span>
                   </div>
                   <div>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       <p className="font-black text-sm tracking-tight text-zinc-900 font-display">
-                        CLASSROOMS TO BOARDROOMS
+                        CLASSROOMS TO BOARDROOMS WITH KAPIL
                       </p>
                       <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
                       <span className="text-[9px] font-black uppercase tracking-wider text-amber-700">
-                        Powered By Kapil
+                        Powered By SarlaYash Mission
                       </span>
                     </div>
                     <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                      National Placement Readiness Authority • Verified Repository
+                      SarlaYash Learning Solutions LLP • Sovereign Placement Credential
                     </p>
                   </div>
                 </div>
@@ -494,12 +494,27 @@ export const CertificatesView: React.FC<CertificatesViewProps> = ({
                       Kapil Narula
                     </span>
                   </div>
-                  <div className="w-36 sm:w-44 ml-auto border-t-2 border-amber-600 pt-1">
+                  <div className="w-52 sm:w-60 ml-auto border-t-2 border-amber-600 pt-1">
                     <p className="text-xs font-bold text-zinc-900">Kapil Narula</p>
-                    <p className="text-[10px] text-zinc-500">Program Director, Classrooms To Boardrooms</p>
+                    <p className="text-[9px] text-zinc-700 font-semibold leading-tight">
+                      Chief Learning Officer | Chief Ecosystem Architect | Founder
+                    </p>
+                    <p className="text-[9px] text-amber-700 font-bold uppercase tracking-wider mt-0.5">
+                      SarlaYash Learning Solutions LLP
+                    </p>
                   </div>
                 </div>
 
+              </div>
+
+              {/* Mission Statement Footnote */}
+              <div className="pt-3 border-t border-amber-900/10 text-center">
+                <p className="text-[10px] sm:text-[11px] font-serif italic text-zinc-600">
+                  &ldquo;Technology is the engine. Learning is the mission. Careers are the outcome.&rdquo;
+                </p>
+                <p className="text-[9px] font-black uppercase tracking-widest text-amber-700 mt-0.5">
+                  Powered By SarlaYash Mission
+                </p>
               </div>
 
             </div>
@@ -509,7 +524,7 @@ export const CertificatesView: React.FC<CertificatesViewProps> = ({
           {/* Bottom Black, Red & Gold Ribbon Bar */}
           <PrestigeRibbonBar 
             position="bottom" 
-            label="CLASSROOMS TO BOARDROOMS • REPOSITORIUM AUTHENTICUM" 
+            label="CLASSROOMS TO BOARDROOMS WITH KAPIL • POWERED BY SARLAYASH MISSION" 
             subtitle={`VERIFIED ID: ${currentCertId}`}
           />
 

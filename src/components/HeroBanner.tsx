@@ -86,9 +86,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 className="px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm shadow-md flex items-center gap-2 transition-all hover:scale-102 active:scale-98 relative"
               >
                 <Calendar className="w-4 h-4 text-amber-300" />
-                <span>3 FAANG Mock Tests</span>
+                <span>13 Placement & Tech Mocks</span>
                 <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-rose-500 text-white animate-pulse">
-                  Today
+                  Active
                 </span>
               </button>
             )}

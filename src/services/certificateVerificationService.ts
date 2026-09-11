@@ -120,7 +120,7 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
       issueDate: issuedMatch.issueDate,
       scorePercentage: issuedMatch.readinessScore,
       grade: issuedMatch.grade,
-      endorsedBy: issuedMatch.endorsedBy || 'Kapil Narula (Program Director & Placement Evaluator)',
+      endorsedBy: issuedMatch.endorsedBy || 'Kapil Narula (Chief Learning Officer | Chief Ecosystem Architect | Founder • SarlaYash Learning Solutions LLP)',
       status: issuedMatch.status === 'Revoked' ? 'REVOKED' : 'AUTHENTIC & VERIFIED',
       verificationHash: generateVerificationHash(code, issuedMatch.studentName || studentName),
       verificationUrl,
@@ -153,7 +153,7 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
       issueDate: new Date().toISOString().split('T')[0],
       scorePercentage: score,
       grade: score >= 90 ? 'Grade O (Apex Prodigy)' : score >= 75 ? 'Grade A+ (Elite Distinction)' : 'Grade A (Qualified)',
-      endorsedBy: 'Kapil Narula (Program Director, Classrooms To Boardrooms Placement Readiness)',
+      endorsedBy: 'Kapil Narula (Chief Learning Officer | Chief Ecosystem Architect | Founder • SarlaYash Learning Solutions LLP)',
       status: 'AUTHENTIC & VERIFIED',
       verificationHash: generateVerificationHash(code, studentName),
       verificationUrl,
@@ -170,10 +170,20 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
     };
   }
 
-  // 3. FAANG & Daily Practice Mock Test Certificates
-  if (code.includes('FAANG') || code.includes('MOCK') || code.includes('GGL') || code.includes('AMZ') || code.includes('NFLX') || code.includes('DP') || code.includes('DAILY')) {
+  // 3. FAANG, Daily Practice & Technical Core Mock Test Certificates
+  if (code.includes('FAANG') || code.includes('MOCK') || code.includes('GGL') || code.includes('AMZ') || code.includes('NFLX') || code.includes('DP') || code.includes('DAILY') || code.includes('TECH') || code.includes('C-') || code.includes('CPP') || code.includes('JAVA') || code.includes('PYTHON') || code.includes('DSA')) {
     let matchingMock = FAANG_MOCK_TESTS[0];
-    if (code.includes('RAPID-1') || code.includes('RPM-4') || code.includes('RAPID-MOCK-4')) {
+    if (code.includes('C-PROG') || code.includes('TECH-C')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-c-programming') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('CPP') || code.includes('TECH-CPP')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-cpp-programming') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('JAVA') || code.includes('TECH-JAVA')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-java-programming') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('PYTHON') || code.includes('TECH-PYTHON')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-python-programming') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('DSA') || code.includes('TECH-DSA')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-dsa-algorithms') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('RAPID-1') || code.includes('RPM-4') || code.includes('RAPID-MOCK-4')) {
       matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'rapid-mock-4') || FAANG_MOCK_TESTS[0];
     } else if (code.includes('RAPID-2') || code.includes('RPM-5') || code.includes('RAPID-MOCK-5')) {
       matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'rapid-mock-5') || FAANG_MOCK_TESTS[0];
@@ -184,9 +194,9 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
     } else if (code.includes('DP-MOCK-3') || code.includes('DAILY-3')) {
       matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'daily-practice-mock-3') || FAANG_MOCK_TESTS[0];
     } else if (code.includes('MOCK-2') || code.includes('AMZ') || code.includes('APPLE')) {
-      matchingMock = FAANG_MOCK_TESTS[1];
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'faang-mock-2') || FAANG_MOCK_TESTS[1];
     } else if (code.includes('MOCK-3') || code.includes('NFLX') || code.includes('UBER')) {
-      matchingMock = FAANG_MOCK_TESTS[2];
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'faang-mock-3') || FAANG_MOCK_TESTS[2];
     }
 
     const mockScore = profile.predictedPlacementScore ? Math.max(76, profile.predictedPlacementScore) : 84;
@@ -200,17 +210,17 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
       type: 'faang',
       issueDate: new Date().toISOString().split('T')[0],
       scorePercentage: mockScore,
-      grade: mockScore >= 85 ? 'Grade O (Tier-1 FAANG Caliber)' : 'Grade A+ (Distinction)',
-      endorsedBy: 'Kapil Narula (Placement Director & FAANG Evaluator)',
+      grade: mockScore >= 85 ? 'Grade O (Distinction & Tier-1 Ready)' : 'Grade A+ (Distinction)',
+      endorsedBy: 'Kapil Narula (Chief Learning Officer | Chief Ecosystem Architect | Founder • SarlaYash Learning Solutions LLP)',
       status: 'AUTHENTIC & VERIFIED',
       verificationHash: generateVerificationHash(code, studentName),
       verificationUrl,
-      benchmark: `${matchingMock.companies.join(' & ')} Technical Placement Benchmark`,
+      benchmark: `${matchingMock.companies.join(' & ')} Placement Benchmark`,
       competencies: [
         'High-Scale Algorithmic Optimizations',
-        'Distributed Concurrency & Locking',
-        'Memory Footprint & Caching Architecture',
-        'Mission-Critical Production Engineering',
+        'Distributed Concurrency & Systems Architecture',
+        'Memory Footprint & Execution Efficiency',
+        'Mission-Critical Corporate Engineering Standards',
       ],
       department,
       batch,
@@ -230,7 +240,7 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
       issueDate: '2025-08-15',
       scorePercentage: score,
       grade: 'Grade A+ (National Campus Fellow)',
-      endorsedBy: 'Kapil Narula (Program Director, Classrooms To Boardrooms Placement Readiness)',
+      endorsedBy: 'Kapil Narula (Chief Learning Officer | Chief Ecosystem Architect | Founder • SarlaYash Learning Solutions LLP)',
       status: 'AUTHENTIC & VERIFIED',
       verificationHash: generateVerificationHash('PV-2025-IND-8849', studentName),
       verificationUrl,
@@ -259,11 +269,11 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
       issueDate: new Date().toISOString().split('T')[0],
       scorePercentage: 90,
       grade: 'Grade A+ (Distinction)',
-      endorsedBy: 'Kapil Narula (Program Director, Classrooms To Boardrooms Placement Readiness)',
+      endorsedBy: 'Kapil Narula (Chief Learning Officer | Chief Ecosystem Architect | Founder • SarlaYash Learning Solutions LLP)',
       status: 'AUTHENTIC & VERIFIED',
       verificationHash: generateVerificationHash(code, studentName),
       verificationUrl,
-      benchmark: 'Classrooms To Boardrooms Placement Readiness 4-Stage Topic Mastery Standard',
+      benchmark: 'Classrooms To Boardrooms 4-Stage Topic Mastery Standard',
       competencies: [
         'Conceptual Mastery & MCQ Precision',
         'Timed Speed Challenge Clearance',
@@ -286,7 +296,7 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
       issueDate: new Date().toISOString().split('T')[0],
       scorePercentage: profile.predictedPlacementScore || 85,
       grade: 'Grade A+ (Qualified)',
-      endorsedBy: 'Kapil Narula (Program Director, Classrooms To Boardrooms Placement Readiness)',
+      endorsedBy: 'Kapil Narula (Chief Learning Officer | Chief Ecosystem Architect | Founder • SarlaYash Learning Solutions LLP)',
       status: 'AUTHENTIC & VERIFIED',
       verificationHash: generateVerificationHash(code, studentName),
       verificationUrl,

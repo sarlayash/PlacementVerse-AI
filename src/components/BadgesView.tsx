@@ -9,7 +9,7 @@ interface BadgesViewProps {
 }
 
 export const BadgesView: React.FC<BadgesViewProps> = ({ profile }) => {
-  const [filter, setFilter] = useState<'all' | 'milestone' | 'mastery' | 'special' | 'streak'>('all');
+  const [filter, setFilter] = useState<'all' | 'milestone' | 'mastery' | 'technical' | 'special' | 'streak'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
 
@@ -28,6 +28,9 @@ export const BadgesView: React.FC<BadgesViewProps> = ({ profile }) => {
     }
 
     if (filter === 'all') return true;
+    if (filter === 'technical') {
+      return ['c-master', 'cpp-master', 'java-master', 'python-master', 'dsa-master'].includes(b.id);
+    }
     if (filter === 'milestone') return b.category === 'Milestone';
     if (filter === 'mastery') {
       return ['Aptitude', 'Reasoning', 'Verbal', 'Communication', 'Placement', 'Mastery'].includes(b.category);
@@ -46,8 +49,8 @@ export const BadgesView: React.FC<BadgesViewProps> = ({ profile }) => {
         {/* Top Ribbon Bar (Black, Red & Gold) */}
         <PrestigeRibbonBar 
           position="top" 
-          label="SOVEREIGN PLACEMENT MERIT AWARDS • OFFICIAL MEDALLIONS" 
-          subtitle="Accredited Placement Competencies"
+          label="CLASSROOMS TO BOARDROOMS WITH KAPIL • POWERED BY SARLAYASH MISSION" 
+          subtitle="SarlaYash Learning Solutions LLP • Kapil Narula"
         />
 
         <div className="p-6 sm:p-8 bg-gradient-to-br from-[#0A0A0C] via-[#15151C] to-[#0A0A0C] text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -57,16 +60,16 @@ export const BadgesView: React.FC<BadgesViewProps> = ({ profile }) => {
                 <Trophy className="w-5 h-5 text-amber-400" />
               </span>
               <span className="text-xs font-black uppercase tracking-widest text-amber-400 font-display">
-                Classrooms To Boardrooms • Verified Credential Registry
+                Classrooms To Boardrooms With Kapil • Verified Credential Registry
               </span>
             </div>
             
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-100 font-display tracking-tight">
-              Sovereign Skill Medallions
+              Sovereign Skill Medallions ({totalCount} Total)
             </h2>
             
             <p className="text-xs sm:text-sm text-zinc-300 max-w-2xl leading-relaxed">
-              Proprietary placement honors featuring 24K gold medals suspended on genuine silk crimson ribbons with black, red, and gold borders.
+              Proprietary placement honors featuring 24K gold medals suspended on genuine silk crimson ribbons with black, red, and gold borders. Endorsed by Chief Ecosystem Architect Kapil Narula.
             </p>
           </div>
 
@@ -106,6 +109,7 @@ export const BadgesView: React.FC<BadgesViewProps> = ({ profile }) => {
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           {[
             { id: 'all', label: `All (${totalCount})` },
+            { id: 'technical', label: '💻 Programming & DSA (5)' },
             { id: 'milestone', label: 'Milestones & Tiers' },
             { id: 'mastery', label: 'Subject Mastery' },
             { id: 'streak', label: 'Streaks' },

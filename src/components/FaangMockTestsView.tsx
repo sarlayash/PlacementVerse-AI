@@ -41,10 +41,13 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [verifyModalCode, setVerifyModalCode] = useState<string | null>(null);
 
-  // Category Filtering: 'ALL' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'
-  const [selectedCategory, setSelectedCategory] = useState<'ALL' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'>('ALL');
+  // Category Filtering: 'ALL' | 'TECHNICAL CORE' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'
+  const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'TECHNICAL CORE' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'>('ALL');
 
   const filteredTests = useMemo(() => {
+    if (selectedCategory === 'TECHNICAL CORE') {
+      return FAANG_MOCK_TESTS.filter(t => t.category === 'TECHNICAL CORE');
+    }
     if (selectedCategory === '30-MIN RAPID SPRINT') {
       return FAANG_MOCK_TESTS.filter(t => t.category === '30-MIN RAPID SPRINT');
     }
@@ -165,8 +168,19 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
     const passed = percentage >= activeTest.passingPercentage;
     const timeSpent = (activeTest.durationMinutes * 60) - timeLeftSeconds;
 
-    const certPrefix = activeTest.id.startsWith('daily-practice') ? 'PV-DP' : 'PV-FAANG';
-    const cleanTestCode = activeTest.id.replace('daily-practice-mock-', 'MOCK-').replace('faang-mock-', 'MOCK-');
+    const certPrefix = activeTest.id.startsWith('daily-practice') 
+      ? 'PV-DP' 
+      : activeTest.id.startsWith('rapid-sprint') 
+      ? 'PV-RS' 
+      : activeTest.id.startsWith('mock-') 
+      ? 'PV-TECH' 
+      : 'PV-FAANG';
+    const cleanTestCode = activeTest.id
+      .replace('daily-practice-mock-', 'MOCK-')
+      .replace('faang-mock-', 'MOCK-')
+      .replace('rapid-sprint-mock-', 'RS-')
+      .replace('mock-', 'TECH-')
+      .toUpperCase();
     const certCode = `${certPrefix}-${cleanTestCode}-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`;
 
     const attempt: MockTestAttempt = {
@@ -883,10 +897,11 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
                 <div className="pt-6 border-t border-amber-900/10 flex items-center justify-between text-left text-xs">
                   <div>
                     <p className="font-bold text-slate-900">Kapil Narula</p>
-                    <p className="text-[10px] text-slate-500">Placement Director & FAANG Evaluator</p>
+                    <p className="text-[10px] text-slate-600 font-semibold">Chief Learning Officer | Chief Ecosystem Architect | Founder</p>
+                    <p className="text-[10px] text-slate-500">SarlaYash Learning Solutions LLP • Powered By SarlaYash Mission</p>
                   </div>
-                  <div className="w-12 h-12 rounded-full border-2 border-amber-600/40 bg-amber-500/20 text-amber-800 flex items-center justify-center font-black text-xs">
-                    SEAL
+                  <div className="w-12 h-12 rounded-full border-2 border-amber-600/40 bg-amber-500/20 text-amber-800 flex items-center justify-center font-black text-xs text-center leading-tight">
+                    OFFICIAL<br/>SEAL
                   </div>
                 </div>
 
@@ -1013,20 +1028,22 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
             </span>
           </div>
           <h3 className="text-base font-black text-slate-900 font-display mt-0.5">
-            {selectedCategory === '30-MIN RAPID SPRINT'
+            {selectedCategory === 'TECHNICAL CORE'
+              ? '💻 Category: TECHNICAL CORE (5 Mocks: C, C++, Java, Python, DSA • 10 MCQs Each)'
+              : selectedCategory === '30-MIN RAPID SPRINT'
               ? '⚡ Category: 30-MIN RAPID SPRINT (2 High-Yield Mock Exams • 25 MCQs • 30 Mins Each)'
               : selectedCategory === 'DAILY PRACTICE' 
               ? '⚡ Category: DAILY PRACTICE (3 Mock Exams • 10 MCQs • 20 Mins Each)' 
               : selectedCategory === 'FAANG High-Bar'
               ? '🏛️ Category: FAANG High-Bar (3 Mock Exams • 25 MCQs • 60 Mins Each)'
-              : '🌟 All Placement Mock Exams (8 Total)'}
+              : `🌟 All Placement Mock Exams (${FAANG_MOCK_TESTS.length} Total)`}
           </h3>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setSelectedCategory('ALL')}
-            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all ${
+            className={`px-3.5 py-2 rounded-2xl text-xs font-bold transition-all ${
               selectedCategory === 'ALL'
                 ? 'bg-slate-900 text-white shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
@@ -1036,46 +1053,60 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
           </button>
 
           <button
+            onClick={() => setSelectedCategory('TECHNICAL CORE')}
+            className={`px-3.5 py-2 rounded-2xl text-xs font-black transition-all flex items-center gap-1.5 ${
+              selectedCategory === 'TECHNICAL CORE'
+                ? 'bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white shadow-md'
+                : 'bg-blue-50 text-blue-900 border border-blue-200 hover:bg-blue-100'
+            }`}
+          >
+            <span>💻 TECHNICAL CORE</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-blue-600 text-white uppercase tracking-widest">
+              C, C++, Java, Py, DSA (5)
+            </span>
+          </button>
+
+          <button
             onClick={() => setSelectedCategory('30-MIN RAPID SPRINT')}
-            className={`px-4 py-2 rounded-2xl text-xs font-black transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-2xl text-xs font-black transition-all flex items-center gap-1.5 ${
               selectedCategory === '30-MIN RAPID SPRINT'
                 ? 'bg-gradient-to-r from-red-600 via-amber-500 to-zinc-900 text-white shadow-md'
                 : 'bg-red-50 text-red-900 border border-red-200 hover:bg-red-100'
             }`}
           >
             <Zap className="w-3.5 h-3.5 fill-red-400 text-red-400" />
-            <span>30-MIN RAPID SPRINT (2 Mocks)</span>
+            <span>RAPID SPRINT</span>
             <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-red-600 text-white uppercase tracking-widest">
-              25 MCQs • 30M
+              25 Qs • 30M
             </span>
           </button>
 
           <button
             onClick={() => setSelectedCategory('DAILY PRACTICE')}
-            className={`px-4 py-2 rounded-2xl text-xs font-black transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-2xl text-xs font-black transition-all flex items-center gap-1.5 ${
               selectedCategory === 'DAILY PRACTICE'
                 ? 'bg-gradient-to-r from-amber-500 to-emerald-600 text-white shadow-md'
                 : 'bg-amber-50 text-amber-900 border border-amber-200/80 hover:bg-amber-100'
             }`}
           >
             <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
-            <span>DAILY PRACTICE (3 Mocks)</span>
+            <span>DAILY PRACTICE</span>
             <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-amber-400 text-slate-950 uppercase tracking-widest">
-              10 MCQs
+              10 Qs
             </span>
           </button>
 
           <button
             onClick={() => setSelectedCategory('FAANG High-Bar')}
-            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3.5 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               selectedCategory === 'FAANG High-Bar'
                 ? 'bg-indigo-600 text-white shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
-            <span>FAANG High-Bar (3 Mocks)</span>
+            <span>FAANG High-Bar</span>
             <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-slate-200 text-slate-700">
-              25 MCQs
+              25 Qs
             </span>
           </button>
         </div>
@@ -1086,6 +1117,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
         {filteredTests.map((test, index) => {
           const attempt = profile.mockTestAttempts?.[test.id];
           const isPassed = attempt?.passed;
+          const isTechnicalCore = test.category === 'TECHNICAL CORE';
           const isDailyPractice = test.category === 'DAILY PRACTICE';
           const isRapidSprint = test.category === '30-MIN RAPID SPRINT';
 
@@ -1095,6 +1127,8 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
               className={`bg-white rounded-3xl border transition-all flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 ${
                 isPassed 
                   ? 'border-emerald-300 ring-2 ring-emerald-100' 
+                  : isTechnicalCore
+                  ? 'border-blue-200 hover:border-indigo-400 ring-1 ring-blue-50'
                   : isRapidSprint
                   ? 'border-red-200 hover:border-red-400 ring-1 ring-red-100'
                   : isDailyPractice
@@ -1108,20 +1142,26 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className={`px-2.5 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider ${
-                      isRapidSprint
+                      isTechnicalCore
+                        ? 'bg-blue-100 text-blue-900 border border-blue-300'
+                        : isRapidSprint
                         ? 'bg-red-100 text-red-900 border border-red-300'
                         : isDailyPractice
                         ? 'bg-amber-100 text-amber-900 border border-amber-300'
                         : 'bg-indigo-50 text-indigo-800 border border-indigo-200'
                     }`}>
-                      {isRapidSprint 
+                      {isTechnicalCore
+                        ? test.badgeIcon + ' ' + (test.title.split(' ')[0] || 'Core')
+                        : isRapidSprint 
                         ? `Rapid Mock ${test.id === 'rapid-mock-4' ? 'I' : 'II'}` 
                         : isDailyPractice 
                         ? `Daily Mock ${index + 1}` 
                         : `FAANG Mock ${index + 1}`}
                     </span>
                     <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
-                      isRapidSprint
+                      isTechnicalCore
+                        ? 'bg-blue-700 text-white'
+                        : isRapidSprint
                         ? 'bg-red-600 text-white'
                         : isDailyPractice 
                         ? 'bg-emerald-100 text-emerald-800' 

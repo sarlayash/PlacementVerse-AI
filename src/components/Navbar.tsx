@@ -37,20 +37,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           
           {/* Brand Logo & Title */}
           <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => onSelectTab('learn')}>
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-blue-500/20">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-slate-950 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-blue-500/20 shrink-0">
               C
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 font-display">
-                  Classrooms To Boardrooms <span className="text-blue-600">Placement Readiness</span>
+                <span className="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 font-display">
+                  Classrooms To Boardrooms <span className="text-blue-600">With Kapil</span>
                 </span>
-                <span className="hidden md:inline-flex items-center text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                  Powered By Kapil
+                <span className="hidden md:inline-flex items-center text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+                  Powered By SarlaYash Mission
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 hidden sm:block">
-                Learn • Practice • Compete • Earn Badges • Get Placement Ready
+                Classrooms • Assessments • Intelligence • Boardrooms
               </p>
             </div>
           </div>
@@ -91,9 +91,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Calendar className="w-4 h-4 text-indigo-600" />
-              <span>FAANG Mocks</span>
-              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-rose-500 text-white animate-pulse">
-                Today
+              <span>Mocks & Tech</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-indigo-600 text-white">
+                13 Mocks
               </span>
             </button>
             <button
@@ -302,7 +302,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Calendar className="w-3.5 h-3.5" />
-            <span>FAANG Mocks (3)</span>
+            <span>Mocks & Tech (13)</span>
           </button>
           <button
             onClick={() => onSelectTab('final-assessment')}

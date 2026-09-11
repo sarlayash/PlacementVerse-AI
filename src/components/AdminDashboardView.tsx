@@ -538,7 +538,7 @@ function mergeAllStudentLists(...lists: (LearnerProfile[] | null | undefined)[])
       issueDate: new Date().toISOString().split('T')[0],
       readinessScore: targetStudent.predictedPlacementScore || 85,
       grade: targetStudent.predictedPlacementScore >= 90 ? 'A+ Distinguished' : 'A Superior',
-      endorsedBy: 'Kapil Narula (Placement Director)',
+      endorsedBy: 'Kapil Narula (Chief Learning Officer | Chief Ecosystem Architect | Founder)',
       verificationCode: `PV-ADMIN-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`,
       status: 'Active',
     };
@@ -820,7 +820,7 @@ function mergeAllStudentLists(...lists: (LearnerProfile[] | null | undefined)[])
           <div className="flex flex-wrap items-center gap-2 mb-2">
             <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-400/30 flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
-              Director Console
+              Chief Ecosystem Architect Console
             </span>
             <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -829,10 +829,10 @@ function mergeAllStudentLists(...lists: (LearnerProfile[] | null | undefined)[])
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white font-display tracking-tight">
-            Classrooms To Boardrooms Administration Console
+            CLASSROOMS TO BOARDROOMS WITH KAPIL
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-            Classrooms To Boardrooms Placement Readiness Powered By Kapil • Real-time candidate monitoring, credential governance, badge re-issuance, curriculum lesson authoring, and student profile administration.
+            Powered By SarlaYash Mission • Kapil Narula (Chief Learning Officer | Chief Ecosystem Architect | Founder • SarlaYash Learning Solutions LLP) • Real-time candidate monitoring, credential governance, badge re-issuance, curriculum lesson authoring, and student profile administration.
           </p>
         </div>
 
@@ -2054,7 +2054,7 @@ function mergeAllStudentLists(...lists: (LearnerProfile[] | null | undefined)[])
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
                     <Scroll className="w-5 h-5 text-amber-500" />
-                    <span className="font-bold text-slate-900 text-sm">Official PlacementVerse Credential</span>
+                    <span className="font-bold text-slate-900 text-sm">Official Placement Credential • SarlaYash Mission</span>
                   </div>
                   <button
                     onClick={() => setCertPreviewModal(null)}
@@ -2071,7 +2071,7 @@ function mergeAllStudentLists(...lists: (LearnerProfile[] | null | undefined)[])
                   </div>
 
                   <div className="space-y-1">
-                    <p className="text-xs font-bold tracking-widest uppercase text-amber-700">PlacementVerse AI • Government & Corporate Endorsed</p>
+                    <p className="text-xs font-bold tracking-widest uppercase text-amber-700">CLASSROOMS TO BOARDROOMS WITH KAPIL • Powered By SarlaYash Mission</p>
                     <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-display">
                       Certificate of Placement Excellence
                     </h2>
@@ -2102,7 +2102,7 @@ function mergeAllStudentLists(...lists: (LearnerProfile[] | null | undefined)[])
                     </div>
 
                     <div className="text-right">
-                      <p className="text-[10px] text-slate-400 uppercase font-bold">Director Endorsement</p>
+                      <p className="text-[10px] text-slate-400 uppercase font-bold">Ecosystem Endorsement</p>
                       <p className="font-bold text-indigo-900 font-display text-sm">{certPreviewModal.endorsedBy}</p>
                       <p className="text-[10px] text-emerald-600 font-bold">✓ Cryptographically Signed</p>
                     </div>

@@ -454,11 +454,16 @@ export default function App() {
       {/* Footer */}
       <footer className="mt-auto border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 print:hidden">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="font-semibold text-slate-700">
-            Classrooms To Boardrooms Placement Readiness • Powered By Kapil Narula
-          </p>
-          <p>
-            Ultimate Placement Readiness Challenge • 24/7 AI-Guided Practice
+          <div className="text-left">
+            <p className="font-bold text-slate-800">
+              CLASSROOMS TO BOARDROOMS WITH KAPIL
+            </p>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Powered By SarlaYash Mission • SarlaYash Learning Solutions LLP
+            </p>
+          </div>
+          <p className="text-[11px] text-slate-600 sm:text-right">
+            Technology is the engine. Learning is the mission. Careers are the outcome.
           </p>
         </div>
       </footer>
