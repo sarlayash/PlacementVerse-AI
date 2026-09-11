@@ -905,17 +905,20 @@ export function recordMockTestResult(
       ? 'faang-netflix-uber'
       : (attempt.testId as any);
 
+    const isDomainMock = attempt.testId.includes('dbms') || attempt.testId.includes('excel') || attempt.testId.includes('powerbi') || attempt.testId.includes('hacking') || attempt.testId.includes('cyber') || attempt.testId.includes('domains');
     const prefix = attempt.testId.startsWith('daily-practice') 
       ? 'PV-DP' 
       : attempt.testId.startsWith('rapid-sprint') 
       ? 'PV-RS' 
+      : isDomainMock
+      ? 'PV-DOM'
       : attempt.testId.startsWith('mock-') 
       ? 'PV-TECH' 
       : 'PV-FAANG';
     const cleanId = attempt.testId
       .replace('daily-practice-', 'DP-')
       .replace('rapid-sprint-', 'RS-')
-      .replace('mock-', 'TECH-')
+      .replace('mock-', isDomainMock ? 'DOM-' : 'TECH-')
       .toUpperCase();
 
     cert = {

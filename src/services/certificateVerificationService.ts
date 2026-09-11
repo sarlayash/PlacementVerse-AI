@@ -170,10 +170,22 @@ export function lookupCertificateData(rawCode: string): VerifiedCertificateResul
     };
   }
 
-  // 3. FAANG, Daily Practice & Technical Core Mock Test Certificates
-  if (code.includes('FAANG') || code.includes('MOCK') || code.includes('GGL') || code.includes('AMZ') || code.includes('NFLX') || code.includes('DP') || code.includes('DAILY') || code.includes('TECH') || code.includes('C-') || code.includes('CPP') || code.includes('JAVA') || code.includes('PYTHON') || code.includes('DSA')) {
+  // 3. FAANG, Daily Practice, Technical Core & Enterprise Domain Mock Test Certificates
+  if (code.includes('FAANG') || code.includes('MOCK') || code.includes('GGL') || code.includes('AMZ') || code.includes('NFLX') || code.includes('DP') || code.includes('DAILY') || code.includes('TECH') || code.includes('DOM') || code.includes('DBMS') || code.includes('EXCEL') || code.includes('POWERBI') || code.includes('PBI') || code.includes('HACK') || code.includes('CYBER') || code.includes('C-') || code.includes('CPP') || code.includes('JAVA') || code.includes('PYTHON') || code.includes('DSA')) {
     let matchingMock = FAANG_MOCK_TESTS[0];
-    if (code.includes('C-PROG') || code.includes('TECH-C')) {
+    if (code.includes('DBMS')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-dbms-sql') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('EXCEL')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-excel-analytics') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('POWERBI') || code.includes('PBI')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-powerbi-dax') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('HACK')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-ethical-hacking') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('CYBER')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-cyber-security') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('DOMAIN-SPRINT') || code.includes('DOMAINS-SPRINT')) {
+      matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-domains-sprint') || FAANG_MOCK_TESTS[0];
+    } else if (code.includes('C-PROG') || code.includes('TECH-C')) {
       matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-c-programming') || FAANG_MOCK_TESTS[0];
     } else if (code.includes('CPP') || code.includes('TECH-CPP')) {
       matchingMock = FAANG_MOCK_TESTS.find(t => t.id === 'mock-cpp-programming') || FAANG_MOCK_TESTS[0];

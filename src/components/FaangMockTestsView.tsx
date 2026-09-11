@@ -41,10 +41,13 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [verifyModalCode, setVerifyModalCode] = useState<string | null>(null);
 
-  // Category Filtering: 'ALL' | 'TECHNICAL CORE' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'
-  const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'TECHNICAL CORE' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'>('ALL');
+  // Category Filtering: 'ALL' | 'ENTERPRISE DOMAINS' | 'TECHNICAL CORE' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'
+  const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'ENTERPRISE DOMAINS' | 'TECHNICAL CORE' | '30-MIN RAPID SPRINT' | 'DAILY PRACTICE' | 'FAANG High-Bar'>('ALL');
 
   const filteredTests = useMemo(() => {
+    if (selectedCategory === 'ENTERPRISE DOMAINS') {
+      return FAANG_MOCK_TESTS.filter(t => t.category === 'ENTERPRISE DOMAINS');
+    }
     if (selectedCategory === 'TECHNICAL CORE') {
       return FAANG_MOCK_TESTS.filter(t => t.category === 'TECHNICAL CORE');
     }
@@ -1028,7 +1031,9 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
             </span>
           </div>
           <h3 className="text-base font-black text-slate-900 font-display mt-0.5">
-            {selectedCategory === 'TECHNICAL CORE'
+            {selectedCategory === 'ENTERPRISE DOMAINS'
+              ? '📊 Category: ENTERPRISE DOMAINS & SECURITY (6 Mocks: DBMS, Excel, Power BI, Ethical Hacking, Cyber Security & Sprint • 10 MCQs Each)'
+              : selectedCategory === 'TECHNICAL CORE'
               ? '💻 Category: TECHNICAL CORE (5 Mocks: C, C++, Java, Python, DSA • 10 MCQs Each)'
               : selectedCategory === '30-MIN RAPID SPRINT'
               ? '⚡ Category: 30-MIN RAPID SPRINT (2 High-Yield Mock Exams • 25 MCQs • 30 Mins Each)'
@@ -1050,6 +1055,20 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
             }`}
           >
             All Mocks ({FAANG_MOCK_TESTS.length})
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('ENTERPRISE DOMAINS')}
+            className={`px-3.5 py-2 rounded-2xl text-xs font-black transition-all flex items-center gap-1.5 ${
+              selectedCategory === 'ENTERPRISE DOMAINS'
+                ? 'bg-gradient-to-r from-purple-700 via-indigo-700 to-cyan-800 text-white shadow-md'
+                : 'bg-purple-50 text-purple-900 border border-purple-200 hover:bg-purple-100'
+            }`}
+          >
+            <span>📊 DOMAINS & SECURITY</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-purple-700 text-white uppercase tracking-widest">
+              DBMS, Excel, PBI, Sec (6)
+            </span>
           </button>
 
           <button
@@ -1117,6 +1136,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
         {filteredTests.map((test, index) => {
           const attempt = profile.mockTestAttempts?.[test.id];
           const isPassed = attempt?.passed;
+          const isEnterpriseDomain = test.category === 'ENTERPRISE DOMAINS';
           const isTechnicalCore = test.category === 'TECHNICAL CORE';
           const isDailyPractice = test.category === 'DAILY PRACTICE';
           const isRapidSprint = test.category === '30-MIN RAPID SPRINT';
@@ -1127,6 +1147,8 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
               className={`bg-white rounded-3xl border transition-all flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 ${
                 isPassed 
                   ? 'border-emerald-300 ring-2 ring-emerald-100' 
+                  : isEnterpriseDomain
+                  ? 'border-purple-200 hover:border-purple-400 ring-1 ring-purple-50'
                   : isTechnicalCore
                   ? 'border-blue-200 hover:border-indigo-400 ring-1 ring-blue-50'
                   : isRapidSprint
@@ -1142,7 +1164,9 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className={`px-2.5 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider ${
-                      isTechnicalCore
+                      isEnterpriseDomain
+                        ? 'bg-purple-100 text-purple-900 border border-purple-300'
+                        : isTechnicalCore
                         ? 'bg-blue-100 text-blue-900 border border-blue-300'
                         : isRapidSprint
                         ? 'bg-red-100 text-red-900 border border-red-300'
@@ -1150,7 +1174,9 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
                         ? 'bg-amber-100 text-amber-900 border border-amber-300'
                         : 'bg-indigo-50 text-indigo-800 border border-indigo-200'
                     }`}>
-                      {isTechnicalCore
+                      {isEnterpriseDomain
+                        ? test.badgeIcon + ' ' + (test.title.split(' ')[0] || 'Domain')
+                        : isTechnicalCore
                         ? test.badgeIcon + ' ' + (test.title.split(' ')[0] || 'Core')
                         : isRapidSprint 
                         ? `Rapid Mock ${test.id === 'rapid-mock-4' ? 'I' : 'II'}` 
@@ -1159,7 +1185,9 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
                         : `FAANG Mock ${index + 1}`}
                     </span>
                     <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
-                      isTechnicalCore
+                      isEnterpriseDomain
+                        ? 'bg-purple-700 text-white'
+                        : isTechnicalCore
                         ? 'bg-blue-700 text-white'
                         : isRapidSprint
                         ? 'bg-red-600 text-white'
