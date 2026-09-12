@@ -3,6 +3,9 @@ import { DAILY_PRACTICE_MOCK_TESTS } from './dailyPracticeMockTestsData';
 import { RAPID_MOCK_EXAMS } from './rapidMockExamsData';
 import { PROGRAMMING_MOCK_TESTS } from './programmingMockTestsData';
 import { DOMAIN_MOCK_TESTS } from './domainMockTestsData';
+import { DOMAIN_TIER2_TESTS_PART1 } from './domainTier2TestsDataPart1';
+import { TIER2_MOCK_TESTS_PART2A } from './domainTier2TestsDataPart2A';
+import { TIER2_MOCK_TESTS_PART2B } from './domainTier2TestsDataPart2B';
 
 // ============================================================================
 // FAANG MOCK TEST 1: GOOGLE & META
@@ -1397,11 +1400,14 @@ export const ORIGINAL_FAANG_MOCK_TESTS: FaangMockTest[] = [
 // Master list containing Technical Programming, Enterprise Domains, FAANG High-Bar tests, DAILY PRACTICE Mocks, and RAPID 30-MIN Sprints
 export const FAANG_MOCK_TESTS: FaangMockTest[] = [
   ...DOMAIN_MOCK_TESTS,
+  ...DOMAIN_TIER2_TESTS_PART1,
+  ...TIER2_MOCK_TESTS_PART2A,
+  ...TIER2_MOCK_TESTS_PART2B,
   ...PROGRAMMING_MOCK_TESTS,
   ...ORIGINAL_FAANG_MOCK_TESTS,
   ...DAILY_PRACTICE_MOCK_TESTS,
   ...RAPID_MOCK_EXAMS
 ];
 
-export { DAILY_PRACTICE_MOCK_TESTS, RAPID_MOCK_EXAMS, PROGRAMMING_MOCK_TESTS, DOMAIN_MOCK_TESTS };
+export { DAILY_PRACTICE_MOCK_TESTS, RAPID_MOCK_EXAMS, PROGRAMMING_MOCK_TESTS, DOMAIN_MOCK_TESTS, DOMAIN_TIER2_TESTS_PART1, TIER2_MOCK_TESTS_PART2A, TIER2_MOCK_TESTS_PART2B };
 export const ALL_MOCK_TESTS: FaangMockTest[] = FAANG_MOCK_TESTS;

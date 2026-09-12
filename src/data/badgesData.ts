@@ -431,5 +431,157 @@ export const ALL_BADGES: Badge[] = [
     requirement: 'Score ≥60% in Enterprise Domains & Security 10-MCQ Sprint',
     gradient: 'from-cyan-600 via-indigo-700 to-purple-950',
   },
-  ...NEW_DOMAIN_BADGES
+  ...NEW_DOMAIN_BADGES,
+
+  // Tier-2 Domain Assessment Badges (New Assessment for Every Domain)
+  {
+    id: 'dbms-distributed-architect',
+    name: 'Distributed SQL & Storage Engine Architect',
+    description: 'Mastered Spanner TrueTime, Raft quorum, MVCC, LSM compaction, and Jepsen anomaly testing in the DBMS Tier-2 Assessment',
+    category: 'Special',
+    icon: '🗄️',
+    xpBonus: 1200,
+    requirement: 'Score ≥60% in DBMS & Distributed SQL Architecture (Tier-2 Assessment)',
+    gradient: 'from-blue-600 via-indigo-800 to-slate-950'
+  },
+  {
+    id: 'excel-quant-architect',
+    name: 'Financial Modeling & Quantitative Systems Architect',
+    description: 'Mastered Monte Carlo risk simulations, dynamic spilled arrays, LAMBDA recursions, and sensitivity analysis in the Excel Tier-2 Assessment',
+    category: 'Special',
+    icon: '📊',
+    xpBonus: 1200,
+    requirement: 'Score ≥60% in Advanced Excel & Financial Quantitative Systems (Tier-2 Assessment)',
+    gradient: 'from-emerald-600 via-teal-800 to-slate-950'
+  },
+  {
+    id: 'powerbi-enterprise-architect',
+    name: 'Enterprise Semantic Modeling & DAX Performance Architect',
+    description: 'Mastered DAX shadow filter context, hybrid direct query storage, Calculation Groups, and composite partitioning in the Power BI Tier-2 Assessment',
+    category: 'Special',
+    icon: '📈',
+    xpBonus: 1200,
+    requirement: 'Score ≥60% in Power BI Enterprise Semantic Architecture (Tier-2 Assessment)',
+    gradient: 'from-amber-600 via-yellow-700 to-slate-950'
+  },
+  {
+    id: 'redteam-cloud-architect',
+    name: 'Advanced Cloud Exploitation & Red Team Specialist',
+    description: 'Mastered AWS IAM privilege escalation, Kubernetes pod breakout, Kerberos silver ticket forgery, and C2 evasion in the Ethical Hacking Tier-2 Assessment',
+    category: 'Special',
+    icon: '⚔️',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in Advanced Red Teaming & Cloud Exploitation (Tier-2 Assessment)',
+    gradient: 'from-rose-700 via-red-900 to-slate-950'
+  },
+  {
+    id: 'threat-hunter-architect',
+    name: 'Enterprise Threat Hunting & Detection Architect',
+    description: 'Mastered Sigma rules, Kerberoasting detection, memory forensic carving, and living-off-the-land hunting in the Cyber Security Tier-2 Assessment',
+    category: 'Special',
+    icon: '🛡️',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in Enterprise SOC Engineering & Threat Hunting (Tier-2 Assessment)',
+    gradient: 'from-purple-700 via-indigo-950 to-slate-950'
+  },
+  {
+    id: 'linux-kernel-architect',
+    name: 'Linux Kernel & Low-Level Concurrency Master',
+    description: 'Mastered RCU read-side critical sections, futex synchronization, epoll edge-triggered I/O, and eBPF tracing in the C Tier-2 Assessment',
+    category: 'Special',
+    icon: '⚙️',
+    xpBonus: 1200,
+    requirement: 'Score ≥60% in Linux Kernel Internals & Low-Level Concurrency (Tier-2 Assessment)',
+    gradient: 'from-cyan-600 via-blue-800 to-slate-950'
+  },
+  {
+    id: 'lowlatency-systems-architect',
+    name: 'C++20 Ultra-Low-Latency & Lock-Free Systems Architect',
+    description: 'Mastered acquire-release memory orderings, lock-free ringbuffers, cache line false sharing, and coroutines in the C++ Tier-2 Assessment',
+    category: 'Special',
+    icon: '⚡',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in Modern C++20 & Low-Latency Trading Systems (Tier-2 Assessment)',
+    gradient: 'from-blue-600 via-sky-800 to-slate-950'
+  },
+  {
+    id: 'jvm-concurrency-architect',
+    name: 'JVM Internals & Virtual Threading Architect',
+    description: 'Mastered Loom continuation pinning, JIT escape analysis, ZGC colored pointers, and varhandle fences in the Java Tier-2 Assessment',
+    category: 'Special',
+    icon: '☕',
+    xpBonus: 1200,
+    requirement: 'Score ≥60% in Java & JVM Enterprise Architecture (Tier-2 Assessment)',
+    gradient: 'from-red-600 via-amber-800 to-slate-950'
+  },
+  {
+    id: 'distributed-python-architect',
+    name: 'Python Internals & High-Throughput Async Architect',
+    description: 'Mastered asyncio event loop selectors, CPython free-threaded no-GIL, Cython memoryviews, and multiprocessing shm in the Python Tier-2 Assessment',
+    category: 'Special',
+    icon: '🐍',
+    xpBonus: 1200,
+    requirement: 'Score ≥60% in Python & Distributed Systems Internals (Tier-2 Assessment)',
+    gradient: 'from-emerald-600 via-teal-800 to-slate-950'
+  },
+  {
+    id: 'advanced-flow-architect',
+    name: 'Flow Networks & Advanced Algorithmic Titan',
+    description: 'Mastered Dinic blocking flows, Heavy-Light Decomposition, Treap implicit splitting, and Aho-Corasick in the DSA Tier-2 Assessment',
+    category: 'Special',
+    icon: '👑',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in Advanced Algorithms & Flow Networks (Tier-2 Assessment)',
+    gradient: 'from-purple-600 via-pink-700 to-indigo-950'
+  },
+  {
+    id: 'tally-statutory-master',
+    name: 'Tally Statutory Taxation & Payroll Master',
+    description: 'Mastered TDS tax deduction tables, compound payroll attendance, manufacturing bills of materials, and multi-currency in the Tally Prime Tier-2 Assessment',
+    category: 'Special',
+    icon: '📚',
+    xpBonus: 1000,
+    requirement: 'Score ≥60% in Tally Prime Advanced Statutory Taxation & Payroll Master (Tier-2 Assessment)',
+    gradient: 'from-amber-600 via-orange-800 to-slate-950'
+  },
+  {
+    id: 'qa-resilience-architect',
+    name: 'Enterprise QA & Resiliency Systems Architect',
+    description: 'Mastered Playwright CDP actionability, Pact contract tests, PITest mutation testing, and k6 open load models in the Software Testing Tier-2 Assessment',
+    category: 'Special',
+    icon: '🧪',
+    xpBonus: 1200,
+    requirement: 'Score ≥60% in Enterprise QA Engineering & Chaos Resiliency Crucible (Tier-2 Assessment)',
+    gradient: 'from-teal-600 via-emerald-800 to-slate-950'
+  },
+  {
+    id: 'frontier-genai-architect',
+    name: 'Frontier Generative AI Systems Architect',
+    description: 'Mastered FlashAttention-2 SRAM tiling, Speculative Decoding rejection sampling, MLA, DPO, and QLoRA NF4 in the Gen AI Tier-2 Assessment',
+    category: 'Special',
+    icon: '✨',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in Frontier Generative AI & High-Throughput LLM Systems (Tier-2 Assessment)',
+    gradient: 'from-violet-600 via-purple-900 to-slate-950'
+  },
+  {
+    id: 'agentic-swarm-architect',
+    name: 'Autonomous Agent Swarm & Security Architect',
+    description: 'Mastered Model Context Protocol (MCP), Firecracker microVM sandboxing, LATS reasoning trees, and Indirect Prompt Injection defense in the Agentic AI Tier-2 Assessment',
+    category: 'Special',
+    icon: '🤖',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in Autonomous Agentic Swarms & Cognitive Systems (Tier-2 Assessment)',
+    gradient: 'from-cyan-600 via-blue-900 to-slate-950'
+  },
+  {
+    id: 'claude-frontier-architect',
+    name: 'Anthropic Claude Hybrid Reasoning Architect',
+    description: 'Mastered Claude 3.7 Extended Thinking token budgets, Prompt Caching ephemeral breakpoints, SAE mechanistic features, and Computer Use in the Claude Tier-2 Assessment',
+    category: 'Special',
+    icon: '🧠',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in Anthropic Claude 3.7 Hybrid Reasoning & Mechanistic Systems (Tier-2 Assessment)',
+    gradient: 'from-amber-700 via-rose-900 to-slate-950'
+  }
 ];
