@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { 
   Mail, Mic, MicOff, FileText, Share2, Sparkles, CheckCircle2, 
-  AlertCircle, Copy, Check, Loader2, ArrowRight, Star, RefreshCw, Wand2
+  AlertCircle, Copy, Check, Loader2, ArrowRight, Star, RefreshCw, Wand2,
+  AlertTriangle, ShieldAlert, ShieldCheck, Flame
 } from 'lucide-react';
 import { LearnerProfile } from '../types';
 import { fireCelebrationConfetti } from '../services/storageService';
@@ -20,6 +21,117 @@ interface RealWorldTasksViewProps {
   profile: LearnerProfile;
   onUpdateProfile: (updated: LearnerProfile) => void;
 }
+
+// Sub-component: Honest Verdict Badge & Banner
+const HonestCoachVerdictBanner: React.FC<{
+  verdict?: string;
+  verdictTier?: 'critical' | 'needs_work' | 'ready';
+  score: number;
+}> = ({ verdict, verdictTier, score }) => {
+  const tier = verdictTier || (score >= 80 ? 'ready' : score >= 60 ? 'needs_work' : 'critical');
+
+  const config = {
+    critical: {
+      container: 'bg-rose-50 border-rose-200 text-rose-950',
+      badge: 'bg-rose-600 text-white',
+      badgeText: 'ELIMINATION RISK',
+      title: 'High Rejection Risk',
+      icon: AlertCircle,
+      iconColor: 'text-rose-600',
+    },
+    needs_work: {
+      container: 'bg-amber-50 border-amber-200 text-amber-950',
+      badge: 'bg-amber-600 text-white',
+      badgeText: 'NEEDS POLISH',
+      title: 'Borderline Shortlist',
+      icon: AlertTriangle,
+      iconColor: 'text-amber-600',
+    },
+    ready: {
+      container: 'bg-emerald-50 border-emerald-200 text-emerald-950',
+      badge: 'bg-emerald-600 text-white',
+      badgeText: 'PLACEMENT READY',
+      title: 'Interview Ready',
+      icon: ShieldCheck,
+      iconColor: 'text-emerald-600',
+    },
+  }[tier];
+
+  const IconComp = config.icon;
+
+  return (
+    <div className={`p-4 rounded-2xl border ${config.container} space-y-2`}>
+      <div className="flex items-center justify-between gap-2">
+        <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${config.badge}`}>
+          {config.badgeText}
+        </span>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+          AI Placement Coach Verdict
+        </span>
+      </div>
+      <div className="flex items-start gap-2.5">
+        <IconComp className={`w-4 h-4 shrink-0 mt-0.5 ${config.iconColor}`} />
+        <p className="text-xs font-semibold leading-relaxed">
+          {verdict || (tier === 'critical' ? 'Candidate response shows high probability of rejection in competitive campus rounds. Critical fixes required.' : tier === 'needs_work' ? 'Solid baseline but lacks the high-impact precision needed for top product/consulting shortlist.' : 'Strong candidate submission meeting Tier-1 corporate recruitment standards.')}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// Sub-component: Recruiter Red Flags & Honest Actionable Guidance
+const HonestCoachRedFlagsAndGuidance: React.FC<{
+  redFlags?: string[];
+  honestGuidance?: string[];
+}> = ({ redFlags, honestGuidance }) => {
+  if ((!redFlags || redFlags.length === 0) && (!honestGuidance || honestGuidance.length === 0)) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-3 pt-1">
+      {/* Recruiter Red Flags */}
+      {redFlags && redFlags.length > 0 && (
+        <div className="p-3.5 rounded-2xl bg-rose-50/95 border border-rose-200/90 space-y-2">
+          <div className="flex items-center gap-2 text-rose-900">
+            <ShieldAlert className="w-4 h-4 shrink-0 text-rose-600" />
+            <span className="text-xs font-black uppercase tracking-wider">
+              Recruiter Elimination Red Flags ({redFlags.length})
+            </span>
+          </div>
+          <ul className="text-xs text-rose-950 space-y-1.5 pl-1">
+            {redFlags.map((flag, idx) => (
+              <li key={idx} className="flex items-start gap-2 leading-relaxed">
+                <span className="font-bold text-rose-600 mt-0.5">•</span>
+                <span>{flag}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Honest Actionable Guidance */}
+      {honestGuidance && honestGuidance.length > 0 && (
+        <div className="p-3.5 rounded-2xl bg-indigo-50/95 border border-indigo-200/90 space-y-2">
+          <div className="flex items-center gap-2 text-indigo-950">
+            <Sparkles className="w-4 h-4 shrink-0 text-indigo-600" />
+            <span className="text-xs font-black uppercase tracking-wider">
+              Coach Guidance & Direct Fixes ({honestGuidance.length})
+            </span>
+          </div>
+          <ul className="text-xs text-indigo-950 space-y-1.5 pl-1">
+            {honestGuidance.map((guide, idx) => (
+              <li key={idx} className="flex items-start gap-2 leading-relaxed">
+                <span className="font-bold text-indigo-600 mt-0.5">➔</span>
+                <span>{guide}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const RealWorldTasksView: React.FC<RealWorldTasksViewProps> = ({
   profile,
@@ -117,6 +229,8 @@ ACHIEVEMENTS & LEADERSHIP:
 I enjoy building real-world applications with React, TypeScript, and modern backend architectures. Always eager to collaborate on high-impact software systems!`);
   const [liEvaluating, setLiEvaluating] = useState(false);
   const [liResult, setLiResult] = useState<LinkedInOptimizationResult | null>(null);
+  const [copiedHeadline, setCopiedHeadline] = useState(false);
+  const [copiedAbout, setCopiedAbout] = useState(false);
 
   // Submit Email Writing
   const handleEvaluateEmail = async () => {
@@ -259,13 +373,17 @@ I enjoy building real-world applications with React, TypeScript, and modern back
           <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-bold uppercase tracking-wider">
             Hands-on Placement Simulation
           </span>
+          <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+            <Flame className="w-3.5 h-3.5 text-amber-400" />
+            <span>Honest & Unfiltered AI Coach</span>
+          </span>
           <span className="text-xs text-slate-400">Beyond MCQs: Learn By Doing</span>
         </div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-white font-display">
           Real-World Placement Tasks
         </h2>
         <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-3xl leading-relaxed">
-          Recruiters don't just hire for MCQ scores. Practice writing formal emails to HR, record Group Discussion speeches with real-time AI scoring, scan your resume against strict ATS filters, and optimize your LinkedIn profile for recruiter reach.
+          Recruiters don't hire just for MCQ scores. Practice writing formal emails to HR, delivering high-impact Group Discussion speeches, running strict ATS resume audits, and optimizing your LinkedIn profile. The AI Coach provides <strong>real, honest corporate feedback</strong> with recruiter elimination red flags and direct actionable guidance so you don't face surprises on placement day.
         </p>
       </div>
 
@@ -396,6 +514,13 @@ I enjoy building real-world applications with React, TypeScript, and modern back
                   </span>
                 </div>
 
+                {/* Honest Verdict Banner */}
+                <HonestCoachVerdictBanner
+                  verdict={emailResult.verdict}
+                  verdictTier={emailResult.verdictTier}
+                  score={emailResult.overallScore}
+                />
+
                 {/* Score meters */}
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
@@ -416,6 +541,12 @@ I enjoy building real-world applications with React, TypeScript, and modern back
                   <p className="text-xs font-bold text-slate-700">Coach Feedback:</p>
                   <p className="text-xs text-slate-600 mt-1 leading-relaxed">{emailResult.feedback}</p>
                 </div>
+
+                {/* Real & Honest Feedback: Red Flags & Guidance */}
+                <HonestCoachRedFlagsAndGuidance
+                  redFlags={emailResult.redFlags}
+                  honestGuidance={emailResult.honestGuidance}
+                />
 
                 {/* Strengths & fixes */}
                 <div className="text-xs space-y-2 pt-1 border-t border-slate-100">
@@ -569,6 +700,13 @@ I enjoy building real-world applications with React, TypeScript, and modern back
                   </span>
                 </div>
 
+                {/* Honest Verdict Banner */}
+                <HonestCoachVerdictBanner
+                  verdict={speechResult.verdict}
+                  verdictTier={speechResult.verdictTier}
+                  score={speechResult.overallScore}
+                />
+
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                     <p className="text-[10px] text-slate-500 font-bold uppercase">Confidence</p>
@@ -593,6 +731,12 @@ I enjoy building real-world applications with React, TypeScript, and modern back
                   <p className="text-xs font-bold text-slate-700">Articulated Feedback:</p>
                   <p className="text-xs text-slate-600 mt-1 leading-relaxed">{speechResult.feedback}</p>
                 </div>
+
+                {/* Real & Honest Feedback: Red Flags & Guidance */}
+                <HonestCoachRedFlagsAndGuidance
+                  redFlags={speechResult.redFlags}
+                  honestGuidance={speechResult.honestGuidance}
+                />
 
                 {speechResult.improvedOpening && (
                   <div className="pt-2 border-t border-slate-100 space-y-1.5">
@@ -684,6 +828,13 @@ I enjoy building real-world applications with React, TypeScript, and modern back
                   </span>
                 </div>
 
+                {/* Honest Verdict Banner */}
+                <HonestCoachVerdictBanner
+                  verdict={resumeResult.verdict}
+                  verdictTier={resumeResult.verdictTier}
+                  score={resumeResult.atsScore}
+                />
+
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                     <p className="text-[10px] text-slate-500 font-bold uppercase">Formatting</p>
@@ -703,6 +854,12 @@ I enjoy building real-world applications with React, TypeScript, and modern back
                   <p className="text-xs font-bold text-slate-700">Audit Summary:</p>
                   <p className="text-xs text-slate-600 mt-1 leading-relaxed">{resumeResult.summary}</p>
                 </div>
+
+                {/* Real & Honest Feedback: Red Flags & Guidance */}
+                <HonestCoachRedFlagsAndGuidance
+                  redFlags={resumeResult.redFlags}
+                  honestGuidance={resumeResult.honestGuidance}
+                />
 
                 {/* Missing keywords */}
                 <div className="pt-2 border-t border-slate-100">
@@ -805,6 +962,13 @@ I enjoy building real-world applications with React, TypeScript, and modern back
                   </span>
                 </div>
 
+                {/* Honest Verdict Banner */}
+                <HonestCoachVerdictBanner
+                  verdict={liResult.verdict}
+                  verdictTier={liResult.verdictTier}
+                  score={liResult.overallScore}
+                />
+
                 <div className="grid grid-cols-4 gap-1.5 text-center">
                   <div className="p-2 rounded-xl bg-slate-50 border border-slate-200">
                     <p className="text-[9px] text-slate-500 font-bold uppercase">Headline</p>
@@ -824,19 +988,53 @@ I enjoy building real-world applications with React, TypeScript, and modern back
                   </div>
                 </div>
 
+                {/* Real & Honest Feedback: Red Flags & Guidance */}
+                <HonestCoachRedFlagsAndGuidance
+                  redFlags={liResult.redFlags}
+                  honestGuidance={liResult.honestGuidance}
+                />
+
                 {/* Optimized Headline */}
-                <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 space-y-1">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-blue-800">
-                    High-Converting Headline:
-                  </p>
-                  <p className="text-xs font-bold text-blue-950">{liResult.optimizedHeadline}</p>
+                <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-blue-800">
+                      High-Converting Headline:
+                    </p>
+                    <button
+                      onClick={() => {
+                        safeCopy(liResult.optimizedHeadline, () => {
+                          setCopiedHeadline(true);
+                          setTimeout(() => setCopiedHeadline(false), 2000);
+                        });
+                      }}
+                      className="text-xs text-blue-700 hover:text-blue-900 flex items-center gap-1 font-semibold cursor-pointer"
+                    >
+                      {copiedHeadline ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedHeadline ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
+                  <p className="text-xs font-bold text-blue-950 leading-relaxed">{liResult.optimizedHeadline}</p>
                 </div>
 
                 {/* Optimized About */}
                 <div className="space-y-1.5">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                    Story-Driven About Section:
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      Story-Driven About Section:
+                    </p>
+                    <button
+                      onClick={() => {
+                        safeCopy(liResult.optimizedAbout, () => {
+                          setCopiedAbout(true);
+                          setTimeout(() => setCopiedAbout(false), 2000);
+                        });
+                      }}
+                      className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 font-semibold cursor-pointer"
+                    >
+                      {copiedAbout ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedAbout ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
                   <div className="p-3.5 rounded-xl bg-slate-900 text-slate-200 text-xs font-sans whitespace-pre-line leading-relaxed max-h-48 overflow-y-auto border border-slate-800">
                     {liResult.optimizedAbout}
                   </div>

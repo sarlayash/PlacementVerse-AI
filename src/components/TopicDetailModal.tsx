@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, CheckCircle2, AlertCircle, Clock, ShieldAlert, Sparkles, 
   HelpCircle, ArrowRight, ArrowLeft, Trophy, Zap, Bot, BookOpen, 
-  Check, RefreshCw, Layers
+  Check, RefreshCw, Layers, FileDown, Download
 } from 'lucide-react';
 import { Topic, Question, LearnerProfile } from '../types';
 import { fireCelebrationConfetti } from '../services/storageService';
+import { exportTopicNotesAsPdf } from '../utils/pdfExportService';
 
 interface TopicDetailModalProps {
   topic: Topic | null;
@@ -47,6 +48,21 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
   const [bossAnswers, setBossAnswers] = useState<Record<number, number>>({});
   const [bossSubmitted, setBossSubmitted] = useState(false);
   const [bossPassed, setBossPassed] = useState(false);
+
+  // PDF Export State
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+
+  const handleExportPdf = () => {
+    if (!topic) return;
+    setIsExportingPdf(true);
+    try {
+      exportTopicNotesAsPdf(topic);
+    } catch (err) {
+      console.error('Failed to export PDF:', err);
+    } finally {
+      setTimeout(() => setIsExportingPdf(false), 600);
+    }
+  };
 
   // Filter practice questions based on difficulty
   const filteredPracticeQuestions = (topic?.practiceQuestions || []).filter(q => {
@@ -247,12 +263,23 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
               {topic.name}
             </h2>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportPdf}
+              disabled={isExportingPdf}
+              title="Download Lesson Notes as Formatted PDF for Offline Reference"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold border border-slate-700 transition-all cursor-pointer shadow-xs disabled:opacity-50"
+            >
+              <FileDown className={`w-4 h-4 text-blue-400 ${isExportingPdf ? 'animate-bounce' : ''}`} />
+              <span className="hidden sm:inline">{isExportingPdf ? 'Generating PDF...' : 'Export Notes (PDF)'}</span>
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* 4 Steps Navigation Tabs */}
@@ -315,16 +342,27 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
               
               {/* Summary banner */}
               <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80">
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5">
-                    <Sparkles className="w-5 h-5" />
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900">10-Minute Concept Breakdown</h3>
+                      <p className="text-sm text-slate-700 mt-1 leading-relaxed">
+                        {topic.learningContent.summary}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900">10-Minute Concept Breakdown</h3>
-                    <p className="text-sm text-slate-700 mt-1 leading-relaxed">
-                      {topic.learningContent.summary}
-                    </p>
-                  </div>
+                  <button
+                    onClick={handleExportPdf}
+                    disabled={isExportingPdf}
+                    title="Export formatted lesson notes as PDF for offline study"
+                    className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer self-start sm:self-auto hover:border-blue-300 disabled:opacity-50"
+                  >
+                    <FileDown className={`w-4 h-4 text-blue-600 ${isExportingPdf ? 'animate-bounce' : ''}`} />
+                    <span>{isExportingPdf ? 'Exporting...' : 'Export Notes (PDF)'}</span>
+                  </button>
                 </div>
               </div>
 
@@ -427,10 +465,19 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({
               </div>
 
               {/* Action Button */}
-              <div className="pt-4 border-t border-slate-200 flex justify-end">
+              <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                <button
+                  onClick={handleExportPdf}
+                  disabled={isExportingPdf}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-800 font-bold text-xs border border-slate-300 flex items-center gap-2 transition-all hover:shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  <FileDown className={`w-4 h-4 text-blue-600 ${isExportingPdf ? 'animate-bounce' : ''}`} />
+                  <span>{isExportingPdf ? 'Generating PDF Document...' : 'Export Lesson Notes (PDF)'}</span>
+                </button>
+
                 <button
                   onClick={handleFinishLearning}
-                  className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md flex items-center gap-2 transition-all hover:scale-102"
+                  className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md flex items-center gap-2 transition-all hover:scale-102 cursor-pointer"
                 >
                   <span>Complete Learning (+50 XP) & Enter Practice</span>
                   <ArrowRight className="w-4 h-4" />

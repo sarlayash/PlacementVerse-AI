@@ -583,5 +583,181 @@ export const ALL_BADGES: Badge[] = [
     xpBonus: 1500,
     requirement: 'Score ≥60% in Anthropic Claude 3.7 Hybrid Reasoning & Mechanistic Systems (Tier-2 Assessment)',
     gradient: 'from-amber-700 via-rose-900 to-slate-950'
+  },
+
+  // ============================================================================
+  // TIER-3 (ELITE) DOMAIN MASTERY BADGES
+  // ============================================================================
+  {
+    id: 'dbms-tier3-master',
+    name: 'Distributed Database & Consensus Titan',
+    description: 'Mastered Spanner TrueTime, WAL crash recovery, 2PC distributed locking, and columnar LSM compaction in the DBMS Tier-3 Assessment',
+    category: 'Special',
+    icon: '🗄️',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in DBMS Tier-3 Elite Assessment',
+    gradient: 'from-blue-600 via-cyan-800 to-slate-950'
+  },
+  {
+    id: 'excel-tier3-master',
+    name: 'Excel Financial Modeling & Array Titan',
+    description: 'Mastered dynamic arrays, iterative circular modeling, Office Scripts, and Power Query M folding in the Excel Tier-3 Assessment',
+    category: 'Special',
+    icon: '📊',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in Excel Tier-3 Elite Assessment',
+    gradient: 'from-emerald-600 via-green-800 to-slate-950'
+  },
+  {
+    id: 'powerbi-tier3-master',
+    name: 'Enterprise Power BI DAX & Composite Titan',
+    description: 'Mastered context transition, expanded tables, Calculation Groups, and incremental refresh in the Power BI Tier-3 Assessment',
+    category: 'Special',
+    icon: '📈',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in Power BI Tier-3 Elite Assessment',
+    gradient: 'from-yellow-600 via-amber-800 to-slate-950'
+  },
+  {
+    id: 'ethical-hacking-tier3-master',
+    name: 'Advanced Threat Emulation & Exploit Titan',
+    description: 'Mastered Kerberoasting, AS-REP roasting, ROP gadget exploitation, and EDR unhooking in the Ethical Hacking Tier-3 Assessment',
+    category: 'Special',
+    icon: '🥷',
+    xpBonus: 1600,
+    requirement: 'Score ≥60% in Ethical Hacking Tier-3 Elite Assessment',
+    gradient: 'from-red-600 via-rose-900 to-slate-950'
+  },
+  {
+    id: 'cybersecurity-tier3-master',
+    name: 'Zero Trust & SOC Incident Commander Titan',
+    description: 'Mastered eBPF runtime detection, post-quantum cryptography, mTLS SPIFFE, and SAML token forging in the Cybersecurity Tier-3 Assessment',
+    category: 'Special',
+    icon: '🛡️',
+    xpBonus: 1600,
+    requirement: 'Score ≥60% in Cybersecurity Tier-3 Elite Assessment',
+    gradient: 'from-purple-600 via-indigo-900 to-slate-950'
+  },
+  {
+    id: 'c-tier3-master',
+    name: 'Kernel Systems & C Runtime Architecture Titan',
+    description: 'Mastered Lockless Ringbuffers, Cacheline Padding, Signal Invariants, and Memory Barrier Fences in C Tier-3 Assessment',
+    category: 'Special',
+    icon: '⚙️',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in C Programming Tier-3 Elite Assessment',
+    gradient: 'from-sky-600 via-blue-900 to-slate-950'
+  },
+  {
+    id: 'cpp-tier3-master',
+    name: 'Modern C++20/23 & Lock-Free Meta-Programming Titan',
+    description: 'Mastered C++20 Coroutines, C++23 deducing this, Concepts, and Hardware Cache Coherency in C++ Tier-3 Assessment',
+    category: 'Special',
+    icon: '⚡',
+    xpBonus: 1600,
+    requirement: 'Score ≥60% in C++ Tier-3 Elite Assessment',
+    gradient: 'from-indigo-600 via-purple-900 to-slate-950'
+  },
+  {
+    id: 'java-tier3-master',
+    name: 'JVM Internals & Virtual Thread Architecture Titan',
+    description: 'Mastered ZGC Colored Pointers, Project Loom Carrier Pinning, JMM happens-before, and JIT Deopt in Java Tier-3 Assessment',
+    category: 'Special',
+    icon: '☕',
+    xpBonus: 1600,
+    requirement: 'Score ≥60% in Java Tier-3 Elite Assessment',
+    gradient: 'from-amber-600 via-red-900 to-slate-950'
+  },
+  {
+    id: 'python-tier3-master',
+    name: 'High-Performance Python & Async Engine Titan',
+    description: 'Mastered Free-Threaded GIL Removal (PEP 703), Cython Buffer Protocols, and TaskGroups in Python Tier-3 Assessment',
+    category: 'Special',
+    icon: '🐍',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in Python Tier-3 Elite Assessment',
+    gradient: 'from-emerald-600 via-teal-900 to-slate-950'
+  },
+  {
+    id: 'dsa-tier3-master',
+    name: 'Algorithmic Synthesis & Hard Optimization Titan',
+    description: 'Mastered Segment Trees with Lazy Propagation, Dinic Maximum Flow, and Aho-Corasick Automata in DSA Tier-3 Assessment',
+    category: 'Special',
+    icon: '🏆',
+    xpBonus: 1800,
+    requirement: 'Score ≥60% in DSA Tier-3 Elite Assessment',
+    gradient: 'from-rose-600 via-purple-900 to-slate-950'
+  },
+  {
+    id: 'tally-tier3-master',
+    name: 'Corporate Accounting & Statutory Audit Titan',
+    description: 'Mastered MCA statutory Edit Log audit trails, multi-company consolidation, and IRP e-Invoicing in Tally Prime Tier-3 Assessment',
+    category: 'Special',
+    icon: '📚',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in Tally Prime Tier-3 Elite Assessment',
+    gradient: 'from-amber-600 via-orange-800 to-slate-950'
+  },
+  {
+    id: 'qa-tier3-master',
+    name: 'Enterprise Test Architect & Chaos Resiliency Titan',
+    description: 'Mastered Playwright sharding, mutation testing PITest, and chaos steady-state invariance in QA Tier-3 Assessment',
+    category: 'Special',
+    icon: '🧪',
+    xpBonus: 1500,
+    requirement: 'Score ≥60% in QA Tier-3 Elite Assessment',
+    gradient: 'from-teal-600 via-emerald-900 to-slate-950'
+  },
+  {
+    id: 'genai-tier3-master',
+    name: 'Frontier Generative AI Systems Titan',
+    description: 'Mastered Speculative Decoding rejection sampling, FlashAttention-3 TMA, and AWQ outlier protection in Gen AI Tier-3 Assessment',
+    category: 'Special',
+    icon: '✨',
+    xpBonus: 1800,
+    requirement: 'Score ≥60% in Gen AI Tier-3 Elite Assessment',
+    gradient: 'from-violet-600 via-purple-900 to-slate-950'
+  },
+  {
+    id: 'agentic-tier3-master',
+    name: 'Autonomous Agent Swarm & Graph Systems Titan',
+    description: 'Mastered LangGraph cyclical state graphs, Firecracker microVM sandboxing, and MCP protocol in Agentic AI Tier-3 Assessment',
+    category: 'Special',
+    icon: '🤖',
+    xpBonus: 1800,
+    requirement: 'Score ≥60% in Agentic AI Tier-3 Elite Assessment',
+    gradient: 'from-cyan-600 via-blue-900 to-slate-950'
+  },
+  {
+    id: 'claude-tier3-master',
+    name: 'Claude 3.7 Hybrid Reasoning & Mechanistic Titan',
+    description: 'Mastered Claude 3.7 hybrid continuous thinking budgets, Computer Use API, and Sparse Autoencoders in Claude Tier-3 Assessment',
+    category: 'Special',
+    icon: '🧠',
+    xpBonus: 1800,
+    requirement: 'Score ≥60% in Claude 3.7 Tier-3 Elite Assessment',
+    gradient: 'from-amber-600 via-rose-900 to-slate-950'
+  },
+
+  // Daily Practice Champions
+  {
+    id: 'daily-practice-champion-4',
+    name: 'Executive Communication & Verbal Ace',
+    description: 'Mastered executive BLUF emails, correlative grammar, and subjunctive directives in Daily Practice Mock 4',
+    category: 'Special',
+    icon: '🗣️',
+    xpBonus: 500,
+    requirement: 'Score ≥60% in Daily Practice Mock 4',
+    gradient: 'from-amber-500 via-orange-600 to-rose-950'
+  },
+  {
+    id: 'daily-practice-champion-5',
+    name: 'Behavioral Leadership & HR Crucible Champion',
+    description: 'Mastered blameless post-mortems, conflict resolution, and privacy ethics in Daily Practice Mock 5',
+    category: 'Special',
+    icon: '🤝',
+    xpBonus: 500,
+    requirement: 'Score ≥60% in Daily Practice Mock 5',
+    gradient: 'from-emerald-500 via-teal-600 to-slate-950'
   }
 ];

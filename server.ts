@@ -889,7 +889,7 @@ async function generateWithFallback(
     contents: any;
     config?: any;
   },
-  models = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite']
+  models = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite']
 ): Promise<string | null> {
   for (let i = 0; i < models.length; i++) {
     const model = models[i];
@@ -999,23 +999,39 @@ app.post('/api/evaluate/email', async (req, res) => {
     const { emailContent, promptScenario } = req.body;
     const ai = getGeminiClient();
 
-    if (ai && emailContent && emailContent.trim().length > 15) {
+    if (ai && emailContent && emailContent.trim().length > 10) {
       try {
         const text = await generateWithFallback(ai, {
-          contents: `Evaluate this professional email written for the scenario: "${promptScenario || 'Write a formal email to HR asking for interview status/feedback'}".
-Learner's Email:
+          contents: `You are an elite, no-nonsense Campus Placement Director and Senior HR Manager at a top tech MNC.
+Evaluate this student's email draft written for the real-world scenario: "${promptScenario || 'Formal email to HR asking for interview status/feedback'}".
+
+Student's Submitted Email:
 """${emailContent}"""
 
-Respond ONLY in valid JSON with this structure:
+CRITICAL INSTRUCTIONS FOR HONEST & REAL EVALUATION:
+1. BE REAL, UNVARNISHED, AND DIRECT. Do NOT flatter or inflate scores. In campus placements, poorly phrased emails get candidates blacklisted or silently ignored.
+2. If the email is excessively brief, lacks a formal subject line, uses casual text slang (e.g. "hey", "pls", "u", "thx"), omits salutations or sign-offs, or sounds demanding/entitled, penalize heavily (overallScore between 25-60) and call out the exact recruiter elimination risks.
+3. If the email is moderately structured but lacks specific dates, role IDs, or a proactive call-to-action, score it in the 60-75 range with concrete fixes.
+4. Only award 80-95 if it demonstrates exemplary corporate etiquette, impeccable grammar, respectful tone, and clear next steps.
+
+Respond ONLY in valid JSON matching this exact structure:
 {
   "grammarScore": number (0-100),
   "professionalismScore": number (0-100),
   "toneScore": number (0-100),
   "overallScore": number (0-100),
-  "feedback": "2-3 concise summary sentences",
-  "strengths": ["point 1", "point 2"],
-  "improvements": ["point 1", "point 2"],
-  "polishedVersion": "The fully rewritten and professional version of their email"
+  "verdict": "A sharp 1-sentence verdict (e.g., '🔴 Elimination Risk: Unprofessional & Lacks Subject' OR '🟡 Borderline: Courteous but Missing Critical Context' OR '🟢 Placement Ready: Executive-Grade Communication')",
+  "verdictTier": "critical" | "needs_work" | "ready",
+  "feedback": "2-3 candid sentences detailing how a real HR recruiter interprets this exact draft",
+  "redFlags": ["Exact recruiter red flag 1", "Exact recruiter red flag 2"],
+  "honestGuidance": [
+    "Step-by-step guidance point 1",
+    "Step-by-step guidance point 2",
+    "Step-by-step guidance point 3"
+  ],
+  "strengths": ["genuine strength 1", "genuine strength 2"],
+  "improvements": ["critical fix 1", "critical fix 2"],
+  "polishedVersion": "The fully rewritten, corporate-ready email with formal Subject, Salutation, Body, and Signature"
 }`,
           config: {
             responseMimeType: 'application/json',
@@ -1024,58 +1040,131 @@ Respond ONLY in valid JSON with this structure:
 
         if (text) {
           const parsed = JSON.parse(text);
-          return res.json(parsed);
+          if (parsed && typeof parsed.overallScore === 'number') {
+            return res.json(parsed);
+          }
         }
       } catch (err) {
-        console.warn('Email evaluation fallback used');
+        console.warn('Email evaluation Gemini call failed, utilizing rigorous dynamic fallback:', err);
       }
     }
 
-    // Heuristic assessment fallback
-    const wordCount = (emailContent || '').trim().split(/\s+/).filter(Boolean).length;
-    const hasSubject = /subject:/i.test(emailContent);
-    const hasSalutation = /(dear|hello|hi|respected)\s+[a-z]/i.test(emailContent);
-    const hasSignoff = /(regards|sincerely|best regards|thanks|thank you)/i.test(emailContent);
+    // Dynamic, rigorous, content-aware evaluation fallback
+    const raw = (emailContent || '').trim();
+    const words = raw.split(/\s+/).filter(Boolean);
+    const wordCount = words.length;
 
-    let professionalismScore = 65;
-    if (hasSubject) professionalismScore += 12;
-    if (hasSalutation) professionalismScore += 10;
-    if (hasSignoff) professionalismScore += 10;
-    professionalismScore = Math.min(95, professionalismScore);
+    const hasSubject = /subject\s*:/i.test(raw);
+    const hasSalutation = /(dear|respected|hello|hi|good\s+morning|good\s+afternoon)\s+[a-z]/i.test(raw);
+    const hasCasualSalutation = /^(hey|yo|hi\s+bro|what's\s+up|sup)\b/i.test(raw);
+    const hasSignoff = /(regards|sincerely|best\s+regards|warm\s+regards|thank\s+you|yours\s+faithfully|yours\s+sincerely)/i.test(raw);
+    const hasCasualSlang = /\b(u|ur|pls|plz|thx|thanks\s+a\s+lot|wanna|gonna|asap|lemme|btw)\b/i.test(raw);
+    const hasGratitude = /thank|grateful|appreciate|sincerely|kindly|look\s+forward/i.test(raw);
+    const hasContact = /@|phone|\+91|\d{10}|linkedin|github/i.test(raw);
 
-    const grammarScore = wordCount > 25 ? 88 : 70;
-    const toneScore = /please|kindly|grateful|appreciate/i.test(emailContent) ? 92 : 78;
-    const overallScore = Math.round((grammarScore + professionalismScore + toneScore) / 3);
+    // Realistic Scoring calculation
+    let professionalismScore = 50;
+    if (hasSubject) professionalismScore += 16;
+    if (hasSalutation) professionalismScore += 12;
+    if (hasSignoff) professionalismScore += 12;
+    if (hasContact) professionalismScore += 10;
+    if (hasCasualSalutation) professionalismScore -= 25;
+    if (hasCasualSlang) professionalismScore -= 30;
+    if (wordCount < 20) professionalismScore -= 20;
+    professionalismScore = Math.min(95, Math.max(15, professionalismScore));
+
+    let grammarScore = 75;
+    if (wordCount < 15) grammarScore = 40;
+    else if (wordCount < 30) grammarScore = 60;
+    else if (wordCount >= 50) grammarScore = 88;
+    if (hasCasualSlang) grammarScore -= 25;
+    grammarScore = Math.min(95, Math.max(20, grammarScore));
+
+    let toneScore = hasGratitude ? 85 : 55;
+    if (hasCasualSalutation || hasCasualSlang) toneScore -= 25;
+    if (!hasSignoff) toneScore -= 10;
+    toneScore = Math.min(95, Math.max(20, toneScore));
+
+    const overallScore = Math.round((professionalismScore * 0.45) + (grammarScore * 0.25) + (toneScore * 0.3));
+
+    // Determine honest verdict and red flags
+    let verdictTier: 'critical' | 'needs_work' | 'ready' = 'ready';
+    let verdict = '🟢 Placement Ready: Professional, respectful, and well-structured corporate email.';
+    const redFlags: string[] = [];
+    const honestGuidance: string[] = [];
+
+    if (overallScore < 60 || wordCount < 25 || hasCasualSlang || !hasSubject) {
+      verdictTier = 'critical';
+      verdict = '🔴 High Elimination Risk: Critical recruiter red flags detected that will cause your email to be ignored.';
+    } else if (overallScore < 80) {
+      verdictTier = 'needs_work';
+      verdict = '🟡 Needs Polish: Courteous baseline, but lacks executive polish and clear recruiter actionability.';
+    }
+
+    if (!hasSubject) {
+      redFlags.push('Missing Subject Line: Over 80% of HR recruiters immediately disregard emails lacking role/candidate identification.');
+      honestGuidance.push('Always add a structured subject line: "Subject: [Role Applied] - Interview Status Inquiry - [Your Name] - [College]".');
+    }
+    if (!hasSalutation) {
+      redFlags.push('Missing Formal Salutation: Jumping straight to the body text without addressing the recipient conveys disrespect in corporate communication.');
+      honestGuidance.push('Start with "Dear [Hiring Manager / Team Name]" or "Respected HR Team" to set an appropriate tone.');
+    }
+    if (hasCasualSlang) {
+      redFlags.push('Casual SMS/Slang Detected: Words like "u", "pls", or "wanna" are severe professionalism red flags in corporate placement drives.');
+      honestGuidance.push('Eliminate all shorthand abbreviations. Write out full words ("you", "please", "would like to").');
+    }
+    if (!hasSignoff) {
+      redFlags.push('No Professional Sign-off: Candidate contact details, portfolio links, and closing salutations are absent.');
+      honestGuidance.push('Close with "Warm regards," followed by your full name, degree branch, college, phone number, and LinkedIn/GitHub link.');
+    }
+    if (wordCount < 25) {
+      redFlags.push('Critically Brief: 1-2 sentence emails often sound blunt, demanding, or low-effort to hiring teams.');
+      honestGuidance.push('Elaborate with 3 distinct paragraphs: (1) Reiterate appreciation for the interview opportunity, (2) Inquire politely about next timeline steps, (3) Reaffirm strong enthusiasm and offer supplemental documents.');
+    }
+
+    if (honestGuidance.length === 0) {
+      honestGuidance.push('Ensure your message is sent during business hours (9:00 AM - 11:30 AM) to maximize open rates.');
+      honestGuidance.push('Attach your updated resume and portfolio link in the email signature for immediate recruiter review.');
+    }
+
+    const feedback = overallScore >= 80
+      ? 'Your email adheres to corporate standards. The tone is deferential yet proactive, signaling high workplace readiness.'
+      : overallScore >= 60
+      ? 'Your message communicates basic intent, but hiring managers receive 200+ emails daily and demand clear subject metadata, formal sign-offs, and polite timelines.'
+      : 'This draft poses high elimination risk. The tone, lack of structure, or absence of standard professional email norms would create an adverse impression with the recruiting team.';
 
     return res.json({
       grammarScore,
       professionalismScore,
       toneScore,
       overallScore,
-      feedback: wordCount > 20
-        ? 'Well-structured email with a courteous tone. Proper salutations and clear intent are present.'
-        : 'Good initial draft, but consider elaborating on specific project/role references and formal sign-offs.',
+      verdict,
+      verdictTier,
+      feedback,
+      redFlags: redFlags.length > 0 ? redFlags : ['Ensure message is reviewed for typos before sending'],
+      honestGuidance,
       strengths: [
-        hasSalutation ? 'Clear, polite greeting' : 'Concise message intent',
-        hasSignoff ? 'Professional sign-off included' : 'Direct request',
+        hasSalutation ? 'Clear, polite greeting' : 'Direct expression of candidate intent',
+        hasGratitude ? 'Polite and appreciative vocabulary' : 'Concise messaging structure',
       ],
       improvements: [
-        !hasSubject ? 'Include a punchy subject line (e.g., Application Status - [Role] - [Your Name])' : 'Highlight relevant qualifications or timeline',
-        'Use specific dates and clear call-to-action for next steps',
+        !hasSubject ? 'Add explicit subject line with Role and Candidate Name' : 'Include specific interview date/panel references',
+        'State availability for supplementary technical assessments or code repositories',
       ],
-      polishedVersion: `Subject: Follow-up regarding Interview Status - [Your Position]
+      polishedVersion: `Subject: Follow-up regarding Technical Interview Status - Software Engineer Role
 
-Dear Hiring Manager,
+Dear Hiring Team,
 
-I hope this email finds you well. I am writing to kindly inquire about the status of my recent interview for the Software Engineer position.
+I hope this email finds you well. I would like to sincerely thank you and the engineering panel for the insightful interview earlier this week for the Software Engineer position.
 
-I remain very enthusiastic about the opportunity to contribute to the team and would appreciate any updates on the next steps in the evaluation process.
+I am writing to respectfully inquire about the status of my application and the expected timeline for the next steps in the recruitment cycle. I remain extremely excited about the prospect of contributing to your engineering organization.
 
-Thank you for your time and consideration.
+Please let me know if there are any additional documents, code repositories, or references you require from my side.
 
 Warm regards,
-[Your Name]
-[Phone Number] | [LinkedIn Profile]`,
+Candidate Name
+B.Tech Computer Science & Engineering
+Phone: +91 98765 43210 | LinkedIn: in/candidate-profile | GitHub: github.com/candidate-dev`,
     });
   } catch (error) {
     console.error('Email evaluation error:', error);
@@ -1092,10 +1181,22 @@ app.post('/api/evaluate/speech', async (req, res) => {
     if (ai && transcript && transcript.trim().length > 10) {
       try {
         const text = await generateWithFallback(ai, {
-          contents: `Evaluate this Group Discussion (GD) or Public Speaking transcript for topic: "${topic || 'AI Impact on Jobs in India'}".
-Transcript:
+          contents: `You are a strict, experienced Group Discussion (GD) Moderator and Corporate Placement Evaluator.
+Evaluate this student's GD / Public Speaking transcript for topic: "${topic || 'AI Impact on Jobs in India'}".
+Duration: ${durationSeconds || 45} seconds.
+
+Student's Spoken Transcript:
 """${transcript}"""
-Duration: ${durationSeconds || 30} seconds.
+
+CRITICAL INSTRUCTIONS FOR HONEST & REAL EVALUATION:
+1. BE UNVARNISHED, HONEST, AND REAL. In campus GDs, 70% of students are screened out in the first 10 minutes.
+2. If the candidate gives a shallow, 1-2 sentence generic comment without supporting data, company examples, or clear structure, penalize heavily (overallScore 30-58) and highlight why they would be eliminated in Round 1.
+3. Check for:
+   - Analytical substance vs superficial buzzwords
+   - Transitional connectives ("Furthermore", "In contrast", "Historical precedent shows")
+   - Collaborative GD rhetoric ("Building on what my peer mentioned...")
+   - Concrete industry or statistical references
+4. Provide a powerful, high-converting hook opening that commands panel respect.
 
 Respond ONLY in valid JSON:
 {
@@ -1103,10 +1204,18 @@ Respond ONLY in valid JSON:
   "grammarScore": number (0-100),
   "communicationScore": number (0-100),
   "overallScore": number (0-100),
-  "eyeContactTips": "Practical advice for camera/panel eye contact during this speech",
-  "feedback": "2-3 sentences assessing articulation and logical flow",
-  "keyTakeaways": ["point 1", "point 2"],
-  "improvedOpening": "Strong hook sentence to command attention in a GD"
+  "verdict": "Direct 1-sentence assessment of GD survival probability",
+  "verdictTier": "critical" | "needs_work" | "ready",
+  "eyeContactTips": "Precise posture, webcam alignment, and gesture tips for virtual/in-person GD",
+  "feedback": "2-3 candid sentences detailing how the moderation panel perceived their contribution",
+  "redFlags": ["Disqualification risk 1", "Disqualification risk 2"],
+  "honestGuidance": [
+    "Concrete action step 1 to take control of GD",
+    "Concrete action step 2 to introduce structured logic",
+    "Concrete action step 3 to engage peers without aggression"
+  ],
+  "keyTakeaways": ["takeaway 1", "takeaway 2"],
+  "improvedOpening": "High-impact hook sentence that immediately commands the room"
 }`,
           config: {
             responseMimeType: 'application/json',
@@ -1115,31 +1224,98 @@ Respond ONLY in valid JSON:
 
         if (text) {
           const parsed = JSON.parse(text);
-          return res.json(parsed);
+          if (parsed && typeof parsed.overallScore === 'number') {
+            return res.json(parsed);
+          }
         }
       } catch (err) {
-        console.warn('Speech evaluation fallback used');
+        console.warn('Speech evaluation Gemini call failed, utilizing rigorous dynamic fallback:', err);
       }
     }
 
-    const length = (transcript || '').length;
-    const confidenceScore = length > 80 ? 86 : 74;
-    const grammarScore = 84;
-    const communicationScore = length > 120 ? 90 : 76;
-    const overallScore = Math.round((confidenceScore + grammarScore + communicationScore) / 3);
+    // Dynamic, content-aware speech evaluation fallback
+    const raw = (transcript || '').trim();
+    const words = raw.split(/\s+/).filter(Boolean);
+    const wordCount = words.length;
+
+    const hasTransitions = /furthermore|moreover|consequently|in\s+contrast|however|on\s+the\s+other\s+hand|historical\s+precedent|specifically|to\s+summarize|in\s+addition|nevertheless/i.test(raw);
+    const hasData = /\d+%|\b\d{2,}\b|statistics|research|survey|gartner|mckinsey|nasscom|market|revenue|precedent/i.test(raw);
+    const hasPeerRef = /as\s+my\s+peer\s+mentioned|building\s+upon|i\s+agree\s+with|respectfully\s+differ|fellow\s+peers|distinguished\s+panel/i.test(raw);
+    const hasWeakFillers = /\b(like|you\s+know|um|uh|stuff|basically|actually|kinda|sorta)\b/i.test(raw);
+
+    let confidenceScore = 60;
+    if (wordCount >= 60) confidenceScore += 22;
+    else if (wordCount >= 30) confidenceScore += 12;
+    else confidenceScore -= 18;
+
+    if (hasTransitions) confidenceScore += 8;
+    if (hasWeakFillers) confidenceScore -= 14;
+    confidenceScore = Math.min(95, Math.max(25, confidenceScore));
+
+    let communicationScore = 55;
+    if (hasTransitions) communicationScore += 16;
+    if (hasData) communicationScore += 14;
+    if (hasPeerRef) communicationScore += 10;
+    if (wordCount < 25) communicationScore -= 20;
+    communicationScore = Math.min(95, Math.max(25, communicationScore));
+
+    let grammarScore = wordCount > 30 ? 84 : 65;
+    if (hasWeakFillers) grammarScore -= 12;
+    grammarScore = Math.min(95, Math.max(30, grammarScore));
+
+    const overallScore = Math.round((confidenceScore * 0.4) + (communicationScore * 0.35) + (grammarScore * 0.25));
+
+    let verdictTier: 'critical' | 'needs_work' | 'ready' = 'ready';
+    let verdict = '🟢 Placement Ready: Articulate argument with commanding poise and structured delivery.';
+    const redFlags: string[] = [];
+    const honestGuidance: string[] = [];
+
+    if (overallScore < 60 || wordCount < 30) {
+      verdictTier = 'critical';
+      verdict = '🔴 Elimination Risk: Speaking too briefly or superficially will lead to immediate GD screening rejection.';
+    } else if (overallScore < 80) {
+      verdictTier = 'needs_work';
+      verdict = '🟡 Average Contributor: Understandable point, but lacks quantified evidence to secure top-rank shortlist.';
+    }
+
+    if (wordCount < 30) {
+      redFlags.push('Speech Under 25 Words: GD evaluators look for minimum 45-60 seconds of sustained argumentation.');
+      honestGuidance.push('Use the PREP Framework: Point (Stance) -> Reason (Why) -> Example (Case study or stat) -> Point (Conclusion).');
+    }
+    if (!hasData) {
+      redFlags.push('Lacks Empirical Evidence: Pure opinions without statistics, market reports, or company examples sound amateurish.');
+      honestGuidance.push('Anchor your point with a credible metric (e.g., "According to recent industry reports..." or "Historical precedent from the industrial revolution shows...").');
+    }
+    if (!hasTransitions) {
+      redFlags.push('Choppy Flow: Speaking without signposting words ("Furthermore", "In contrast") makes arguments difficult to follow.');
+      honestGuidance.push('Incorporate transition phrases to help panelists follow your chain of reasoning effortlessly.');
+    }
+    if (!hasPeerRef) {
+      honestGuidance.push('Demonstrate leadership by acknowledging peers: "I agree with the point made about automation, and I would like to add an economic perspective...".');
+    }
+
+    const feedback = overallScore >= 80
+      ? 'Compelling contribution. You formulated a structured perspective, maintained analytical depth, and demonstrated high GD maturity.'
+      : overallScore >= 60
+      ? 'Decent initial point, but you blended into the crowd. In campus GDs of 10-12 students, only 2-3 get shortlisted. You need hard metrics and a commanding hook.'
+      : 'This entry would result in disqualification. A few generic lines without substantiation or structured reasoning cannot survive Tier-1 corporate GD rounds.';
 
     return res.json({
       confidenceScore,
       grammarScore,
       communicationScore,
       overallScore,
-      eyeContactTips: 'Keep your gaze aligned directly with the webcam lens (not the screen corner). Nod slightly while pausing to show composure and control.',
-      feedback: 'Engaging delivery with clear points made. You framed your stance well and maintained a steady pacing.',
+      verdict,
+      verdictTier,
+      eyeContactTips: 'Maintain 80% direct eye-level focus on your webcam lens (not the participant gallery). Use slight hand gestures inside the camera frame to emphasize contrast.',
+      feedback,
+      redFlags: redFlags.length > 0 ? redFlags : ['Ensure pace remains steady under panel interruptions'],
+      honestGuidance,
       keyTakeaways: [
-        'Good vocal modulation and assertive vocabulary',
-        'Could include 1 statistical metric or real-world company case to add immediate credibility',
+        hasTransitions ? 'Good logical signposting' : 'Needs transitional phrases for cohesive flow',
+        hasData ? 'Solid real-world metric citation' : 'Add 1 concrete statistical data point or industry example',
       ],
-      improvedOpening: 'Distinguished panel and peers, while technological transitions always provoke apprehension, historical precedent demonstrates that technology creates higher-order employment opportunities...',
+      improvedOpening: `Distinguished panel and peers, while rapid technological disruptions always trigger understandable anxiety, historical precedent demonstrates that technology shifts human effort from routine execution to higher-order architecture. In the Indian technology ecosystem, developers who leverage AI as a force multiplier will outpace those who resist it...`,
     });
   } catch (error) {
     console.error('Speech eval error:', error);
@@ -1156,9 +1332,21 @@ app.post('/api/evaluate/resume', async (req, res) => {
     if (ai && resumeText && resumeText.trim().length > 30) {
       try {
         const text = await generateWithFallback(ai, {
-          contents: `Analyze this resume for ATS (Applicant Tracking System) compatibility and campus placement readiness for role: "${targetRole || 'Software Development Engineer / Analyst'}".
-Resume:
+          contents: `You are an ATS Algorithms Architect and Senior Technical Recruiter at a Fortune 500 tech enterprise.
+Perform a rigorous, honest, and unvarnished ATS audit of this student's resume for target role: "${targetRole || 'Software Development Engineer / SDE-1'}".
+
+Student's Resume Text:
 """${resumeText}"""
+
+CRITICAL INSTRUCTIONS FOR HONEST & REAL ATS AUDIT:
+1. BE HARSH, REAL, AND OBJECTIVE. Over 75% of campus placement resumes are filtered out in the first 6 seconds or fail ATS parsing.
+2. If the resume is a short skeleton, lacks quantifiable impact (no %, numbers, latency, user counts), omits critical skills for ${targetRole}, or uses passive verbs ("Responsible for", "Helped with"), score it realistically low (atsScore 35-65) and call out exact failure reasons.
+3. Check for:
+   - Keyword density for ${targetRole}
+   - Google X-Y-Z formula: Accomplished [X] as measured by [Y] by doing [Z]
+   - Section structure: Education, Technical Skills, Experience/Projects, Achievements
+   - Presence of live GitHub / LinkedIn / Portfolio URLs
+4. Provide at least two direct Google X-Y-Z bullet rewrites targeting actual lines in their text.
 
 Respond ONLY in valid JSON:
 {
@@ -1166,13 +1354,21 @@ Respond ONLY in valid JSON:
   "formattingScore": number (0-100),
   "impactScore": number (0-100),
   "keywordMatch": number (0-100),
-  "summary": "2 sentences summarizing candidate strengths and biggest gaps",
-  "missingKeywords": ["keyword1", "keyword2", "keyword3"],
+  "verdict": "A hard-hitting 1-sentence verdict on recruiter shortlist odds",
+  "verdictTier": "critical" | "needs_work" | "ready",
+  "summary": "2-3 honest sentences summarizing why an ATS or human screener would or would not advance this candidate",
+  "redFlags": ["Exact ATS drop risk 1", "Exact ATS drop risk 2"],
+  "honestGuidance": [
+    "Actionable change 1 needed immediately",
+    "Actionable change 2 needed immediately",
+    "Actionable change 3 needed immediately"
+  ],
+  "missingKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
   "actionableSuggestions": ["suggestion 1", "suggestion 2", "suggestion 3"],
   "bulletRewrites": [
     {
-      "original": "Worked on web app using React",
-      "improved": "Architected responsive full-stack platform using React & Node.js, reducing page load latency by 34% for 10K+ monthly active users"
+      "original": "Actual bullet from their resume that was weak or passive",
+      "improved": "High-impact Google X-Y-Z rewrite with quantified metrics and active verbs"
     }
   ]
 }`,
@@ -1183,33 +1379,127 @@ Respond ONLY in valid JSON:
 
         if (text) {
           const parsed = JSON.parse(text);
-          return res.json(parsed);
+          if (parsed && typeof parsed.atsScore === 'number') {
+            return res.json(parsed);
+          }
         }
       } catch (err) {
-        console.warn('Resume evaluation fallback used');
+        console.warn('Resume evaluation Gemini call failed, utilizing rigorous dynamic fallback:', err);
       }
     }
 
+    // Dynamic content-aware ATS fallback engine
+    const raw = (resumeText || '').trim();
+    const rawLower = raw.toLowerCase();
+
+    // Specific role keyword matching
+    const ROLE_DICT: Record<string, string[]> = {
+      'Software Engineer / SDE-1': [
+        'Data Structures', 'Algorithms', 'System Design', 'RESTful APIs', 'Git',
+        'Docker', 'PostgreSQL', 'Unit Testing', 'CI/CD', 'Microservices', 'Redis',
+        'Latency Reduction', 'Concurrency', 'Linux'
+      ],
+      'Data Analyst / Business Intelligence': [
+        'SQL', 'Python', 'Pandas', 'Tableau', 'Power BI', 'Data Cleaning',
+        'Statistical Modeling', 'A/B Testing', 'ETL Pipelines', 'Excel Pivot Tables',
+        'Cohort Analysis', 'EDA'
+      ],
+      'Full Stack Developer (MERN / React / Node)': [
+        'React.js', 'TypeScript', 'Node.js', 'Express.js', 'Tailwind CSS',
+        'MongoDB', 'PostgreSQL', 'State Management', 'REST APIs', 'Next.js',
+        'Docker', 'Authentication', 'Vite'
+      ],
+      'Technology Consultant / Analyst (Deloitte/Accenture)': [
+        'Requirement Gathering', 'Stakeholder Management', 'Agile', 'Process Automation',
+        'Cost-Benefit Analysis', 'Cloud Infrastructure', 'Enterprise Architecture',
+        'Risk Mitigation', 'KPI Tracking'
+      ]
+    };
+
+    const targetKws = ROLE_DICT[targetRole] || ROLE_DICT['Software Engineer / SDE-1'];
+    const matchedKws = targetKws.filter(kw => rawLower.includes(kw.toLowerCase()));
+    const missingKeywords = targetKws.filter(kw => !rawLower.includes(kw.toLowerCase())).slice(0, 5);
+    const kwRatio = matchedKws.length / targetKws.length;
+    const keywordMatch = Math.min(95, Math.max(25, Math.round(30 + kwRatio * 65)));
+
+    // Formatting check
+    const hasEdu = /education|college|b\.tech|btech|degree|cgpa|gpa/i.test(raw);
+    const hasProjects = /project|experience|work|intern/i.test(raw);
+    const hasSkills = /skill|technolog|languages|tools|database/i.test(raw);
+    const hasLinks = /github|linkedin|portfolio|\.com|@/i.test(raw);
+
+    let formattingScore = 40;
+    if (hasEdu) formattingScore += 15;
+    if (hasProjects) formattingScore += 15;
+    if (hasSkills) formattingScore += 15;
+    if (hasLinks) formattingScore += 15;
+    formattingScore = Math.min(95, formattingScore);
+
+    // Impact / Quantification check (Numbers, %, multipliers, scale)
+    const numbers = (raw.match(/\d+(\.\d+)?%|\b\d{2,}\b|\b\d+\s*(users|clients|ms|seconds|x|k)\b/gi) || []).length;
+    const impactScore = Math.min(95, Math.max(25, Math.round(35 + Math.min(numbers, 8) * 7.5)));
+
+    const atsScore = Math.round((keywordMatch * 0.45) + (formattingScore * 0.25) + (impactScore * 0.3));
+
+    let verdictTier: 'critical' | 'needs_work' | 'ready' = 'ready';
+    let verdict = '🟢 Placement Ready: High ATS compatibility, rich keyword alignment, and quantifiable project impact.';
+    const redFlags: string[] = [];
+    const honestGuidance: string[] = [];
+
+    if (atsScore < 60 || impactScore < 50 || raw.length < 200) {
+      verdictTier = 'critical';
+      verdict = '🔴 High ATS Drop Risk: This resume will be auto-rejected by enterprise ATS filters before a human screener sees it.';
+    } else if (atsScore < 78) {
+      verdictTier = 'needs_work';
+      verdict = '🟡 Moderate Contender: Good foundations, but passive phrasing and missing metrics place you outside the top 10% shortlist.';
+    }
+
+    if (numbers < 2) {
+      redFlags.push('Zero or Insufficient Quantified Metrics: Bullet points describe responsibilities rather than measurable business/engineering achievements.');
+      honestGuidance.push('Rewrite every project bullet using Google X-Y-Z: "Accomplished [X] as measured by [Y] by doing [Z]". Include latency drops, user numbers, or database record sizes.');
+    }
+    if (missingKeywords.length >= 3) {
+      redFlags.push(`Critical Keyword Deficit: Missing foundational ${targetRole} search tokens (${missingKeywords.slice(0, 3).join(', ')}).`);
+      honestGuidance.push(`Integrate missing keywords naturally into project architecture descriptions: ${missingKeywords.join(', ')}.`);
+    }
+    if (!hasLinks) {
+      redFlags.push('Missing Proof of Work Links: Tech recruiters immediately look for live GitHub repos and verified LinkedIn profiles.');
+      honestGuidance.push('Place clean, clickable GitHub and LinkedIn links in your top header contact section.');
+    }
+
+    // Extract dynamic lines for rewrites
+    const lines = raw.split('\n').map(l => l.trim().replace(/^[-*•\d.]+\s*/, '')).filter(l => l.length > 20 && !l.toUpperCase().includes('SKILLS'));
+    const bullet1 = lines[0] || 'Worked on web application using React and Node.js';
+    const bullet2 = lines[1] || 'Created machine learning model for data classification';
+
     return res.json({
-      atsScore: 88,
-      formattingScore: 92,
-      impactScore: 82,
-      keywordMatch: 85,
-      summary: 'Solid foundational technical profile with strong project listings. Adding more quantified business metrics will immediately push you to the top 5% applicant pool.',
-      missingKeywords: ['CI/CD Pipeline', 'RESTful APIs', 'Unit Testing / Jest', 'Agile / Scrum', 'System Design'],
+      atsScore,
+      formattingScore,
+      impactScore,
+      keywordMatch,
+      verdict,
+      verdictTier,
+      summary: atsScore >= 80
+        ? `Strong candidate profile with high keyword density for ${targetRole}. Project descriptions demonstrate technical depth.`
+        : atsScore >= 60
+        ? `Moderate technical profile. You have relevant coursework, but generic bullet phrasing and missing metrics reduce your shortlist rate by 40%.`
+        : `High rejection probability. Sparse descriptions, lack of quantified outcomes, and missing core competencies will cause early ATS filtering.`,
+      redFlags: redFlags.length > 0 ? redFlags : ['Ensure font styling uses standard ATS-safe fonts (Arial, Calibri, Helvetica)'],
+      honestGuidance: honestGuidance.length > 0 ? honestGuidance : ['Group skills into clear tiers: Languages, Frameworks, Cloud & Databases, Core Fundamentals'],
+      missingKeywords,
       actionableSuggestions: [
-        'Replace passive verbs ("Responsible for", "Helped with") with strong action verbs ("Engineered", "Spearheaded", "Optimized")',
-        'Quantify achievements: Mention percentages, user counts, latency reductions, or revenue impacts',
-        'Keep technical skills categorized clearly: Languages, Frameworks, Cloud & Tools, Core Competencies',
+        'Replace passive verbs ("Responsible for", "Helped with") with strong action verbs ("Architected", "Engineered", "Optimized")',
+        'Ensure single-column layout without tables or multi-column text frames to prevent ATS line parser corruption',
+        'Quantify outcomes: specify throughput, request handling, latency improvement, or user base',
       ],
       bulletRewrites: [
         {
-          original: 'Worked on front end website for college tech fest',
-          improved: 'Engineered high-performance registration portal using React & Tailwind CSS, handling 3,500+ student registrations with zero downtime',
+          original: bullet1,
+          improved: `Architected responsive full-stack platform using React & Node.js, reducing API response latency by 34% across 5,000+ monthly campus users.`,
         },
         {
-          original: 'Created machine learning model for sentiment analysis',
-          improved: 'Trained and deployed RoBERTa-based NLP classifier achieving 91.4% accuracy, processing 50K+ product reviews in batch inference',
+          original: bullet2,
+          improved: `Engineered end-to-end data pipeline in Python & PostgreSQL, processing 50K+ records with 99.2% accuracy and zero database concurrency bottlenecks.`,
         },
       ],
     });
@@ -1228,10 +1518,19 @@ app.post('/api/evaluate/linkedin', async (req, res) => {
     if (ai && (headline || about)) {
       try {
         const text = await generateWithFallback(ai, {
-          contents: `Optimize this LinkedIn profile for an Indian college student aiming for top placements in ${targetField || 'Tech & Product'}.
-Headline: ${headline || 'Student at XYZ College'}
-About: ${about || ''}
-Experience / Projects: ${experience || ''}
+          contents: `You are a Senior Tech Recruiter and LinkedIn Personal Branding Strategist.
+Perform a REAL, HONEST, and UNVARNISHED evaluation of this college student's LinkedIn profile for target field: "${targetField || 'Software Engineering & AI'}".
+
+Current Profile:
+Headline: "${headline || 'Student at XYZ College'}"
+About: "${about || ''}"
+Experience/Projects: "${experience || ''}"
+
+CRITICAL INSTRUCTIONS FOR HONEST & REAL EVALUATION:
+1. BE CANDID AND HONEST. Recruiters spend under 5 seconds searching on LinkedIn Recruiter.
+2. If the headline is generic (e.g. "Student at...", "Aspiring software engineer", "Looking for opportunities"), score headline low (30-55) and explain why search algorithms never surface it.
+3. If the About section is a generic paragraph with no hook, no metrics, no tech stack, and no call to action, score it realistically low with honest red flags.
+4. Provide a high-converting, keyword-dense headline (under 120 chars) and a 3-paragraph story-driven About section ready to copy-paste.
 
 Respond ONLY in valid JSON:
 {
@@ -1240,10 +1539,18 @@ Respond ONLY in valid JSON:
   "keywordsScore": number (0-100),
   "visibilityScore": number (0-100),
   "overallScore": number (0-100),
-  "feedback": "Concise 2 sentence assessment of recruiter appeal",
-  "optimizedHeadline": "Optimized high-converting headline under 120 chars",
+  "verdict": "Direct 1-sentence assessment of recruiter reach",
+  "verdictTier": "critical" | "needs_work" | "ready",
+  "feedback": "2-3 candid sentences detailing why recruiters are or are not reaching out",
+  "redFlags": ["Recruiter search visibility red flag 1", "Red flag 2"],
+  "honestGuidance": [
+    "Actionable step 1 to rank higher in recruiter search",
+    "Actionable step 2 for narrative engagement",
+    "Actionable step 3 for networking conversion"
+  ],
+  "optimizedHeadline": "Keyword-rich, high-converting headline under 120 chars",
   "optimizedAbout": "Story-driven, keyword-rich 3-paragraph About section ready to copy-paste",
-  "keyMissingTerms": ["term1", "term2", "term3"]
+  "keyMissingTerms": ["term1", "term2", "term3", "term4", "term5"]
 }`,
           config: {
             responseMimeType: 'application/json',
@@ -1252,27 +1559,99 @@ Respond ONLY in valid JSON:
 
         if (text) {
           const parsed = JSON.parse(text);
-          return res.json(parsed);
+          if (parsed && typeof parsed.overallScore === 'number') {
+            return res.json(parsed);
+          }
         }
       } catch (err) {
-        console.warn('LinkedIn evaluation fallback used');
+        console.warn('LinkedIn evaluation Gemini call failed, utilizing rigorous dynamic fallback:', err);
       }
     }
 
+    // Dynamic, content-aware LinkedIn evaluation fallback
+    const hl = (headline || '').trim();
+    const ab = (about || '').trim();
+
+    const isGenericStudentHeadline = /^student\b|^aspiring\b|seeking\s+opportunities|looking\s+for\s+job/i.test(hl);
+    const hasSeparators = /\||•|—|-/.test(hl);
+    const hasTechInHeadline = /react|node|python|java|c\+\+|aws|cloud|ai|ml|full-stack|backend|frontend|dev/i.test(hl);
+    const headlineWords = hl.split(/\s+/).filter(Boolean).length;
+
+    let headlineScore = 60;
+    if (hasTechInHeadline) headlineScore += 20;
+    if (hasSeparators) headlineScore += 10;
+    if (isGenericStudentHeadline) headlineScore -= 30;
+    if (headlineWords < 4) headlineScore -= 20;
+    headlineScore = Math.min(95, Math.max(20, headlineScore));
+
+    const aboutWords = ab.split(/\s+/).filter(Boolean).length;
+    let aboutScore = 50;
+    if (aboutWords >= 80) aboutScore += 30;
+    else if (aboutWords >= 40) aboutScore += 15;
+    else aboutScore -= 20;
+
+    const hasAboutTech = /build|architect|scalable|database|algorithm|project|github/i.test(ab);
+    if (hasAboutTech) aboutScore += 10;
+    aboutScore = Math.min(95, Math.max(25, aboutScore));
+
+    const keywordsScore = (hasTechInHeadline && hasAboutTech) ? 88 : 55;
+    const visibilityScore = Math.round((headlineScore * 0.6) + (keywordsScore * 0.4));
+    const overallScore = Math.round((headlineScore + aboutScore + keywordsScore + visibilityScore) / 4);
+
+    let verdictTier: 'critical' | 'needs_work' | 'ready' = 'ready';
+    let verdict = '🟢 High Recruiter Appeal: Search-optimized headline and engaging technical narrative.';
+    const redFlags: string[] = [];
+    const honestGuidance: string[] = [];
+
+    if (overallScore < 60 || isGenericStudentHeadline) {
+      verdictTier = 'critical';
+      verdict = '🔴 Near-Zero Recruiter Visibility: Search algorithms rarely index generic student titles.';
+    } else if (overallScore < 80) {
+      verdictTier = 'needs_work';
+      verdict = '🟡 Moderate Visibility: Visible in broad queries, but missing differentiation to generate inbound recruiter messages.';
+    }
+
+    if (isGenericStudentHeadline) {
+      redFlags.push('Generic Title ("Student at XYZ"): Recruiters never search for "student". They search for skill tokens like "React Developer", "Java Engineer", or "Data Analyst".');
+      honestGuidance.push('Replace "Student" with your technical identity: "Software Engineer | React • Node.js • TypeScript | B.Tech CSE \'26".');
+    }
+    if (aboutWords < 40) {
+      redFlags.push('Sparse About Section: A 2-line summary fails to convey your coding depth, hackathon achievements, or placement aspirations.');
+      honestGuidance.push('Structure your About section into 3 acts: (1) Your engineering passion and hook, (2) What you build and key metrics, (3) Current placement aspirations and contact invite.');
+    }
+    if (!hasSeparators) {
+      honestGuidance.push('Use visual bullet separators (• or |) in your headline to make multi-stack skills immediately scannable on mobile screens.');
+    }
+
     return res.json({
-      headlineScore: 84,
-      aboutScore: 78,
-      keywordsScore: 85,
-      visibilityScore: 82,
-      overallScore: 82,
-      feedback: 'Good baseline profile. Replacing generic student titles with your technical specializations and tangible achievements will increase recruiter search appearances by 3x.',
-      optimizedHeadline: 'Software Engineer | Full-Stack & GenAI Developer | 3x Hackathon Winner | Ex-Intern @ TechCorp | B.Tech CSE \'25',
-      optimizedAbout: `I am a Computer Science engineer passionate about building scalable web applications and solving algorithmic challenges. With 500+ problems solved across LeetCode and CodeChef, I thrive on optimizing time-space complexities and writing clean, maintainable code.
+      headlineScore,
+      aboutScore,
+      keywordsScore,
+      visibilityScore,
+      overallScore,
+      verdict,
+      verdictTier,
+      feedback: overallScore >= 80
+        ? 'Well-aligned profile with high keyword density. Search algorithms will rank this favorably in campus recruiter candidate pipelines.'
+        : overallScore >= 60
+        ? 'Average baseline. Your profile is readable, but without specific project achievements and targeted skills in the headline, recruiters pass over it.'
+        : 'Critical visibility deficiency. The current headline and about section fail to signal technical capability or role relevance to automated recruiter search filters.',
+      redFlags: redFlags.length > 0 ? redFlags : ['Ensure profile picture is professional with high contrast neutral background'],
+      honestGuidance: honestGuidance.length > 0 ? honestGuidance : ['Pin your top 2 GitHub repositories and live demo links to the Featured section'],
+      optimizedHeadline: `Software Engineer | Full-Stack & Scalable Systems | React • TypeScript • Node.js • PostgreSQL | 400+ LeetCode`,
+      optimizedAbout: `👋 Hello! I am a Computer Science engineer dedicated to architecting resilient, user-centric software applications and solving complex algorithmic challenges.
 
-Currently, I specialize in React, Node.js, TypeScript, and Generative AI integrations. Recently built high-impact projects including an AI-powered placement prep platform and real-time collaborative workspace.
+🚀 WHAT I BUILD:
+• Full-Stack Systems: Engineered responsive web applications using React.js, TypeScript, Node.js, and Express with secure RESTful APIs.
+• Scalable Architecture: Designing clean relational schemas in PostgreSQL, utilizing Redis caching, and optimizing SQL queries for sub-100ms response times.
+• Problem Solving: Solved 400+ algorithmic data structure problems on LeetCode, mastering dynamic programming, graphs, and system design fundamentals.
 
-Looking to connect with tech leaders, hiring managers, and fellow engineers for full-time Software Development roles!`,
-      keyMissingTerms: ['Scalability', 'Full-Stack Development', 'Data Structures & Algorithms', 'Cloud / AWS', 'Problem Solving'],
+🎯 CAMPUS PLACEMENT ASPIRATIONS:
+Currently preparing for 2026 campus placement recruitment drives. Eager to contribute to high-velocity engineering teams building scalable microservices and product innovations.
+
+Let's connect! Open to technical discussions, open-source collaborations, and engineering opportunities.
+✉️ Email: candidate@placementverse.edu | GitHub: github.com/candidate`,
+      keyMissingTerms: ['Distributed Systems', 'RESTful APIs', 'PostgreSQL / SQL', 'Cloud Deployment (Docker/AWS)', 'Data Structures & Algorithms'],
     });
   } catch (error) {
     console.error('LinkedIn optimization error:', error);

@@ -1049,17 +1049,17 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
           </div>
           <h3 className="text-base font-black text-slate-900 font-display mt-0.5">
             {selectedCategory === 'AI & EMERGING TECH'
-              ? '✨ Category: AI & EMERGING TECH (3 Mocks: Generative AI, Agentic AI, Claude & Anthropic LLMs • 10 MCQs Each)'
+              ? '✨ Category: AI & EMERGING TECH (Generative AI, Agentic AI, Claude & Anthropic LLMs • Tier-1, Tier-2 & Tier-3 Elite)'
               : selectedCategory === 'ENTERPRISE DOMAINS'
-              ? '📊 Category: ENTERPRISE DOMAINS & SECURITY (8 Mocks: Tally Prime, Software Testing & QA, DBMS, Excel, Power BI, Ethical Hacking, Cyber Security & Sprint • 10 MCQs Each)'
+              ? '📊 Category: ENTERPRISE DOMAINS & SECURITY (Tally Prime, Software Testing QA, DBMS, Excel, Power BI, Ethical Hacking & Cyber Security)'
               : selectedCategory === 'TECHNICAL CORE'
-              ? '💻 Category: TECHNICAL CORE (5 Mocks: C, C++, Java, Python, DSA • 10 MCQs Each)'
+              ? '💻 Category: TECHNICAL CORE (C, C++, Java, Python, DSA • Tier-1, Tier-2 & Tier-3 Elite)'
               : selectedCategory === '30-MIN RAPID SPRINT'
-              ? '⚡ Category: 30-MIN RAPID SPRINT (2 High-Yield Mock Exams • 25 MCQs • 30 Mins Each)'
+              ? '⚡ Category: 30-MIN RAPID SPRINT (High-Yield Mock Exams • 25 MCQs • 30 Mins Each)'
               : selectedCategory === 'DAILY PRACTICE' 
-              ? '⚡ Category: DAILY PRACTICE (3 Mock Exams • 10 MCQs • 20 Mins Each)' 
+              ? '⚡ Category: DAILY PRACTICE (Aptitude, Logical, Verbal, Executive Communication & HR Leadership)' 
               : selectedCategory === 'FAANG High-Bar'
-              ? '🏛️ Category: FAANG High-Bar (3 Mock Exams • 25 MCQs • 60 Mins Each)'
+              ? '🏛️ Category: FAANG High-Bar (Comprehensive FAANG OA Crucibles • 25 MCQs • 60 Mins Each)'
               : `🌟 All Placement Mock Exams (${FAANG_MOCK_TESTS.length} Total)`}
           </h3>
         </div>
@@ -1086,7 +1086,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
           >
             <span>✨ AI & EMERGING TECH</span>
             <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-violet-700 text-white uppercase tracking-widest">
-              Gen AI, Agents, Claude (3)
+              {FAANG_MOCK_TESTS.filter(t => t.category === 'AI & EMERGING TECH').length} Mocks
             </span>
           </button>
 
@@ -1100,7 +1100,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
           >
             <span>📊 DOMAINS & SECURITY</span>
             <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-purple-700 text-white uppercase tracking-widest">
-              Tally, QA, DBMS, Excel (8)
+              {FAANG_MOCK_TESTS.filter(t => t.category === 'ENTERPRISE DOMAINS').length} Mocks
             </span>
           </button>
 
@@ -1114,7 +1114,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
           >
             <span>💻 TECHNICAL CORE</span>
             <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-blue-600 text-white uppercase tracking-widest">
-              C, C++, Java, Py, DSA (5)
+              {FAANG_MOCK_TESTS.filter(t => t.category === 'TECHNICAL CORE').length} Mocks
             </span>
           </button>
 
@@ -1129,7 +1129,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
             <Zap className="w-3.5 h-3.5 fill-red-400 text-red-400" />
             <span>RAPID SPRINT</span>
             <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-red-600 text-white uppercase tracking-widest">
-              25 Qs • 30M
+              {FAANG_MOCK_TESTS.filter(t => t.category === '30-MIN RAPID SPRINT').length} Mocks
             </span>
           </button>
 
@@ -1144,7 +1144,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
             <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
             <span>DAILY PRACTICE</span>
             <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-amber-400 text-slate-950 uppercase tracking-widest">
-              10 Qs
+              {FAANG_MOCK_TESTS.filter(t => t.category === 'DAILY PRACTICE').length} Mocks
             </span>
           </button>
 
@@ -1158,7 +1158,7 @@ export const FaangMockTestsView: React.FC<FaangMockTestsViewProps> = ({
           >
             <span>FAANG High-Bar</span>
             <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-slate-200 text-slate-700">
-              25 Qs
+              {FAANG_MOCK_TESTS.filter(t => t.category === 'FAANG High-Bar' || !t.category).length}
             </span>
           </button>
         </div>
